@@ -1,0 +1,87 @@
+/* Страница аккаунта */
+.account-container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.account-sidebar {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-md);
+    height: fit-content;
+}
+
+.account-user {
+    text-align: center;
+    margin-bottom: var(--space-xl);
+}
+
+.account-menu {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.account-menu-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: var(--space-md);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    border: none;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.account-menu-item.active {
+    background-color: rgba(141, 31, 44, 0.05);
+    color: var(--primary-accent);
+    font-weight: 600;
+}
+
+.account-menu-item svg {
+    min-width: 20px;
+}
+
+.account-content {
+    background-color: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-xl);
+}
+
+.form-group {
+    margin-bottom: var(--space-lg);
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: var(--radius-sm);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.donations-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.donation-item {
+    border: 1px solid #eee;
+    border-radius: var(--radius-md);
+    padding: 1rem;
+}

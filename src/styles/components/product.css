@@ -1,0 +1,473 @@
+/* Карточка товара */
+.product-card {
+    background-color: white;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Занимает всю ширину контейнера */
+    height: 100%; /* Занимает всю высоту контейнера сетки */
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+}
+
+.product-image-wrapper {
+    flex: 1;
+    position: relative;
+}
+
+.product-image {
+    height: 0;
+    padding-bottom: 100%; /* Квадратное соотношение */
+    position: relative;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.product-image .image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.product-name {
+    font-size: 1.5rem; /* Уменьшаем размер шрифта для лучшей уместности */
+    margin-bottom: var(--space-sm);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Ограничиваем тремя строками */
+    -webkit-box-orient: vertical;
+    text-align: center;
+    line-height: 1.4;
+    max-height: 4.8rem; /* 3 строки × 1.4em (высота строки) */
+}
+
+.badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 10px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    border-radius: var(--radius-sm);
+    z-index: 2;
+}
+
+.new-badge {
+    background-color: var(--accent-gold);
+    color: var(--primary-dark);
+}
+
+.product-info {
+    padding: var(--space-md);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+}
+
+.product-category {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--primary-accent);
+    margin-bottom: var(--space-xs);
+}
+
+.price-and-button {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    margin-top: auto;
+    width: 100%;
+}
+
+.product-price {
+    font-weight: bold;
+    color: var(--primary-dark);
+    margin: 0;
+    font-size: 1.8rem; /* Увеличенный размер шрифта */
+    text-align: center; /* Центрирование текста */
+    width: 100%; /* Для корректного центрирования */
+    line-height: 1.2;
+}
+
+.product-price-card {
+    font-weight: bold;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.btn.primary {
+    width: 100%;
+    margin: 0;
+}
+
+/* Страница товара */
+.product-page {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-xl);
+    padding: var(--space-xl) 0;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.product-gallery {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.main-image {
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.main-image .image-placeholder {
+    height: 500px;
+    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%,
+                                #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+                                background-size: 40px 40px;
+}
+
+.thumbnails {
+    display: flex;
+    gap: var(--space-sm);
+}
+
+.thumbnail {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #eee;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.donation-badge {
+    display: inline-block;
+    background-color: var(--accent-gold);
+    color: var(--primary-dark);
+    font-weight: bold;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    margin-bottom: var(--space-md);
+    font-size: 0.9rem;
+}
+
+.product-meta {
+    margin-bottom: 4rem; /* Увеличиваем место для подсказки */
+    position: relative; /* Необходимо для корректного позиционирования */
+}
+
+.recommended-donation {
+    background-color: var(--accent-beige);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--space-md);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.recommended-donation .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-accent);
+}
+
+.quantity-selector {
+    margin-bottom: var(--space-md);
+}
+
+.quantity-control {
+    display: flex;
+    margin-top: var(--space-xs);
+}
+
+.quantity-control button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #ddd;
+    background-color: white;
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-control input {
+    width: 60px;
+    height: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0 8px;
+    font-size: 1.1rem;
+}
+
+.add-to-cart {
+    width: 100%;
+    margin-bottom: var(--space-xl);
+}
+
+.donation-impact {
+    background-color: rgba(141, 31, 44, 0.05);
+    border-left: 4px solid var(--primary-accent);
+    padding: var(--space-md);
+    margin-bottom: var(--space-xl);
+}
+
+.donation-impact h3 {
+    margin-bottom: var(--space-sm);
+}
+
+.donation-impact ul {
+    list-style: none;
+}
+
+.donation-impact li {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.donation-impact svg {
+    color: var(--primary-accent);
+    margin-right: var(--space-sm);
+}
+
+/* Похожие товары */
+.related-products {
+    margin-top: var(--space-xxl);
+}
+
+.related-products h2 {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-xl);
+    text-align: center;
+}
+
+/* Стили для изображений */
+.tshirt {
+    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%,
+                                #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+                                background-size: 40px 40px;
+}
+
+.cd {
+    background: radial-gradient(circle, #d4af37 30%, #c19d30 70%);
+}
+
+.pin {
+    background: linear-gradient(135deg, #0a2240 40%, #8d1f2c 40%);
+}
+
+.mug {
+    background: linear-gradient(to right, #f5f0e5 40%, #0a2240 40%);
+}
+
+.sweatshirt {
+    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+    background-size: 40px 40px;
+}
+
+.hoodie {
+    background: linear-gradient(to right, #3a3a3a 40%, #8d1f2c 40%);
+}
+
+.polo {
+    background: radial-gradient(circle, #f5f0e5 30%, #e0d8c5 70%);
+}
+
+.bag {
+    background: linear-gradient(to right, #f5f0e5 40%, #0a2240 40%);
+}
+
+.scarf {
+    background: linear-gradient(135deg, #d4af37 40%, #b89a2e 40%);
+}
+
+.vinyl {
+    background: radial-gradient(circle, #d4af37 30%, #c19d30 70%);
+}
+
+.sheet-music {
+    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+    background-size: 20px 20px;
+}
+
+.victory-songs {
+    background: linear-gradient(135deg, #0a2240 40%, #8d1f2c 40%);
+}
+
+.gift-set {
+    background: linear-gradient(135deg, #0a2240 40%, #d4af37 40%);
+}
+
+.medal {
+    background: radial-gradient(circle, #d4af37 30%, #c19d30 70%);
+}
+
+.photo-album {
+    background: linear-gradient(to right, #f5f0e5 40%, #0a2240 40%);
+}
+
+.golden-voices {
+    background: linear-gradient(135deg, #d4af37 40%, #b89a2e 40%);
+}
+
+/* Стили для выбора размера */
+.size-selector {
+    margin-bottom: var(--space-md);
+}
+
+.size-selector h3 {
+    margin-bottom: var(--space-xs);
+}
+
+.size-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+}
+
+.size-option {
+    padding: var(--space-xs) var(--space-md);
+    border: 1px solid #ddd;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.size-option.selected {
+    background-color: var(--primary-accent);
+    color: white;
+    border-color: var(--primary-accent);
+}
+/* Стили для правого сердечка */
+.product-info button[onClick] {
+    position: relative; /* Необходимо для абсолютного позиционирования дочерних элементов */
+    overflow: visible; /* Разрешаем отображению контента за границы кнопки */
+}
+
+.heart-tooltip {
+    position: absolute;
+    right: 100%; /* Позиционируем слева от кнопки */
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #333;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.2s ease;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    margin-right: 8px; /* Отступ между тултипом и сердечком */
+}
+
+.heart-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: transparent transparent transparent #fff;
+}
+
+.product-info button[onClick]:hover .heart-tooltip {
+    opacity: 1;
+}
+.product-category-badge {
+    background-color: var(--accent-beige);
+    color: var(--primary-accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+*
+/* Адаптивные стили */
+@media (max-width: 992px) {
+    .product-page {
+        grid-template-columns: 1fr;
+        padding: var(--space-md);
+    }
+
+    .product-gallery {
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .product-image {
+        padding-bottom: 133.33%; /* 3:4 соотношение для мобильных устройств */
+    }
+
+    .product-name {
+        font-size: 0.85rem;
+        padding: 6px 8px;
+    }
+
+    .price-and-button {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    .product-price {
+        margin-right: var(--space-sm);
+    }
+
+    .btn.primary {
+        width: auto;
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .heart-tooltip {
+        right: auto;
+        left: 50%;
+        top: 100%;
+        transform: translateX(-50%);
+        margin-top: 8px;
+        margin-right: 0;
+    }
+
+    .heart-tooltip::after {
+        left: 50%;
+        top: -12px;
+        transform: translateX(-50%);
+        border-color: transparent transparent #fff transparent;
+    }
+}
+
+@media (max-width: 768px) {
+    .product-card {
+        height: 380px; /* Еще меньше на мобильных */
+        max-width: 100%; /* Занимают всю доступную ширину */
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        height: 360px;
+    }
+}

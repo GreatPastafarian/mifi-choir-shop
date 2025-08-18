@@ -1,154 +1,19 @@
 import React, { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import ProductCard from '../components/ProductCard';
+import ProductCard from '../components/product/ProductCard';
+import SortFilter from '../components/product/SortFilter';
+import { getCategories, getProductsByCategory } from '../data/products';
 
-function CategoryPage({ addToCart }) {
+function CategoryPage({ addToCart, toggleFavorite, favorites }) {
     const { id } = useParams();
-    const [activeFilter] = useState('all');
     const [sortOption, setSortOption] = useState('default');
 
-    // Определение категорий
-    const categories = [
-        { id: 1, name: "Одежда" },
-        { id: 2, name: "Аксессуары" },
-        { id: 3, name: "Музыка" },
-        { id: 4, name: "Коллекционные издания" }
-    ];
-
-    // Примеры товаров для каждой категории
-    const categoryProducts = {
-        1: [
-            {
-                id: 5,
-                name: "Свитшот с эмблемой хора",
-                category: "Одежда",
-                price: 2500,
-                image: "sweatshirt"
-            },
-            {
-                id: 9,
-                name: "Футболка с логотипом",
-                category: "Одежда",
-                price: 1500,
-                image: "tshirt"
-            },
-            {
-                id: 10,
-                name: "Толстовка с капюшоном",
-                category: "Одежда",
-                price: 2800,
-                image: "hoodie"
-            },
-            {
-                id: 11,
-                name: "Поло с символикой",
-                category: "Одежда",
-                price: 2200,
-                image: "polo"
-            }
-        ],
-        2: [
-            {
-                id: 7,
-                name: "Эко-сумка с принтом",
-                category: "Аксессуары",
-                price: 800,
-                image: "bag"
-            },
-            {
-                id: 12,
-                name: "Значок хора",
-                category: "Аксессуары",
-                price: 300,
-                image: "pin"
-            },
-            {
-                id: 13,
-                name: "Термокружка",
-                category: "Аксессуары",
-                price: 1200,
-                image: "mug"
-            },
-            {
-                id: 14,
-                name: "Шарф с символикой",
-                category: "Аксессуары",
-                price: 1800,
-                image: "scarf"
-            }
-        ],
-        3: [
-            {
-                id: 6,
-                name: "Лимитированная виниловая пластинка",
-                category: "Музыка",
-                price: 3500,
-                image: "vinyl"
-            },
-            {
-                id: 15,
-                name: "CD с записью концерта",
-                category: "Музыка",
-                price: 800,
-                image: "cd"
-            },
-            {
-                id: 16,
-                name: "Ноты любимых произведений",
-                category: "Музыка",
-                price: 1200,
-                image: "sheet-music"
-            },
-            {
-                id: 17,
-                name: "Подарочный набор 'Песни Победы'",
-                category: "Музыка",
-                price: 2500,
-                image: "victory-songs"
-            }
-        ],
-        4: [
-            {
-                id: 8,
-                name: "Подарочный набор к 60-летию хора",
-                category: "Коллекционные издания",
-                price: 5000,
-                image: "gift-set"
-            },
-            {
-                id: 18,
-                name: "Юбилейная медаль",
-                category: "Коллекционные издания",
-                price: 2000,
-                image: "medal"
-            },
-            {
-                id: 19,
-                name: "Эксклюзивный фотоальбом",
-                category: "Коллекционные издания",
-                price: 3500,
-                image: "photo-album"
-            },
-            {
-                id: 20,
-                name: "Подарочная коробка 'Золотые голоса'",
-                category: "Коллекционные издания",
-                price: 4500,
-                image: "golden-voices"
-            }
-        ]
-    };
-
+    const categories = getCategories();
+    const allProducts = getProductsByCategory(id);
     const currentCategory = categories.find(cat => cat.id === parseInt(id));
-    const products = categoryProducts[id] || [];
-
-    // Фильтрация товаров
-    const filteredProducts = activeFilter === 'all'
-    ? products
-    : products.filter(product => product.price <= (activeFilter === 'low' ? 1500 : 3000));
 
     // Сортировка товаров
-    let sortedProducts = [...filteredProducts];
+    let sortedProducts = [...allProducts];
 
     switch(sortOption) {
         case 'price_asc':
@@ -162,6 +27,12 @@ function CategoryPage({ addToCart }) {
             break;
         case 'name_desc':
             sortedProducts.sort((a, b) => b.name.localeCompare(a.name, 'ru'));
+            break;
+        case 'newest':
+            sortedProducts.sort((a, b) => new Date(b.publicationDate) - new Date(a.publicationDate));
+            break;
+        case 'popular':
+            sortedProducts.sort((a, b) => b.salesCount - a.salesCount);
             break;
         default:
             // Без сортировки
@@ -178,6 +49,10 @@ function CategoryPage({ addToCart }) {
             </div>
         );
     }
+
+    const handleSortChange = (sort) => {
+        setSortOption(sort);
+    };
 
     return (
         <div className="category-page">
@@ -208,30 +83,20 @@ function CategoryPage({ addToCart }) {
         <span>›</span>
         <Link to="/shop">Каталог</Link>
         <span>›</span>
-        <span>{currentCategory ? currentCategory.name : 'Загрузка...'}</span>
+        <span>{currentCategory.name}</span>
         </div>
 
         {/* Заголовок категории */}
-        <h1 className="category-title">{currentCategory ? currentCategory.name : 'Загрузка...'}</h1>
+        <h1 className="category-title">{currentCategory.name}</h1>
 
-        {/* Сортировка и количество товаров */}
-        <div className="filter-bar">
-        <div className="sort-filter">
-        <label>Сортировка:</label>
-        <select
-        value={sortOption}
-        onChange={(e) => setSortOption(e.target.value)}
-        >
-        <option value="default">Без сортировки</option>
-        <option value="price_asc">По цене: от низкой к высокой</option>
-        <option value="price_desc">По цене: от высокой к низкой</option>
-        <option value="name_asc">По названию: от А до Я</option>
-        <option value="name_desc">По названию: от Я до А</option>
-        </select>
-        </div>
+        {/* Сортировка */}
+        <SortFilter
+        onSortChange={handleSortChange}
+        />
+
+        {/* Количество товаров */}
         <div className="product-count">
-        Всего найдено: {sortedProducts.length}
-        </div>
+        Найдено: {sortedProducts.length} {sortedProducts.length === 1 ? 'товар' : 'товаров'}
         </div>
 
         {/* Грид с товарами */}
@@ -241,6 +106,8 @@ function CategoryPage({ addToCart }) {
             key={product.id}
             product={product}
             addToCart={addToCart}
+            toggleFavorite={toggleFavorite}
+            isFavorite={favorites.some(fav => fav.id === product.id)}
             />
         ))}
         </div>

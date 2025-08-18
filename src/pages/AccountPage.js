@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { MdPerson, MdShoppingCart, MdHistory, MdSettings } from 'react-icons/md';
+import { MdPerson, MdShoppingCart, MdSettings } from 'react-icons/md';
 
 function AccountPage() {
     const [activeTab, setActiveTab] = useState('profile');

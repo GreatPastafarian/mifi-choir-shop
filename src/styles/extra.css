@@ -1,0 +1,153 @@
+/* Дополнительные стили */
+/* Адаптивность */
+@media (max-width: 992px) {
+    .items-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .footer-main {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: flex;
+    }
+
+    .nav {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--primary-dark);
+        flex-direction: column;
+        align-items: center;
+        padding: var(--space-md) 0;
+        gap: 0;
+        clip-path: polygon(0 0, 100% 0, 100% 0, 0 0);
+        transition: clip-path 0.3s ease;
+    }
+
+    .nav.open {
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+    }
+
+    .nav a {
+        width: 100%;
+        text-align: center;
+        padding: var(--space-md) 0;
+    }
+
+    .steps {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .step {
+        max-width: 100%;
+    }
+
+    .items-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .about-content {
+        flex-direction: column;
+    }
+
+    .product-page {
+        grid-template-columns: 1fr;
+        padding: var(--space-md);
+    }
+
+    .cart-container {
+        grid-template-columns: 1fr;
+    }
+
+    .checkout-steps {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xl);
+    }
+
+    .checkout-steps::before {
+        display: none;
+    }
+
+    .step {
+        flex-direction: row;
+        gap: var(--space-md);
+    }
+
+    .step-number {
+        margin-bottom: 0;
+    }
+}
+
+@media (max-width: 576px) {
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+
+    .hero-content p {
+        font-size: 1rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .footer-main {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Стили для подтверждения добавления в корзину */
+.cart-confirmation {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    background-color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 1000;
+    animation: slideIn 0.3s ease, fadeOut 0.5s 1.5s forwards;
+    border-left: 4px solid #4CAF50;
+}
+
+.confirmation-content {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+}

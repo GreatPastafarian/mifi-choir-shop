@@ -1,0 +1,93 @@
+/* Основные стили для приложения */
+:root {
+    /* Цветовая схема */
+    --primary-dark: #0a2240; /* Темно-синий */
+    --primary-accent: #8d1f2c; /* Бордовый */
+    --accent-gold: #d4af37; /* Золотой */
+    --accent-beige: #f5f0e5; /* Бежевый */
+    --background: #fffdf5; /* Кремово-белый */
+    --text-dark: #333; /* Темно-серый */
+    --text-light: #fff; /* Белый */
+
+    /* Тени */
+    --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+    --shadow-lg: 0 8px 16px rgba(0,0,0,0.1);
+
+    /* Радиусы */
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+
+    /* Отступы */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 16px;
+    --space-lg: 24px;
+    --space-xl: 32px;
+    --space-xxl: 48px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--background);
+    color: var(--text-dark);
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    color: var(--primary-dark);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--space-md);
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.btn.primary {
+    background-color: var(--primary-accent);
+    color: var(--text-light);
+}
+
+.btn.primary:hover {
+    background-color: #7a1a26;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+.btn.secondary {
+    background-color: transparent;
+    border: 1px solid var(--primary-accent);
+    color: var(--primary-accent);
+}
+
+.btn.secondary:hover {
+    background-color: rgba(141, 31, 44, 0.05);
+    transform: translateY(-2px);
+}
