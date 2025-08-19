@@ -5,6 +5,7 @@ import {
     MdPerson,
     MdFavorite
 } from 'react-icons/md';
+import choirLogo from '../../assets/images/logo.jpg';
 
 function Header({ cartCount, favoritesCount }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -19,10 +20,40 @@ function Header({ cartCount, favoritesCount }) {
 
         <div className="header-main">
         <div className="logo-container">
-        <div className="logo">
-        <div className="logo-inner">
-        <div className="logo-text">Хор МИФИ</div>
-        <div className="logo-subtext">Академический мужской хор</div>
+        <div className="header-column" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.5rem'
+        }}>
+        <div className="logo-header" style={{ display: 'flex', alignItems: 'center' }}>
+        <img
+        src={choirLogo}
+        alt="Логотип Хора МИФИ"
+        style={{
+            width: '70px',
+            height: '70px',
+            borderRadius: '50%',
+            border: '2px solid #d4af37',
+            marginRight: '1rem'
+        }}
+        />
+        <div>
+        <h2 style={{
+            fontSize: '1.5rem',
+            fontWeight: '700',
+            color: '#d4af37',
+            marginBottom: '0.25rem'
+        }}>
+        Хор МИФИ
+        </h2>
+        <p style={{
+            fontSize: '0.9rem',
+            color: '#f0f0f0',
+            maxWidth: '200px'
+        }}>
+        Академический мужской хор
+        </p>
+        </div>
         </div>
         </div>
         </div>
