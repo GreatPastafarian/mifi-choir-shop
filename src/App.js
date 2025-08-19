@@ -66,15 +66,6 @@ function App() {
   };
 
   const addToCart = (product) => {
-    setFavorites(prevFavorites => {
-      const isFavorite = prevFavorites.some(item => item.id === product.id);
-      if (isFavorite) {
-        return prevFavorites.filter(item => item.id !== product.id);
-      } else {
-        return [...prevFavorites, product];
-      }
-    });
-
     setCart(prevCart => {
       const existingItem = prevCart.find(item => item.id === product.id);
       if (existingItem) {
@@ -102,7 +93,7 @@ function App() {
     setCart(newCart);
   };
 
-  const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
+  const cartCount = cart.length;
   const favoritesCount = favorites.length;
 
   return (

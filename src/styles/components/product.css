@@ -189,16 +189,17 @@
 
 .quantity-control {
     display: flex;
-    margin-top: var(--space-xs);
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
 }
 
 .quantity-control button {
-    width: 40px;
-    height: 40px;
+    width: 35px;
+    height: 35px;
     border-radius: 50%;
     border: 1px solid #ddd;
-    background-color: white;
-    font-size: 1.5rem;
+    background-color: #fff;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -206,12 +207,17 @@
 }
 
 .quantity-control input {
-    width: 60px;
-    height: 40px;
+    width: 70px;
+    height: 35px;
     text-align: center;
     border: 1px solid #ddd;
-    margin: 0 8px;
-    font-size: 1.1rem;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.quantity-control button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .add-to-cart {
