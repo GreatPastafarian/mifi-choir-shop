@@ -11,6 +11,7 @@ import AboutPage from './pages/AboutPage';
 import ContactsPage from './pages/ContactsPage';
 import AccountPage from './pages/AccountPage';
 import FavoritesPage from './pages/FavoritesPage';
+import ScrollToTop from './components/layout/ScrollToTop';
 
 // Компоненты
 import Header from './components/layout/Header';
@@ -98,6 +99,7 @@ function App() {
 
   return (
     <Router>
+    <ScrollToTop />
     <div className="app">
     <Header
     cartCount={cartCount}

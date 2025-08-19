@@ -7,8 +7,17 @@ function ProductCard({ product, addToCart, toggleFavorite, isFavorite = false })
 
     // Функция для прокрутки вверх и перехода на страницу товара
     const handleCardClick = (e) => {
-        e.stopPropagation();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Проверяем, был ли клик по кнопке или её дочерним элементам
+        if (
+            e.target.closest('button') ||
+            e.target.closest('.favorite-icon') ||
+            e.target.tagName === 'BUTTON' ||
+            e.target.tagName === 'SVG' ||
+            e.target.tagName === 'PATH'
+        ) {
+            return;
+        }
+        // Убираем window.scrollTo, так как это теперь делается автоматически
         navigate(`/product/${product.id}`);
     };
 
