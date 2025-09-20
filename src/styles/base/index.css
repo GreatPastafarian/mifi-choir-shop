@@ -1,0 +1,29 @@
+/* Глобальные стили, переменные, сбросы */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Open+Sans:wght@400;500;600&display=swap');
+
+/* Базовые стили */
+@import './reset.css';
+@import './typography.css';
+@import './utilities.css';
+@import './variables.css';
+
+/* Компоненты */
+@import '../components/button.css';
+@import '../components/form.css';
+@import '../components/card.css';
+@import '../components/header.css';
+@import '../components/footer.css';
+@import '../components/cart.css';
+@import '../components/product.css';
+@import '../components/ui.css';
+@import '../components/admin-panel.css';
+
+/* Страницы */
+@import '../pages/home.css';
+@import '../pages/shop.css';
+@import '../pages/product.css';
+@import '../pages/category.css';
+@import '../pages/checkout.css';
+@import '../pages/account.css';
+@import '../pages/contacts.css';
+@import '../pages/favorites.css';

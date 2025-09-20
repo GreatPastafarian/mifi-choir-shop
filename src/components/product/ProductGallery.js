@@ -1,185 +1,199 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import api from '../../services/api';
 
-function ProductGallery({ images, inStock, isFavorite = false, toggleFavorite = () => {} }) {
-    const [activeImageIndex, setActiveImageIndex] = useState(0);
-    const [isFullscreen, setIsFullscreen] = useState(false);
+function ProductGallery({ images, inStock, isFavorite, toggleFavorite }) {
+  const { user } = useAuth();
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [imageError, setImageError] = useState({});
 
-    const handleImageClick = (index) => {
-        setActiveImageIndex(index);
-        setIsFullscreen(true);
-    };
+  // Получаем базовый URL для изображений
+  const imageBaseUrl = api.IMAGE_BASE_URL || 'http://localhost:5000';
 
-    const handleFullscreenClose = () => {
-        setIsFullscreen(false);
-    };
+  // Проверяем, что images - массив и имеет хотя бы одно изображение
+  const validImages = Array.isArray(images) && images.length > 0 ? images : [];
 
-    const handlePrevImage = (e) => {
-        e.stopPropagation();
-        setActiveImageIndex((prev) => (prev > 0 ? prev - 1 : images.length - 1));
-    };
+  // Формируем правильный URL для изображений
+  const getImageUrl = (image) => {
+    if (!image) return '/placeholder.jpg';
 
-    const handleNextImage = (e) => {
-        e.stopPropagation();
-        setActiveImageIndex((prev) => (prev < images.length - 1 ? prev + 1 : 0));
-    };
+    // Если изображение уже содержит полный URL, возвращаем его
+    if (image.startsWith('http')) {
+      return image;
+    }
 
-    return (
-        <div className="product-gallery">
-        {/* Основное изображение */}
-        <div
+    // Если изображение начинается с /uploads
+    if (image.startsWith('/uploads')) {
+      return `${imageBaseUrl}${image}`;
+    }
+
+    // Если изображение без префикса /uploads
+    return `${imageBaseUrl}/uploads${image.startsWith('/') ? '' : '/'}${image}`;
+  };
+
+  const handleImageError = (index) => {
+    setImageError((prev) => ({ ...prev, [index]: true }));
+  };
+
+  return (
+    <div
+      className="product-gallery"
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '1rem',
+      }}
+    >
+      {/* Основное изображение */}
+      <div
         className="main-image"
         style={{
-            position: 'relative',
-            cursor: 'pointer',
-            borderRadius: '8px',
-            overflow: 'hidden'
+          position: 'relative',
+          aspectRatio: '1/1',
+          backgroundColor: '#f9f9f9',
+          borderRadius: '8px',
+          overflow: 'hidden',
         }}
-        onClick={() => handleImageClick(activeImageIndex)}
-        >
-        <div className="image-container" style={{
-            height: '500px',
-            background: `url(${images[activeImageIndex]}) no-repeat center center/cover`,
-            borderRadius: '8px'
-        }} />
-
-        {/* Наличие товара */}
-        {inStock > 0 ? (
-            <div style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                backgroundColor: '#e8f5e9',
-                color: '#388e3c',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '20px',
-                fontWeight: '600'
-            }}>
-            В наличии: {inStock} шт.
-            </div>
+      >
+        {validImages.length > 0 && !imageError[currentImageIndex] ? (
+          <img
+            src={getImageUrl(validImages[currentImageIndex])}
+            alt={`Товар - ${currentImageIndex + 1}`}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            }}
+            onError={() => handleImageError(currentImageIndex)}
+          />
         ) : (
-            <div style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                backgroundColor: '#ffebee',
-                color: '#d32f2f',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '20px',
-                fontWeight: '600'
-            }}>
+          <div
+            style={{
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: '#f9f9f9',
+            }}
+          >
+            <div
+              className="image-placeholder"
+              style={{
+                height: '80%',
+                width: '80%',
+                background:
+                  'linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%)',
+                backgroundSize: '40px 40px',
+              }}
+            ></div>
+          </div>
+        )}
+
+        {/* Индикатор наличия на складе */}
+        {inStock > 0 ? (
+          <div
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              left: '1rem',
+              backgroundColor: '#4caf50',
+              color: 'white',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+            }}
+          >
+            В наличии ({inStock})
+          </div>
+        ) : (
+          <div
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              left: '1rem',
+              backgroundColor: '#f44336',
+              color: 'white',
+              padding: '0.25rem 0.75rem',
+              borderRadius: '20px',
+              fontSize: '0.85rem',
+            }}
+          >
             Нет в наличии
-            </div>
+          </div>
         )}
-        </div>
 
-        {/* Миниатюры */}
-        <div className="thumbnails" style={{
+        {/* Кнопка избранного */}
+        {user && (
+          <button
+            type="button"
+            onClick={toggleFavorite}
+            style={{
+              position: 'absolute',
+              top: '1rem',
+              right: '1rem',
+              background: 'rgba(255, 255, 255, 0.8)',
+              border: 'none',
+              borderRadius: '50%',
+              width: '36px',
+              height: '36px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              zIndex: 10,
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+            }}
+          >
+            {isFavorite ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#d32f2f">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              </svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#555">
+                <path d="M16.5 3c-1.74 0-3.41.81-4.5 2.09C10.91 3.81 8.5 3 7.5 3 4.42 3 2 5.42 2 8.5c0 3.78 3.4 6.86 8.55 11.54L12 21.35l1.45-1.32C18.6 15.36 22 12.28 22 8.5 22 5.42 19.58 3 16.5 3zm-4.4 15.55l-.1.1-.1-.1C11.45 18.01 8.5 15.1 8.5 11.5 8.5 9.07 10.47 7.1 13 7.1c2.53 0 4.5 1.97 4.5 4.4 0 3.59-2.95 6.49-7.1 10.05z" />
+              </svg>
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Миниатюры */}
+      {validImages.length > 1 && (
+        <div
+          className="thumbnails"
+          style={{
             display: 'flex',
-            gap: '1rem',
-            marginTop: '1rem',
+            gap: '0.5rem',
             overflowX: 'auto',
-            padding: '0.5rem 0'
-        }}>
-        {images.map((image, index) => (
-            <div
-            key={index}
-            className={`thumbnail ${index === activeImageIndex ? 'active' : ''}`}
-            style={{
-                width: '80px',
-                height: '80px',
-                borderRadius: '8px',
-                border: index === activeImageIndex ? '2px solid #8d1f2c' : '1px solid #ddd',
-                cursor: 'pointer',
-                flexShrink: 0,
-                background: `url(${image}) no-repeat center center/cover`
-            }}
-            onClick={() => setActiveImageIndex(index)}
-            />
-        ))}
+            padding: '0.5rem 0',
+          }}
+        >
+          {validImages.map(
+            (image, index) =>
+              !imageError[index] && (
+                <img
+                  key={index}
+                  src={getImageUrl(image)}
+                  alt={`Миниатюра ${index + 1}`}
+                  style={{
+                    width: '60px',
+                    height: '60px',
+                    objectFit: 'cover',
+                    borderRadius: '4px',
+                    border: currentImageIndex === index ? '2px solid #8d1f2c' : '1px solid #ddd',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                  }}
+                  onClick={() => setCurrentImageIndex(index)}
+                  onError={() => handleImageError(index)}
+                />
+              )
+          )}
         </div>
-
-        {/* Модальное окно для полноэкранного просмотра изображения */}
-        {isFullscreen && (
-            <div
-            className="fullscreen-modal"
-            style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(0,0,0,0.9)',
-                          zIndex: 1000,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center'
-            }}
-            onClick={handleFullscreenClose}
-            >
-            <button
-            onClick={handleFullscreenClose}
-            style={{
-                position: 'absolute',
-                top: '2rem',
-                right: '2rem',
-                background: 'none',
-                border: 'none',
-                color: 'white',
-                fontSize: '2rem',
-                cursor: 'pointer'
-            }}
-            >
-            &times;
-            </button>
-
-            <button
-            onClick={handlePrevImage}
-            style={{
-                position: 'absolute',
-                left: '2rem',
-                background: 'rgba(255,255,255,0.2)',
-                          border: 'none',
-                          color: 'white',
-                          width: '50px',
-                          height: '50px',
-                          borderRadius: '50%',
-                          fontSize: '1.5rem',
-                          cursor: 'pointer'
-            }}
-            >
-            {'<'}
-            </button>
-
-            <div
-            className="fullscreen-image"
-            style={{
-                width: '90%',
-                height: '90%',
-                background: `url(${images[activeImageIndex]}) no-repeat center center/contain`
-            }}
-            />
-
-            <button
-            onClick={handleNextImage}
-            style={{
-                position: 'absolute',
-                right: '2rem',
-                background: 'rgba(255,255,255,0.2)',
-                          border: 'none',
-                          color: 'white',
-                          width: '50px',
-                          height: '50px',
-                          borderRadius: '50%',
-                          fontSize: '1.5rem',
-                          cursor: 'pointer'
-            }}
-            >
-            {'>'}
-            </button>
-            </div>
-        )}
-        </div>
-    );
+      )}
+    </div>
+  );
 }
 
 export default ProductGallery;

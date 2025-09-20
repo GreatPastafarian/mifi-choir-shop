@@ -1,0 +1,90 @@
+.card {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-md);
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-image {
+  height: 0;
+  padding-bottom: 100%; /* Квадратное соотношение */
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.card-image .image-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.card-content {
+  padding: var(--space-md);
+}
+
+.card-title {
+  font-size: var(--font-size-lg);
+  margin-bottom: var(--space-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  height: 2.4rem;
+}
+
+.card-category {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+}
+
+.card-price {
+  font-weight: bold;
+  color: var(--primary-dark);
+  font-size: var(--font-size-xl);
+  margin: var(--space-xs) 0;
+}
+
+.price-and-button {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-top: auto;
+  width: 100%;
+}
+
+.badge {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: bold;
+  z-index: 2;
+}
+
+.new-badge {
+  background-color: var(--accent-gold);
+  color: var(--primary-dark);
+}
+
+.product-category-badge {
+  background-color: var(--accent-beige);
+  color: var(--primary);
+  padding: var(--space-xs) calc(var(--space-xs) * 2);
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}

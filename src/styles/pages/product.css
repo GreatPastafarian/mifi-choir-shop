@@ -1,32 +1,32 @@
 /* Страница товара - дополнительные стили */
 .related-products {
-    margin-top: 4rem;
+  margin-top: var(--space-xxl);
 }
 
 .related-products h2 {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    text-align: center;
+  font-size: var(--font-size-3xl);
+  margin-bottom: var(--space-xl);
+  text-align: center;
 }
 
 /* Стили для полноэкранного просмотра изображений */
 .fullscreen-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.9);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .fullscreen-image {
-    width: 90%;
-    height: 90%;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+  width: 90%;
+  height: 90%;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
 }

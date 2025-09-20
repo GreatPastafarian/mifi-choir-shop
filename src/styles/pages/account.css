@@ -1,87 +1,287 @@
-/* Страница аккаунта */
+/* Глобальные стили для страницы личного кабинета */
 .account-container {
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    gap: 2rem;
-    margin-top: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--space-xl);
 }
 
-.account-sidebar {
-    background-color: white;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    padding: var(--space-md);
-    height: fit-content;
+.account-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
 }
 
-.account-user {
-    text-align: center;
-    margin-bottom: var(--space-xl);
+.account-header h1 {
+  font-size: var(--font-size-4xl);
+  color: var(--text-dark);
 }
 
-.account-menu {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm);
+.logout-btn {
+  background: none;
+  border: 1px solid var(--primary);
+  color: var(--primary);
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--transition-md);
 }
 
-.account-menu-item {
-    display: flex;
-    align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-md);
-    border-radius: var(--radius-sm);
-    background-color: transparent;
-    border: none;
-    text-align: left;
-    width: 100%;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.account-menu-item.active {
-    background-color: rgba(141, 31, 44, 0.05);
-    color: var(--primary-accent);
-    font-weight: 600;
-}
-
-.account-menu-item svg {
-    min-width: 20px;
+.logout-btn:hover {
+  background-color: var(--primary);
+  color: var(--text-light);
 }
 
 .account-content {
-    background-color: white;
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
-    padding: var(--space-xl);
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--space-xl);
 }
 
-.form-group {
-    margin-bottom: var(--space-lg);
+.account-sidebar {
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-lg);
+  height: fit-content;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: var(--space-xs);
-    font-weight: 600;
+.user-info {
+  text-align: center;
+  margin-bottom: var(--space-xl);
 }
 
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #ddd;
-    border-radius: var(--radius-sm);
-    font-family: 'Open Sans', sans-serif;
+.user-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-full);
+  background-color: var(--accent-beige);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-md);
+  color: var(--primary);
+}
+
+.user-info h2 {
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-xs);
+}
+
+.user-joined {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.account-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-md);
+  color: var(--text-dark);
+}
+
+.menu-item:hover {
+  background-color: var(--accent-beige);
+}
+
+.menu-item.active {
+  background-color: var(--primary);
+  color: var(--text-light);
+}
+
+.account-main {
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-xl);
+}
+
+.tab-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.tab-header h2 {
+  font-size: var(--font-size-3xl);
+  color: var(--text-dark);
+}
+
+.alert {
+  padding: var(--space-md);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-lg);
+}
+
+.alert.error {
+  background-color: #ffebee;
+  color: #b71c1c;
+  border: 1px solid #f5c6cb;
+}
+
+.alert.success {
+  background-color: #e8f5e9;
+  color: #1b5e20;
+  border: 1px solid #c3e6cb;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-item label {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.info-item p {
+  font-size: var(--font-size-lg);
+  color: var(--text-secondary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary);
+}
+
+.empty-state svg {
+  margin-bottom: var(--space-md);
+  color: var(--text-light);
+}
+
+.empty-state p {
+  margin-bottom: var(--space-lg);
+  font-size: var(--font-size-lg);
 }
 
 .donations-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
 .donation-item {
-    border: 1px solid #eee;
-    border-radius: var(--radius-md);
-    padding: 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  transition: all var(--transition-md);
+}
+
+.donation-item:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.donation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-md);
+}
+
+.donation-date {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.donation-details p {
+  margin-bottom: var(--space-xs);
+}
+
+.settings-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.settings-form .form-group {
+  margin-bottom: var(--space-xs);
+}
+
+.donation-status {
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.donation-status.ожидает-проверки {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.donation-status.завершено {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.donation-status.отклонено {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .account-content {
+    grid-template-columns: 1fr;
+  }
+
+  .account-sidebar {
+    margin-bottom: var(--space-lg);
+  }
+
+  .account-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-md);
+  }
+
+  .tab-header {
+    flex-direction: column;
+    gap: var(--space-md);
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .auth-buttons {
+    flex-direction: column;
+  }
 }

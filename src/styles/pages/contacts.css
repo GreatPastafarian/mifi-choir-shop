@@ -1,45 +1,105 @@
 /* Страница контактов */
 .contact-info-page {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    margin-top: 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
 }
 
 .contact-details {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
 }
 
 .contact-item {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .contact-item svg {
-    margin-right: 1rem;
+  margin-right: var(--space-sm);
+  color: var(--primary);
+  min-width: 24px;
 }
 
 .contact-form-section {
-    margin-top: 3rem;
+  margin-top: var(--space-xxl);
 }
 
 .contact-form {
-    max-width: 600px;
-    margin: 1.5rem 0;
+  max-width: 600px;
+  margin: var(--space-lg) 0;
 }
 
 /* Стили для балуна Яндекс Карты */
 .ymaps-2-1-79-balloon__content {
-    font-family: 'Open Sans', sans-serif !important;
+  font-family: 'Open Sans', sans-serif !important;
 }
 
 .ymaps-2-1-79-balloon__content h3 {
-    color: var(--primary-dark) !important;
-    margin: 0 0 8px !important;
+  color: var(--primary-dark) !important;
+  margin: 0 0 var(--space-xs) !important;
 }
 
 .ymaps-2-1-79-balloon__content p {
-    margin: 0 0 8px !important;
+  margin: 0 0 var(--space-xs) !important;
+}
+
+@media (max-width: 992px) {
+  .contact-info-page {
+    grid-template-columns: 1fr;
+  }
+} /* Страница контактов */
+.contact-info-page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-xl);
+  margin-top: var(--space-xl);
+}
+
+.contact-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+}
+
+.contact-item svg {
+  margin-right: var(--space-sm);
+  color: var(--primary);
+  min-width: 24px;
+}
+
+.contact-form-section {
+  margin-top: var(--space-xxl);
+}
+
+.contact-form {
+  max-width: 600px;
+  margin: var(--space-lg) 0;
+}
+
+/* Стили для балуна Яндекс Карты */
+.ymaps-2-1-79-balloon__content {
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.ymaps-2-1-79-balloon__content h3 {
+  color: var(--primary-dark) !important;
+  margin: 0 0 var(--space-xs) !important;
+}
+
+.ymaps-2-1-79-balloon__content p {
+  margin: 0 0 var(--space-xs) !important;
+}
+
+@media (max-width: 992px) {
+  .contact-info-page {
+    grid-template-columns: 1fr;
+  }
 }

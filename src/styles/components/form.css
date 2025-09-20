@@ -1,0 +1,118 @@
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  margin-bottom: var(--space-md);
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: var(--font-size-md);
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  padding: var(--space-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-family: 'Open Sans', sans-serif;
+  font-size: var(--font-size-md);
+  transition: all var(--transition-sm);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(141, 31, 44, 0.1);
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: var(--text-secondary);
+}
+
+.form-group.checkbox {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-md);
+  margin: var(--space-xs) 0;
+}
+
+.form-group.checkbox label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-weight: normal;
+  cursor: pointer;
+}
+
+.form-group.checkbox input {
+  width: auto;
+  margin: 0;
+}
+
+.form-row {
+  display: flex;
+  gap: var(--space-md);
+}
+
+.form-row > * {
+  flex: 1;
+}
+
+.quantity-control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-top: var(--space-xs);
+}
+
+.quantity-control button {
+  width: 35px;
+  height: 35px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background-color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.quantity-control input {
+  width: 70px;
+  height: 35px;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: var(--space-xs);
+}
+
+.quantity-control button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.size-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+}
+
+.size-option {
+  padding: var(--space-xs) var(--space-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-md);
+}
+
+.size-option.selected {
+  background-color: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}

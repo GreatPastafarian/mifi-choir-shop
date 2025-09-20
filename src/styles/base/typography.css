@@ -1,0 +1,33 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--space-md);
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.font-bold {
+  font-weight: 600;
+}
+
+.font-semibold {
+  font-weight: 500;
+}
+
+.font-normal {
+  font-weight: 400;
+}
+
+.italic {
+  font-style: italic;
+}

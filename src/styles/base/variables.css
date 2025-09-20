@@ -1,0 +1,55 @@
+:root {
+  /* Цветовая схема */
+  --color-primary-dark: #0a2240;
+  --color-primary-accent: #8d1f2c;
+  --color-accent-gold: #d4af37;
+  --color-accent-beige: #f5f0e5;
+  --color-background: #fffdf5;
+  --color-text-dark: #333;
+  --color-text-light: #fff;
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-error: #dc3545;
+  --color-gray-100: #f8f9fa;
+  --color-gray-200: #e9ecef;
+  --color-gray-300: #dee2e6;
+  --color-gray-400: #ced4da;
+  --color-gray-500: #adb5bd;
+  --color-gray-600: #6c757d;
+  --color-gray-700: #495057;
+  --color-gray-800: #343a40;
+  --color-gray-900: #212529;
+
+  /* Тени */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 10px 25px rgba(0, 0, 0, 0.15);
+
+  /* Радиусы */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-pill: 50px;
+
+  /* Отступы */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 32px;
+  --space-xxl: 48px;
+
+  /* Шрифты */
+  --font-heading: 'Cormorant Garamond', serif;
+  --font-body: 'Open Sans', sans-serif;
+
+  /* Анимации */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+
+  /* Максимальная ширина контента */
+  --max-width: 1200px;
+}
