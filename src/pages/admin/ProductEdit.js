@@ -293,7 +293,8 @@ function ProductEdit() {
 
   if (loading && id !== 'new') {
     return (
-      <div className="admin-product-edit__container" style={{ textAlign: 'center' }}>
+      // Используем новый класс
+      <div className="admin-product-edit__container admin-product-edit__container--centered">
       <h1>Загрузка данных...</h1>
       </div>
     );
@@ -301,7 +302,8 @@ function ProductEdit() {
 
   if (error) {
     return (
-      <div className="admin-product-edit__container" style={{ textAlign: 'center' }}>
+      // Используем новый класс
+      <div className="admin-product-edit__container admin-product-edit__container--centered">
       <h1>Ошибка</h1>
       <p>{error}</p>
       <Link to="/admin/products" className="btn primary">

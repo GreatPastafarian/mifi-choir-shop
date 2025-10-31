@@ -1,0 +1,134 @@
+/*
+ * Стили для компонента загрузки изображений (БЭМ)
+ * Блок: image-uploader
+ */
+
+/* Спиннер (вынесен, чтобы быть доступным до основного блока) */
+@keyframes image-uploader-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.image-uploader__spinner {
+    width: 30px;
+    height: 30px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid var(--color-primary, #8d1f2c);
+    border-radius: 50%;
+    animation: image-uploader-spin 1s linear infinite;
+    margin-bottom: 1rem;
+}
+
+/* Основной контейнер */
+.image-uploader {
+    width: 100%;
+}
+
+/* --- Зона Drag & Drop --- */
+.image-uploader__drop-zone {
+    border: 2px dashed #ddd;
+    background-color: #f9f9f9;
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.image-uploader__drop-zone--dragging {
+    border-color: var(--color-primary, #8d1f2c);
+    background-color: rgba(141, 31, 44, 0.05);
+}
+
+.image-uploader__drop-zone--uploading {
+    cursor: not-allowed;
+    background-color: #fdfdfd;
+}
+
+.image-uploader__drop-icon {
+    margin-bottom: 1rem;
+    color: var(--color-primary, #8d1f2c);
+}
+
+.image-uploader__drop-text {
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: #333;
+}
+
+.image-uploader__drop-hint {
+    color: #666;
+    display: block;
+    font-size: 0.9rem;
+}
+
+/* Контейнер спиннера внутри drop-zone */
+.image-uploader__spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 160px; /* Чтобы соответствовать высоте контента */
+}
+
+/* Скрытый инпут */
+.image-uploader__file-input {
+    display: none;
+}
+
+/* --- Сообщение об ошибке --- */
+.image-uploader__error {
+    color: #c33;
+    background-color: #ffebee;
+    padding: 0.75rem;
+    border-radius: 4px;
+    margin-top: 1rem;
+}
+
+/* --- Сетка предпросмотра --- */
+.image-uploader__preview-grid {
+    display: grid;
+    /* Адаптивная сетка */
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.image-uploader__preview-item {
+    position: relative;
+    aspect-ratio: 1 / 1; /* Квадратные превью */
+    border: 1px solid #eee;
+    border-radius: 4px;
+    overflow: hidden; /* Скрывает углы img */
+}
+
+.image-uploader__preview-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-uploader__preview-delete {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0;
+    transition: background 0.2s ease;
+}
+
+.image-uploader__preview-delete:hover {
+    background: rgba(0, 0, 0, 0.8);
+}

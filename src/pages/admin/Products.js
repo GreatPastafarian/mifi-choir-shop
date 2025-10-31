@@ -20,13 +20,18 @@ function Products() {
 
     const fetchData = async () => {
       try {
-        const [productsData, categoriesData] = await Promise.all([getAllProducts(), getAllCategories()]);
+        // Оптимизация: категории можно вынести в Context,
+        // но пока оставим Promise.all
+        const [productsData, categoriesData] = await Promise.all([
+          getAllProducts(),
+          getAllCategories(),
+        ]);
 
         setProducts(productsData);
         setCategories(categoriesData);
-        setLoading(false);
       } catch (err) {
         setError('Не удалось загрузить данные');
+      } finally {
         setLoading(false);
       }
     };
@@ -34,23 +39,33 @@ function Products() {
     fetchData();
   }, [isAdmin, navigate]);
 
+  // 2. ОПТИМИЗАЦИЯ ЛОГИКИ УДАЛЕНИЯ
   const handleDelete = async (productId) => {
     if (window.confirm('Вы действительно хотите удалить этот товар?')) {
       try {
+        setError(null); // Сбрасываем предыдущие ошибки
         await deleteProduct(productId);
-        // Полностью перезагружаем данные после удаления
-        const [productsData, categoriesData] = await Promise.all([getAllProducts(), getAllCategories()]);
-        setProducts(productsData);
-        setCategories(categoriesData);
+        // Обновляем state, не перезагружая все данные с сервера
+        setProducts((prevProducts) =>
+          prevProducts.filter((product) => product.id !== productId)
+        );
       } catch (err) {
         console.error('Ошибка при удалении товара:', err);
         setError('Не удалось удалить товар');
-        // Перезагружаем данные в случае ошибки
-        const productsData = await getAllProducts();
-        setProducts(productsData);
       }
     }
   };
+
+  const getImageUrl = (image) => {
+    // Вспомогательная функция для корректного URL
+    if (!image) return '/placeholder.jpg';
+    if (image.startsWith('http')) return image;
+    // Используем PUBLIC_URL, если он настроен, или относительный путь
+    const baseUrl = process.env.REACT_APP_API_URL || '';
+    return `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
+  };
+
+  // 3. ЗАМЕНА INLINE-СТИЛЕЙ НА БЭМ-КЛАССЫ
 
   if (!isAdmin) {
     return null;
@@ -58,7 +73,7 @@ function Products() {
 
   if (loading) {
     return (
-      <div className="container" style={{ marginTop: '4rem', textAlign: 'center' }}>
+      <div className="admin-products__container admin-products__container--centered">
         <h1>Загрузка...</h1>
       </div>
     );
@@ -66,10 +81,13 @@ function Products() {
 
   if (error) {
     return (
-      <div className="container" style={{ marginTop: '4rem', textAlign: 'center' }}>
+      <div className="admin-products__container admin-products__container--centered">
         <h1>Ошибка</h1>
         <p>{error}</p>
-        <button className="btn primary" onClick={() => window.location.reload()} style={{ marginTop: '1rem' }}>
+        <button
+          className="btn primary admin-products__retry-button"
+          onClick={() => window.location.reload()}
+        >
           Повторить попытку
         </button>
       </div>
@@ -77,16 +95,9 @@ function Products() {
   }
 
   return (
-    <div className="admin-products" style={{ marginTop: '4rem' }}>
-      <div className="container">
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '2rem',
-          }}
-        >
+    <div className="admin-products">
+      <div className="admin-products__container">
+        <div className="admin-products__header">
           <h1>Управление товарами</h1>
           <Link to="/admin/products/new" className="btn primary">
             Добавить товар
@@ -94,139 +105,59 @@ function Products() {
         </div>
 
         {products.length === 0 ? (
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '2rem',
-              backgroundColor: 'var(--accent-beige)',
-              borderRadius: 'var(--radius-md)',
-            }}
-          >
-            <p style={{ marginBottom: '1rem' }}>Нет добавленных товаров</p>
+          <div className="admin-products__empty-state">
+            <p className="admin-products__empty-text">Нет добавленных товаров</p>
             <Link to="/admin/products/new" className="btn primary">
               Добавить первый товар
             </Link>
           </div>
         ) : (
-          <div
-            className="products-grid"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
-              gap: '1.5rem',
-            }}
-          >
+          <div className="admin-products__grid">
             {products.map((product) => {
-              const category = categories.find((c) => c.id === product.category_id);
+              const category = categories.find(
+                (c) => c.id === product.category_id
+              );
+              const imageUrl = getImageUrl(
+                product.images && product.images[0]
+              );
+
               return (
-                <div
-                  key={product.id}
-                  className="product-card"
-                  style={{
-                    background: 'white',
-                    borderRadius: 'var(--radius-md)',
-                    overflow: 'hidden',
-                    boxShadow: 'var(--shadow-md)',
-                    transition: 'all var(--transition-normal)',
-                  }}
-                >
+                <div key={product.id} className="admin-products__card">
                   <div
-                    className="product-image"
-                    style={{
-                      height: '200px',
-                      background: `url(${product.images && product.images[0] ? product.images[0] : '/placeholder.jpg'}) no-repeat center center/cover`,
-                      position: 'relative',
-                    }}
+                    className="admin-products__card-image"
+                    style={{ backgroundImage: `url(${imageUrl})` }}
                   >
                     {product.is_new && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '10px',
-                          right: '10px',
-                          backgroundColor: '#d4af37',
-                          color: '#0a2240',
-                          padding: '4px 10px',
-                          borderRadius: '20px',
-                          fontWeight: 'bold',
-                          fontSize: '0.85rem',
-                        }}
-                      >
-                        Новинка
-                      </div>
+                      <div className="admin-products__card-badge">Новинка</div>
                     )}
                   </div>
 
-                  <div className="product-info" style={{ padding: '1.5rem' }}>
-                    <div
-                      style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        marginBottom: '0.5rem',
-                      }}
-                    >
-                      <h3
-                        style={{
-                          fontSize: '1.25rem',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          lineHeight: '1.4',
-                        }}
-                      >
+                  <div className="admin-products__card-info">
+                    <div className="admin-products__card-info-header">
+                      <h3 className="admin-products__card-title">
                         {product.name}
                       </h3>
-                      <span
-                        style={{
-                          backgroundColor: 'var(--accent-beige)',
-                          color: 'var(--primary-dark)',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: 'var(--radius-sm)',
-                          fontWeight: '600',
-                        }}
-                      >
+                      <span className="admin-products__card-price">
                         {product.base_price} ₽
                       </span>
                     </div>
 
-                    {category && (
-                      <div
-                        style={{
-                          color: 'var(--text-muted)',
-                          fontSize: '0.9rem',
-                          marginBottom: '1rem',
-                        }}
-                      >
-                        {category.name}
-                      </div>
-                    )}
+                    <div className="admin-products__card-category">
+                      {category ? category.name : 'Без категории'}
+                    </div>
 
-                    <div
-                      style={{
-                        display: 'flex',
-                        gap: '0.5rem',
-                        marginTop: '1rem',
-                      }}
-                    >
+                    <div className="admin-products__card-actions">
                       <button
-                        onClick={() => navigate(`/admin/products/edit/${product.id}`)}
-                        className="btn secondary"
-                        style={{ flex: 1 }}
+                        onClick={() =>
+                          navigate(`/admin/products/edit/${product.id}`)
+                        }
+                        className="btn secondary admin-products__card-button"
                       >
                         Редактировать
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
-                        className="btn secondary"
-                        style={{
-                          flex: 1,
-                          backgroundColor: 'var(--text-light)',
-                          color: '#d32f2f',
-                          border: '1px solid #d32f2f',
-                        }}
+                        className="btn secondary admin-products__card-button admin-products__card-button--delete"
                       >
                         Удалить
                       </button>
