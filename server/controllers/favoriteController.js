@@ -1,9 +1,10 @@
-const { User, Product, Variant, ProductImage } = require('../models');
+const { User, Product, Variant, ProductImage, Category } = require('../models');
+// Импортируем наш сервис
+const { normalizeProductsData } = require('../services/productDataService');
 
 // Получить избранные товары
 exports.getFavorites = async (req, res) => {
   try {
-    // Добавляем проверку наличия req.user
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Пользователь не авторизован' });
     }
@@ -14,6 +15,13 @@ exports.getFavorites = async (req, res) => {
           model: Product,
           as: 'favorites',
           include: [
+            // ВАЖНО: 'category' должна быть включена,
+            // чтобы 'normalize' мог ее прочитать
+            {
+              model: Category,
+              attributes: ['id', 'name', 'slug'],
+              as: 'category',
+            },
             { model: Variant, as: 'variants' },
             { model: ProductImage, as: 'images' },
           ],
@@ -25,38 +33,12 @@ exports.getFavorites = async (req, res) => {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
 
-    // Проверяем, есть ли избранные товары
     if (!user.favorites || user.favorites.length === 0) {
       return res.json([]);
     }
 
-    // Преобразуем данные для клиента
-    const clientFavorites = user.favorites.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      description: product.description,
-      materials: product.materials,
-      details: product.details ? JSON.parse(product.details) : [],
-      images: product.images ? product.images.map((image) => image.image_url) : [],
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants
-        ? product.variants.map((variant) => ({
-            id: variant.id,
-            sku: variant.sku,
-            size: variant.size,
-            color: variant.color,
-            quantity: variant.quantity,
-            price: variant.price ? parseFloat(variant.price) : null,
-            is_available: variant.is_available,
-          }))
-        : [],
-    }));
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    const clientFavorites = normalizeProductsData(user.favorites);
 
     res.json(clientFavorites);
   } catch (error) {
@@ -71,7 +53,6 @@ exports.getFavorites = async (req, res) => {
 // Добавить товар в избранное
 exports.addToFavorites = async (req, res) => {
   try {
-    // Добавляем проверку наличия req.user
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Пользователь не авторизован' });
     }
@@ -82,7 +63,6 @@ exports.addToFavorites = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
-
     if (isNaN(productId)) {
       return res.status(400).json({ message: 'Некорректный ID товара' });
     }
@@ -92,7 +72,6 @@ exports.addToFavorites = async (req, res) => {
       return res.status(404).json({ message: 'Товар не найден' });
     }
 
-    // Проверяем, не добавлен ли уже товар в избранное
     const favorites = await user.getFavorites();
     const isAlreadyFavorite = favorites.some((fav) => fav.id === product.id);
 
@@ -113,7 +92,6 @@ exports.addToFavorites = async (req, res) => {
 // Удалить товар из избранного
 exports.removeFromFavorites = async (req, res) => {
   try {
-    // Добавляем проверку наличия req.user
     if (!req.user || !req.user.id) {
       return res.status(401).json({ message: 'Пользователь не авторизован' });
     }
@@ -124,7 +102,6 @@ exports.removeFromFavorites = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'Пользователь не найден' });
     }
-
     if (isNaN(productId)) {
       return res.status(400).json({ message: 'Некорректный ID товара' });
     }
@@ -134,7 +111,6 @@ exports.removeFromFavorites = async (req, res) => {
       return res.status(404).json({ message: 'Товар не найден' });
     }
 
-    // Удаляем товар из избранного
     await user.removeFavorite(product);
 
     res.status(200).json({ message: 'Товар удален из избранного' });

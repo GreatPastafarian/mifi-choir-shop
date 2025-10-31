@@ -1,55 +1,24 @@
-const { Product, Category, Variant, ProductImage } = require('../models');
-const { Donation } = require('../models');
+const { Product, Category, Variant, ProductImage, Donation } = require('../models');
+// Импортируем наш сервис
+const {
+  normalizeProductsData,
+  normalizeProductData,
+} = require('../services/productDataService');
 
 // Получить все товары
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
       include: [
-        {
-          model: Category,
-          attributes: ['id', 'name', 'slug'],
-          as: 'category',
-        },
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
       ],
       order: [['sort_order', 'ASC']],
     });
 
-    // Преобразуем данные для клиента
-    const clientProducts = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      category_name: product.category.name,
-      description: product.description,
-      materials: product.materials,
-      details: JSON.parse(product.details || '[]'),
-      images: product.images.map((image) => image.image_url),
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        quantity: variant.quantity,
-        price: variant.price ? parseFloat(variant.price) : null,
-        is_available: variant.is_available,
-      })),
-    }));
-
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    const clientProducts = normalizeProductsData(products);
     res.json(clientProducts);
   } catch (error) {
     console.error('Ошибка при получении товаров:', error);
@@ -60,35 +29,19 @@ exports.getAllProducts = async (req, res) => {
 // Получить популярные товары (на основе продаж)
 exports.getPopularProducts = async (req, res) => {
   try {
-    // Сначала получаем все товары
     const products = await Product.findAll({
       include: [
-        {
-          model: Category,
-          attributes: ['id', 'name', 'slug'],
-          as: 'category',
-        },
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
       ],
     });
 
-    // Получаем все одобренные пожертвования с товарами
     const approvedDonations = await Donation.findAll({
-      where: {
-        status: 'Одобрено',
-      },
+      where: { status: 'Одобрено' },
     });
 
-    // Считаем продажи для каждого товара
     const salesCount = {};
-
     approvedDonations.forEach((donation) => {
       try {
         const items = JSON.parse(donation.items || '[]');
@@ -103,43 +56,17 @@ exports.getPopularProducts = async (req, res) => {
       }
     });
 
-    // Добавляем количество продаж к товарам
     const productsWithSales = products.map((product) => ({
-      ...product.get({ plain: true }),
-      salesCount: salesCount[product.id] || 0,
+      ...product.get({ plain: true }), // Получаем чистый объект
+                                                         salesCount: salesCount[product.id] || 0,
     }));
 
-    // Сортируем по количеству продаж и берем топ-4
-    const popularProducts = productsWithSales.sort((a, b) => b.salesCount - a.salesCount).slice(0, 4);
+    const popularProducts = productsWithSales
+    .sort((a, b) => b.salesCount - a.salesCount)
+    .slice(0, 4);
 
-    // Преобразуем данные для клиента
-    const clientProducts = popularProducts.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      category_name: product.category.name,
-      description: product.description,
-      materials: product.materials,
-      details: JSON.parse(product.details || '[]'),
-      images: product.images.map((image) => image.image_url),
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        quantity: variant.quantity,
-        price: variant.price ? parseFloat(variant.price) : null,
-        is_available: variant.is_available,
-      })),
-      salesCount: product.salesCount,
-    }));
-
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    const clientProducts = normalizeProductsData(popularProducts);
     res.json(clientProducts);
   } catch (error) {
     console.error('Ошибка при получении популярных товаров:', error);
@@ -153,51 +80,16 @@ exports.getNewProducts = async (req, res) => {
     const products = await Product.findAll({
       where: { is_new: true },
       include: [
-        {
-          model: Category,
-          attributes: ['id', 'name', 'slug'],
-          as: 'category',
-        },
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
       ],
       order: [['publication_date', 'DESC']],
       limit: 4,
     });
 
-    // Преобразуем данные для клиента
-    const clientProducts = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      category_name: product.category.name,
-      description: product.description,
-      materials: product.materials,
-      details: JSON.parse(product.details || '[]'),
-      images: product.images.map((image) => image.image_url),
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        quantity: variant.quantity,
-        price: variant.price ? parseFloat(variant.price) : null,
-        is_available: variant.is_available,
-      })),
-    }));
-
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    const clientProducts = normalizeProductsData(products);
     res.json(clientProducts);
   } catch (error) {
     console.error('Ошибка при получении новых товаров:', error);
@@ -211,50 +103,15 @@ exports.getProductsByCategory = async (req, res) => {
     const products = await Product.findAll({
       where: { category_id: req.params.categoryId },
       include: [
-        {
-          model: Category,
-          attributes: ['id', 'name', 'slug'],
-          as: 'category',
-        },
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
       ],
       order: [['sort_order', 'ASC']],
     });
 
-    // Преобразуем данные для клиента
-    const clientProducts = products.map((product) => ({
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      category_name: product.category.name,
-      description: product.description,
-      materials: product.materials,
-      details: JSON.parse(product.details || '[]'),
-      images: product.images.map((image) => image.image_url),
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        quantity: variant.quantity,
-        price: variant.price ? parseFloat(variant.price) : null,
-        is_available: variant.is_available,
-      })),
-    }));
-
+    // ИСПОЛЬЗUЕМ СЕРВИС
+    const clientProducts = normalizeProductsData(products);
     res.json(clientProducts);
   } catch (error) {
     console.error('Ошибка при получении товаров по категории:', error);
@@ -263,10 +120,8 @@ exports.getProductsByCategory = async (req, res) => {
 };
 
 // Получить товар по ID
-// Получить товар по ID
 exports.getProductById = async (req, res) => {
   try {
-    // Добавляем проверку на корректность ID
     const productId = parseInt(req.params.id);
     if (isNaN(productId)) {
       return res.status(400).json({
@@ -278,19 +133,9 @@ exports.getProductById = async (req, res) => {
     const product = await Product.findOne({
       where: { id: productId },
       include: [
-        {
-          model: Category,
-          attributes: ['id', 'name', 'slug'],
-          as: 'category',
-        },
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
       ],
     });
 
@@ -298,33 +143,8 @@ exports.getProductById = async (req, res) => {
       return res.status(404).json({ message: 'Товар не найден' });
     }
 
-    // Преобразуем данные для клиента
-    const clientProduct = {
-      id: product.id,
-      name: product.name,
-      category_id: product.category_id,
-      category_name: product.category.name,
-      description: product.description,
-      materials: product.materials,
-      details: product.details ? JSON.parse(product.details) : [],
-      images: product.images.map((image) => image.image_url),
-      base_price: parseFloat(product.base_price),
-      is_new: product.is_new,
-      publication_date: product.publication_date,
-      views_count: product.views_count,
-      sort_order: product.sort_order,
-      is_active: product.is_active,
-      variants: product.variants.map((variant) => ({
-        id: variant.id,
-        sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
-        quantity: variant.quantity,
-        price: variant.price ? parseFloat(variant.price) : null,
-        is_available: variant.is_available,
-      })),
-    };
-
+    // ИСПОЛЬЗУЕМ СЕРВИС (для одного товара)
+    const clientProduct = normalizeProductData(product);
     res.json(clientProduct);
   } catch (error) {
     console.error('Ошибка при получении товара:', error);
@@ -342,11 +162,7 @@ exports.incrementViewCount = async (req, res) => {
     if (!product) {
       return res.status(404).json({ message: 'Товар не найден' });
     }
-
-    await product.update({
-      views_count: product.views_count + 1,
-    });
-
+    await product.update({ views_count: product.views_count + 1 });
     res.json({ views_count: product.views_count + 1 });
   } catch (error) {
     console.error('Ошибка при увеличении счетчика просмотров:', error);
@@ -357,7 +173,6 @@ exports.incrementViewCount = async (req, res) => {
 // Создать новый товар (администратор)
 exports.createProduct = async (req, res) => {
   try {
-    // Обработка данных
     const productData = {
       ...req.body,
       details: JSON.stringify(req.body.details || []),
@@ -366,17 +181,15 @@ exports.createProduct = async (req, res) => {
 
     const product = await Product.create(productData);
 
-    // Создаем варианты, если они предоставлены
     if (req.body.variants && req.body.variants.length > 0) {
       const variants = req.body.variants.map((variant) => ({
         ...variant,
         price: variant.price ? parseFloat(variant.price) : null,
-        product_id: product.id,
+                                                           product_id: product.id,
       }));
       await Variant.bulkCreate(variants);
     }
 
-    // Создаем изображения, если они предоставлены
     if (req.body.images && req.body.images.length > 0) {
       const images = req.body.images.map((url, index) => ({
         image_url: url,
@@ -386,22 +199,17 @@ exports.createProduct = async (req, res) => {
       await ProductImage.bulkCreate(images);
     }
 
-    // Перезагружаем продукт с включениями
     const createdProduct = await Product.findOne({
       where: { id: product.id },
       include: [
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
       ],
     });
 
-    res.status(201).json(createdProduct);
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    res.status(201).json(normalizeProductData(createdProduct));
   } catch (error) {
     console.error('Ошибка при создании товара:', error);
     res.status(400).json({
@@ -415,42 +223,31 @@ exports.createProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
-
     if (!product) {
       return res.status(404).json({ message: 'Товар не найден' });
     }
 
-    // Обработка данных
     const productData = {
       ...req.body,
       details: JSON.stringify(req.body.details || []),
       base_price: parseFloat(req.body.base_price),
     };
-
     await product.update(productData);
 
-    // Обновляем варианты
     if (req.body.variants) {
-      // Удаляем существующие варианты
       await Variant.destroy({ where: { product_id: product.id } });
-
-      // Создаем новые варианты
       if (req.body.variants.length > 0) {
         const variants = req.body.variants.map((variant) => ({
           ...variant,
           price: variant.price ? parseFloat(variant.price) : null,
-          product_id: product.id,
+                                                             product_id: product.id,
         }));
         await Variant.bulkCreate(variants);
       }
     }
 
-    // Обновляем изображения
     if (req.body.images) {
-      // Удаляем существующие изображения
       await ProductImage.destroy({ where: { product_id: product.id } });
-
-      // Создаем новые изображения
       if (req.body.images.length > 0) {
         const images = req.body.images.map((url, index) => ({
           image_url: url,
@@ -461,22 +258,17 @@ exports.updateProduct = async (req, res) => {
       }
     }
 
-    // Перезагружаем продукт с включениями
     const updatedProduct = await Product.findOne({
       where: { id: product.id },
       include: [
-        {
-          model: Variant,
-          as: 'variants',
-        },
-        {
-          model: ProductImage,
-          as: 'images',
-        },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
       ],
     });
 
-    res.json(updatedProduct);
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    res.json(normalizeProductData(updatedProduct));
   } catch (error) {
     console.error('Ошибка при обновлении товара:', error);
     res.status(400).json({
@@ -490,11 +282,9 @@ exports.updateProduct = async (req, res) => {
 exports.deleteProduct = async (req, res) => {
   try {
     const product = await Product.findByPk(req.params.id);
-
     if (!product) {
       return res.status(404).json({ message: 'Товар не найден' });
     }
-
     await product.destroy();
     res.json({ message: 'Товар успешно удален' });
   } catch (error) {

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../utils/db');
+const { v4: uuidv4 } = require('uuid'); // Импортируем uuid
 
 const Variant = sequelize.define(
   'Variant',
@@ -48,6 +49,16 @@ const Variant = sequelize.define(
   {
     tableName: 'variants',
     timestamps: false,
+    hooks: {
+      // Добавляем хук
+      beforeValidate: (variant) => {
+        if (!variant.sku) {
+          // Генерируем SKU только если он не предоставлен
+          // Формат: 8-значный UUID (для краткости)
+          variant.sku = `SKU-${uuidv4().substring(0, 8).toUpperCase()}`;
+        }
+      },
+    },
   }
 );
 

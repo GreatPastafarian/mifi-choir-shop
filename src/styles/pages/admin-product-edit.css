@@ -1,0 +1,272 @@
+/*
+ * Стили для страницы редактирования товара (БЭМ)
+ * Блок: admin-product-edit
+ */
+
+.admin-product-edit__container {
+    max-width: 1200px;
+    margin: 4rem auto;
+    padding: 0 1rem;
+}
+
+.admin-product-edit__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin-product-edit__form {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.admin-product-edit__form-section {
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 2rem;
+}
+.admin-product-edit__form-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.admin-product-edit__section-title {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    color: #0a2240;
+}
+
+/* Общие классы для полей формы */
+.admin-product-edit__form-group {
+    margin-bottom: 1rem;
+}
+
+.admin-product-edit__label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.admin-product-edit__input,
+.admin-product-edit__select,
+.admin-product-edit__textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-family: inherit;
+    box-sizing: border-box; /* Важно для 100% ширины */
+}
+
+.admin-product-edit__textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* Сетка для полей */
+.admin-product-edit__grid {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 колонка на мобильных */
+    gap: 1.5rem;
+}
+
+/* 2 колонки на десктопах */
+@media (min-width: 768px) {
+    .admin-product-edit__grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Чекбоксы */
+.admin-product-edit__checkbox-group {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+    min-height: 48px; /* Для выравнивания с инпутами */
+}
+
+.admin-product-edit__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+/* Секция "Добавить категорию" */
+.admin-product-edit__category-group {
+    display: flex;
+    gap: 0.5rem;
+}
+.admin-product-edit__category-group .admin-product-edit__select {
+    flex: 1;
+}
+
+.admin-product-edit__add-category-toggle {
+    background: var(--color-background-light, #f5f0e5);
+    color: var(--color-primary, #8d1f2c);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 0 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-weight: bold;
+}
+.admin-product-edit__add-category-toggle:hover {
+    border-color: #ccc;
+    background: #f0eae0;
+}
+
+.admin-product-edit__add-category-form {
+    margin-top: 1rem;
+    padding: 1rem;
+    background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.admin-product-edit__add-category-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-product-edit__add-category-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.admin-product-edit__add-category-submit {
+    background: var(--color-primary, #8d1f2c);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+}
+.admin-product-edit__add-category-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.admin-product-edit__add-category-error {
+    color: #c33;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    padding-left: 0.25rem;
+}
+.admin-product-edit__add-category-hint {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
+    padding-left: 0.25rem;
+}
+
+/* Секции динамических массивов (Детали, Изображения, Варианты) */
+.admin-product-edit__dynamic-item {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.admin-product-edit__dynamic-item-input {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.admin-product-edit__button--remove {
+    background: #f5f0e5;
+    color: #8d1f2c;
+    border: none;
+    border-radius: 4px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+}
+
+.admin-product-edit__button--add {
+    background: #8d1f2c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 0.5rem 1rem;
+    margin-top: 0.5rem;
+    cursor: pointer;
+}
+
+/* Секция Изображений */
+.admin-product-edit__manual-upload {
+    margin-top: 2rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+}
+
+.admin-product-edit__manual-upload-title {
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+    color: #0a2240;
+}
+
+/* Секция Вариантов */
+.admin-product-edit__variant-card {
+    background-color: #f9f9f9;
+    padding: 1.5rem;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+}
+
+.admin-product-edit__variant-grid-main {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 колонка на мобильных */
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+@media (min-width: 992px) {
+    .admin-product-edit__variant-grid-main {
+        grid-template-columns: 1fr 1fr 1fr 100px; /* 4 колонки на десктопе */
+    }
+}
+
+.admin-product-edit__variant-grid-secondary {
+    display: grid;
+    grid-template-columns: 1fr; /* 1 колонка на мобильных */
+    gap: 1rem;
+}
+@media (min-width: 768px) {
+    .admin-product-edit__variant-grid-secondary {
+        grid-template-columns: 1fr 1fr; /* 2 колонки */
+    }
+}
+
+.admin-product-edit__variant-card .admin-product-edit__input {
+    padding: 0.5rem;
+}
+
+.admin-product-edit__variant-card .admin-product-edit__button--remove {
+    margin-top: 1rem;
+}
+
+.admin-product-edit__variant-card .admin-product-edit__input[readonly] {
+    background-color: #eee;
+    color: #666;
+}
+
+
+/* Футер (кнопки Сохранить/Отмена) */
+.admin-product-edit__footer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
