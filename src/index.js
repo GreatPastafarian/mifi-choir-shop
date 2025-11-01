@@ -4,6 +4,7 @@ import './styles/main.css';
 import './styles/pages/admin-product-edit.css';
 import './styles/pages/admin-products.css';
 import './styles/components/image-uploader.css';
+import './styles/pages/product-details-page.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

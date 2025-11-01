@@ -36,8 +36,7 @@ const normalizeProductData = (product) => {
       ? plainProduct.variants.map((variant) => ({
         id: variant.id,
         sku: variant.sku,
-        size: variant.size,
-        color: variant.color,
+        attributes: variant.attributes || {}, // <-- ВОТ ИСПРАВЛЕНИЕ
         quantity: variant.quantity,
         price: variant.price ? parseFloat(variant.price) : null,
                                                 is_available: variant.is_available,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getAllProducts, deleteProduct } from '../../services/productService';
+import { getAdminProducts, deleteProduct } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { useAuth } from '../../context/AuthContext';
 import { BASE_URL } from '../../services/api';
@@ -24,7 +24,7 @@ function Products() {
         // Оптимизация: категории можно вынести в Context,
         // но пока оставим Promise.all
         const [productsData, categoriesData] = await Promise.all([
-          getAllProducts(),
+          getAdminProducts(),
           getAllCategories(),
         ]);
 

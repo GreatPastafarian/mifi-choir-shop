@@ -9,6 +9,7 @@ const {
 exports.getAllProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
+      where: { is_active: true },
       include: [
         { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
         { model: Variant, as: 'variants' },
@@ -30,6 +31,7 @@ exports.getAllProducts = async (req, res) => {
 exports.getPopularProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
+      where: { is_active: true },
       include: [
         { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
         { model: Variant, as: 'variants' },
@@ -78,7 +80,7 @@ exports.getPopularProducts = async (req, res) => {
 exports.getNewProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
-      where: { is_new: true },
+      where: { is_new: true, is_active: true },
       include: [
         { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
         { model: Variant, as: 'variants' },
@@ -101,7 +103,7 @@ exports.getNewProducts = async (req, res) => {
 exports.getProductsByCategory = async (req, res) => {
   try {
     const products = await Product.findAll({
-      where: { category_id: req.params.categoryId },
+      where: { category_id: req.params.categoryId, is_active: true },
       include: [
         { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
         { model: Variant, as: 'variants' },
@@ -131,7 +133,7 @@ exports.getProductById = async (req, res) => {
     }
 
     const product = await Product.findOne({
-      where: { id: productId },
+      where: { id: productId, is_active: true },
       include: [
         { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
         { model: Variant, as: 'variants' },
@@ -291,6 +293,61 @@ exports.deleteProduct = async (req, res) => {
     console.error('Ошибка при удалении товара:', error);
     res.status(500).json({
       message: 'Ошибка при удалении товара',
+      error: error.message,
+    });
+  }
+};
+
+exports.adminGetAllProducts = async (req, res) => {
+  try {
+    const products = await Product.findAll({
+      // where: { is_active: true }, // <-- УДАЛЕНО
+      include: [
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
+      ],
+      order: [['sort_order', 'ASC']],
+    });
+
+    // ИСПОЛЬЗУЕМ СЕРВИС
+    const clientProducts = normalizeProductsData(products);
+    res.json(clientProducts);
+  } catch (error) {
+    console.error('Ошибка при получении товаров:', error);
+    res.status(500).json({ message: 'Ошибка при получении товаров', error: error.message });
+  }
+};
+
+// НОВЫЙ МЕТОД ДЛЯ АДМИНКИ (без фильтра 'is_active')
+exports.adminGetProductById = async (req, res) => {
+  try {
+    const productId = parseInt(req.params.id);
+    if (isNaN(productId)) {
+      return res.status(400).json({
+        message: 'Некорректный ID товара',
+        receivedId: req.params.id,
+      });
+    }
+
+    const product = await Product.findOne({
+      where: { id: productId }, // <-- Только 'id', без 'is_active'
+      include: [
+        { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
+        { model: Variant, as: 'variants' },
+        { model: ProductImage, as: 'images' },
+      ],
+    });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Товар не найден' });
+    }
+    const clientProduct = normalizeProductData(product);
+    res.json(clientProduct);
+  } catch (error) {
+    console.error('Ошибка при получении (admin) товара:', error);
+    res.status(500).json({
+      message: 'Ошибка при получении товара',
       error: error.message,
     });
   }

@@ -10,6 +10,16 @@ export const getAllProducts = async () => {
     throw error;
   }
 };
+export const getAdminProducts = async () => {
+  try {
+
+    const response = await api.get('/products/admin');
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении списка товаров для админа:', error);
+    throw error;
+  }
+};
 
 // Получить товар по ID
 export const getProductById = async (id) => {
@@ -22,6 +32,17 @@ export const getProductById = async (id) => {
     return response.data;
   } catch (error) {
     console.error('Ошибка при получении товара:', error);
+    throw error;
+  }
+};
+
+export const getAdminProductById = async (id) => {
+  try {
+    // Вызываем новый роут
+    const response = await api.get(`/products/admin/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Ошибка при получении товара для админа:', error);
     throw error;
   }
 };

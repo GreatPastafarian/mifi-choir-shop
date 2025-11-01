@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs');
 const { User, sequelize } = require('./models');
 
+require('dotenv').config({ path: '.env' });
+
 async function createAdmin() {
   try {
     // Сначала синхронизируем структуру базы данных

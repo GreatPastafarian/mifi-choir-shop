@@ -18,14 +18,11 @@ const Variant = sequelize.define(
         notEmpty: true,
       },
     },
-    size: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    color: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    attributes: {
+        type: DataTypes.JSONB, // Тип данных JSONB (оптимизирован для PostgreSQL)
+        allowNull: true,
+        defaultValue: {},     // По умолчанию — пустой объект
+      },
     quantity: {
       type: DataTypes.INTEGER,
       allowNull: false,
