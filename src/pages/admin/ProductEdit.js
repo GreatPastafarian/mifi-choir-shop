@@ -5,6 +5,7 @@ import { useAuth } from '../../context/AuthContext';
 import ImageUploader from '../../components/admin/ImageUploader';
 import { slugify } from '../../utils/slugify';
 
+
 const initialState = {
   name: '',
   category_id: '',
@@ -30,10 +31,9 @@ function ProductEdit() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State для "простого" или "сложного" товара
   const [hasOptions, setHasOptions] = useState(false);
 
-  // Состояния для добавления новой категории
+  // (ИСПРАВЛЕНИЕ ESLint) Эти переменные теперь будут использоваться
   const [showAddCategory, setShowAddCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [newCategoryLoading, setNewCategoryLoading] = useState(false);
@@ -56,10 +56,8 @@ function ProductEdit() {
           if (!isNaN(productId)) {
             const productData = await getAdminProductById(productId);
 
-            // Определяем, есть ли у товара опции
             let optionsExist = false;
             if (productData.variants && productData.variants.length > 0) {
-              // Если вариантов > 1, ИЛИ если у единственного варианта есть атрибуты
               optionsExist = productData.variants.length > 1 ||
               (productData.variants[0] && productData.variants[0].attributes && Object.keys(productData.variants[0].attributes).length > 0);
             }
@@ -72,15 +70,14 @@ function ProductEdit() {
                 : new Date().toISOString().split('T')[0],
                         details: productData.details || [],
                         images: productData.images || [],
-                        variants: productData.variants || [],
+                        // Гарантируем, что у товара всегда есть хотя бы 1 вариант
+                        variants: (productData.variants && productData.variants.length > 0) ? productData.variants : [initialState.variants[0]],
             });
           } else {
             setError('Некорректный ID товара');
           }
         } else {
-          // Это новый товар, по умолчанию у него нет опций
           setHasOptions(false);
-          // Создаем один "пустой" вариант для простого товара
           setFormData(prev => ({
             ...prev,
             variants: [{
@@ -158,6 +155,7 @@ function ProductEdit() {
       setShowAddCategory(false);
     }
   };
+  // (ИСПРАВЛЕНИЕ ESLint) Эта функция теперь используется в JSX
   const handleCategoryKeyDown = (e) => {
     if (e.key === 'Enter' && newCategoryName.trim()) {
       e.preventDefault();
@@ -189,7 +187,7 @@ function ProductEdit() {
     const newVariants = [...formData.variants];
     let value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
 
-    if (['quantity', 'price', 'is_available', 'sku'].includes(field)) {
+    if (['quantity', 'price', 'is_available'].includes(field)) { // Убрали 'sku'
       if (field === 'price') {
         value = value === '' ? null : parseFloat(value) || null;
       }
@@ -197,8 +195,7 @@ function ProductEdit() {
         value = parseInt(value) || 0;
       }
       newVariants[index][field] = value;
-    } else {
-      // Это атрибут (size, color)
+    } else if (field !== 'sku') { // Игнорируем 'sku'
       if (!newVariants[index].attributes) {
         newVariants[index].attributes = {};
       }
@@ -209,6 +206,9 @@ function ProductEdit() {
 
   // Обработчик для "простого" варианта
   const handleSimpleVariantChange = (e, field) => {
+    // Игнорируем 'sku'
+    if (field === 'sku') return;
+
     const value = e.target.type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value;
 
     setFormData(prev => {
@@ -254,17 +254,16 @@ function ProductEdit() {
     const checked = e.target.checked;
     setHasOptions(checked);
 
-    if (checked && formData.variants.length === 0) {
-      // Включили опции, а вариантов нет -> добавляем первый
+    if (checked && (formData.variants.length === 0 || !Object.keys(formData.variants[0].attributes).length)) {
+      setFormData(prev => ({ ...prev, variants: [] }));
       addVariant();
     } else if (!checked) {
-      // Выключили опции -> схлопываем до одного варианта
       setFormData(prev => ({
         ...prev,
         variants: [{
           id: (prev.variants[0] && prev.variants[0].id) || undefined,
                            sku: (prev.variants[0] && prev.variants[0].sku) || '',
-                           attributes: {}, // Очищаем атрибуты
+                           attributes: {},
                            price: null,
                            quantity: (prev.variants[0] && prev.variants[0].quantity) || 0,
                            is_available: true
@@ -297,7 +296,7 @@ function ProductEdit() {
 
       if (hasOptions) {
         // --- Логика для товара С ОПЦИЯМИ ---
-        processedVariants = formData.variants.map(v => {
+        processedVariants = formData.variants.map((v, index) => {
           const cleanAttributes = {};
           if (v.attributes) {
             Object.keys(v.attributes).forEach(key => {
@@ -308,19 +307,22 @@ function ProductEdit() {
           }
           return {
             ...v,
-            attributes: cleanAttributes,
-            price: v.price ? parseFloat(v.price) : null,
+            // 2. (ИСПРАВЛЕНИЕ SKU) Генерируем SKU здесь, если его нет
+            sku: v.sku || `VAR-${formData.name.substring(0, 3).toUpperCase()}-${index}-${Date.now().toString().slice(-4)}`,
+                                                  attributes: cleanAttributes,
+                                                  price: v.price ? parseFloat(v.price) : null,
                                                   quantity: v.quantity ? parseInt(v.quantity) : 0,
           };
         })
-        .filter(v => Object.keys(v.attributes).length > 0); // Убираем пустые
+        .filter(v => Object.keys(v.attributes).length > 0);
 
       } else {
         // --- Логика для ПРОСТОГО ТОВАРА ---
         const simpleVariant = (formData.variants && formData.variants[0]) || {};
         processedVariants.push({
           id: simpleVariant.id || undefined,
-          sku: simpleVariant.sku || `base-${formData.name.substring(0, 3)}-${Date.now()}`,
+          // 2. (ИСПРАВЛЕНИЕ SKU) Генерируем SKU здесь, если его нет
+          sku: simpleVariant.sku || `BASE-${formData.name.substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`,
                                attributes: {},
                                quantity: parseInt(simpleVariant.quantity) || 0,
                                price: null,
@@ -428,7 +430,7 @@ function ProductEdit() {
     > + </button>
     </div>
 
-    {/* 1. ВОССТАНОВЛЕННЫЙ JSX (для фикса ESLint) */}
+    {/* 3. (ВОССТАНОВЛЕННЫЙ JSX - ИСПРАВЛЕНИЕ ESLint) */}
     {showAddCategory && (
       <div className="admin-product-edit__add-category-form">
       <div className="admin-product-edit__add-category-input-group">
@@ -486,7 +488,7 @@ function ProductEdit() {
     </div>
     </div>
 
-    {/* --- 2. ВОССТАНОВЛЕННЫЙ JSX --- */}
+    {/* --- 4. (ВОССТАНОВЛЕННЫЙ JSX) Описание --- */}
     <div className="admin-product-edit__form-section">
     <h2 className="admin-product-edit__section-title">Описание</h2>
     <div className="admin-product-edit__form-group">
@@ -525,7 +527,7 @@ function ProductEdit() {
     </div>
     </div>
 
-    {/* --- 3. ВОССТАНОВЛЕННЫЙ JSX --- */}
+    {/* --- 5. (ВОССТАНОВЛЕННЫЙ JSX) Изображения --- */}
     <div className="admin-product-edit__form-section">
     <h2 className="admin-product-edit__section-title">Изображения</h2>
     <ImageUploader
@@ -607,12 +609,13 @@ function ProductEdit() {
       type="text"
       value={formData.variants[0]?.sku || ''}
       onChange={(e) => handleSimpleVariantChange(e, 'sku')}
-      placeholder="Напр. STICKER-001"
-      className="admin-product-edit__input"
-      />
-      </div>
-      </div>
-      </div>
+      readOnly // (ИСПРАВЛЕНИЕ SKU)
+    placeholder="Генерируется при сохранении..."
+    className="admin-product-edit__input"
+    />
+    </div>
+    </div>
+    </div>
 
     ) : (
       // --- РЕЖИМ "ТОВАРА С ОПЦИЯМИ" ---
@@ -621,77 +624,78 @@ function ProductEdit() {
         <div key={index} className="admin-product-edit__variant-card">
         <div className="admin-product-edit__variant-grid-main">
         <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">SKU *</label>
+        <label className="admin-product-edit__label">SKU</label>
         <input
         type="text"
         value={variant.sku}
         onChange={(e) => handleVariantChange(e, index, 'sku')}
-        placeholder="Авто (или вручную)"
-        className="admin-product-edit__input"
-        />
-        </div>
+        readOnly // (ИСПРАВЛЕНИЕ SKU)
+      placeholder="Генерируется при сохранении..."
+      className="admin-product-edit__input"
+      />
+      </div>
 
-        <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">Размер</label>
-        <input
-        type="text"
-        value={variant.attributes?.size || ''}
-        onChange={(e) => handleVariantChange(e, index, 'size')}
-        className="admin-product-edit__input"
-        />
-        </div>
+      <div className="admin-product-edit__form-group">
+      <label className="admin-product-edit__label">Размер</label>
+      <input
+      type="text"
+      value={variant.attributes?.size || ''}
+      onChange={(e) => handleVariantChange(e, index, 'size')}
+      className="admin-product-edit__input"
+      />
+      </div>
 
-        <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">Цвет</label>
-        <input
-        type="text"
-        value={variant.attributes?.color || ''}
-        onChange={(e) => handleVariantChange(e, index, 'color')}
-        className="admin-product-edit__input"
-        />
-        </div>
+      <div className="admin-product-edit__form-group">
+      <label className="admin-product-edit__label">Цвет</label>
+      <input
+      type="text"
+      value={variant.attributes?.color || ''}
+      onChange={(e) => handleVariantChange(e, index, 'color')}
+      className="admin-product-edit__input"
+      />
+      </div>
 
-        <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">Доступен</label>
-        <div className="admin-product-edit__checkbox-group">
-        <input
-        type="checkbox"
-        checked={variant.is_available}
-        onChange={(e) => handleVariantChange(e, index, 'is_available')}
-        />
-        </div>
-        </div>
-        </div>
+      <div className="admin-product-edit__form-group">
+      <label className="admin-product-edit__label">Доступен</label>
+      <div className="admin-product-edit__checkbox-group">
+      <input
+      type="checkbox"
+      checked={variant.is_available}
+      onChange={(e) => handleVariantChange(e, index, 'is_available')}
+      />
+      </div>
+      </div>
+      </div>
 
-        <div className="admin-product-edit__variant-grid-secondary">
-        <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">Количество *</label>
-        <input
-        type="number"
-        value={variant.quantity}
-        onChange={(e) => handleVariantChange(e, index, 'quantity')}
-        required min="0"
-        className="admin-product-edit__input"
-        />
-        </div>
-        <div className="admin-product-edit__form-group">
-        <label className="admin-product-edit__label">Цена (если отличается)</label>
-        <input
-        type="number"
-        value={variant.price || ''}
-        onChange={(e) => handleVariantChange(e, index, 'price')}
-        min="0" step="0.01"
-        className="admin-product-edit__input"
-        />
-        </div>
-        </div>
+      <div className="admin-product-edit__variant-grid-secondary">
+      <div className="admin-product-edit__form-group">
+      <label className="admin-product-edit__label">Количество *</label>
+      <input
+      type="number"
+      value={variant.quantity}
+      onChange={(e) => handleVariantChange(e, index, 'quantity')}
+      required min="0"
+      className="admin-product-edit__input"
+      />
+      </div>
+      <div className="admin-product-edit__form-group">
+      <label className="admin-product-edit__label">Цена (если отличается)</label>
+      <input
+      type="number"
+      value={variant.price || ''}
+      onChange={(e) => handleVariantChange(e, index, 'price')}
+      min="0" step="0.01"
+      className="admin-product-edit__input"
+      />
+      </div>
+      </div>
 
-        <button
-        type="button"
-        onClick={() => removeVariant(index)}
-        className="admin-product-edit__button--remove"
-        > Удалить вариант </button>
-        </div>
+      <button
+      type="button"
+      onClick={() => removeVariant(index)}
+      className="admin-product-edit__button--remove"
+      > Удалить вариант </button>
+      </div>
       ))}
 
       <button
