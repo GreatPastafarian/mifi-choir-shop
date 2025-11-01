@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getAllProducts, deleteProduct } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { useAuth } from '../../context/AuthContext';
+import { BASE_URL } from '../../services/api';
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -56,13 +57,22 @@ function Products() {
     }
   };
 
-  const getImageUrl = (image) => {
-    // Вспомогательная функция для корректного URL
-    if (!image) return '/placeholder.jpg';
-    if (image.startsWith('http')) return image;
-    // Используем PUBLIC_URL, если он настроен, или относительный путь
-    const baseUrl = process.env.REACT_APP_API_URL || '';
-    return `${baseUrl}${image.startsWith('/') ? '' : '/'}${image}`;
+  const getImageUrl = (imagePath) => {
+    if (!imagePath) {
+      return '/placeholder.jpg'; // Используем локальный плейсхолдер
+    }
+    if (imagePath.startsWith('http')) {
+      return imagePath; // Это уже полный URL
+    }
+
+    // !! ВОТ ИСПРАВЛЕНИЕ:
+    // Убираем 'public/' из начала пути, если он там есть
+    const cleanPath = imagePath.startsWith('public/')
+      ? imagePath.substring(7) // 7 — это длина 'public/'
+      : imagePath;
+
+    // Собираем URL с BASE_URL, убедившись, что нет двойных слэшей
+    return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
   };
 
   // 3. ЗАМЕНА INLINE-СТИЛЕЙ НА БЭМ-КЛАССЫ

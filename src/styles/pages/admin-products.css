@@ -70,7 +70,8 @@
 }
 
 .admin-products__card-image {
-    height: 200px;
+    aspect-ratio: 1 / 1; /* <--- ВОТ РЕШЕНИЕ */
+    /* height: 200px; */ /* <--- УБИРАЕМ ЭТО */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

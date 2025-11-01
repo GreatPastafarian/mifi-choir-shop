@@ -37,7 +37,6 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
   };
 
   const handleFiles = async (files) => {
-    // Оптимизация: Оставляем только проверку по MIME-типу, она надежнее
     const imageFiles = files.filter((file) => file.type.startsWith('image/'));
 
     if (imageFiles.length === 0) {
@@ -58,21 +57,26 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     }
   };
 
-  // 3. УДАЛЯЕМ БАГОВАННУЮ ФУНКЦИЮ 'removeImage'
-  /*
-   c onst removeImage = (index)* => {
-   // ... (Этот код был некорректным)
-};
-*/
-
+  // 3. ИСПРАВЛЕНИЕ ЗДЕСЬ: Заменяем 'imagePath' на 'image'
   const getImageUrl = (image) => {
-    if (!image) return `${BASE_URL}/placeholder-image.jpg`;
-    if (image.startsWith('http')) return image;
-    const cleanPath = image.startsWith('/') ? image : `/${image}`;
-    return `${BASE_URL}${cleanPath}`;
+    if (!image) {
+      // Используем плейсхолдер из public, т.к. BASE_URL может не работать для плейсхолдера
+      return '/placeholder.jpg';
+    }
+    if (image.startsWith('http')) {
+      return image; // Это уже полный URL
+    }
+
+    // Убираем 'public/' из начала пути
+    const cleanPath = image.startsWith('public/')
+    ? image.substring(7) // 7 — это длина 'public/'
+    : image;
+
+    // Собираем URL с BASE_URL
+    return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
   };
 
-  // 5. ЗАМЕНЯЕМ ВСЕ 'style' НА 'className'
+
   return (
     <div className="image-uploader">
     {/* Зона для drag and drop */}
@@ -99,7 +103,7 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
       height="48"
       viewBox="0 0 24 24"
       fill="none"
-      stroke="currentColor" // 'currentColor' унаследует цвет от CSS
+      stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -130,11 +134,7 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     />
 
     {/* Отображение ошибок */}
-    {error && (
-      <div className="image-uploader__error">
-      {error}
-      </div>
-    )}
+    {error && <div className="image-uploader__error">{error}</div>}
 
     {/* Предпросмотр загруженных изображений */}
     {currentImages && currentImages.length > 0 && (
@@ -146,15 +146,15 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
         alt={`Preview ${index + 1}`}
         className="image-uploader__preview-image"
         onError={(e) => {
-          e.target.src = `${BASE_URL}/placeholder-image.jpg`;
+          // Если (даже после исправления) URL битый, ставим плейсхолдер
+          e.target.src = '/placeholder.jpg';
         }}
         />
         <button
         type="button"
-        // 4. ИСПРАВЛЯЕМ БАГ: ВЫЗЫВАЕМ 'onImageDelete' С URL ИЗОБРАЖЕНИЯ
         onClick={(e) => {
           e.stopPropagation();
-          onImageDelete(image); // Передаем URL, а не index
+          onImageDelete(image); // Вызываем 'onImageDelete' с URL
         }}
         className="image-uploader__preview-delete"
         aria-label="Удалить изображение"
