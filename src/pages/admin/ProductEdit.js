@@ -71,7 +71,14 @@ function ProductEdit() {
                         details: productData.details || [],
                         images: productData.images || [],
                         // Гарантируем, что у товара всегда есть хотя бы 1 вариант
-                        variants: (productData.variants && productData.variants.length > 0) ? productData.variants : [initialState.variants[0]],
+                        // ИСПРАВЛЕНИЕ: [initialState.variants[0]] было [undefined]
+                        variants: (productData.variants && productData.variants.length > 0) ? productData.variants : [{
+                          sku: '',
+                          attributes: {},
+                          quantity: 0,
+                          price: null,
+                          is_available: true
+                        }],
             });
           } else {
             setError('Некорректный ID товара');

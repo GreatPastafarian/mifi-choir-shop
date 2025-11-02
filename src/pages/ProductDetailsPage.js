@@ -105,16 +105,26 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
   // 2. (ИСПРАВЛЕНИЕ ESLint) Определяем ЦЕНУ и ОСТАТОК
   const [displayPrice, currentStock] = useMemo(() => {
+
+    // --- ИСПРАВЛЕНИЕ ---
+    // Добавляем "защиту" на случай, если product === null
+    if (!product) {
+      return [0, 0]; // Возвращаем значения по умолчанию, пока продукт не загружен
+    }
+    // --- Конец исправления ---
+
     if (selectedVariant && selectedVariant.is_available) {
       const price = selectedVariant.price || product.base_price;
       const stock = selectedVariant.quantity;
-      return [price, stock]; // <-- Убрали 'true' / 'isAvailable'
+      return [price, stock];
     }
     if (hasAttributes && !selectedVariant) {
-      return [product.base_price, 0]; // <-- Убрали 'false'
+      return [product.base_price, 0];
     }
-    return [product.base_price, 0]; // <-- Убрали 'false'
-  }, [hasAttributes, selectedVariant, product?.base_price]);
+    return [product.base_price, 0];
+
+    // Также лучше поменять зависимость с product?.base_price на 'product'
+  }, [hasAttributes, selectedVariant, product]);
 
   // Сбрасываем количество, если выбрали > чем есть
   useEffect(() => {
@@ -129,15 +139,35 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
 
   const handleAttributeSelect = (name, value) => {
-    setSelectedAttributes((prev) => {
-      if (prev[name] === value) {
-        const { [name]: _, ...rest } = prev;
-        return rest;
-      }
-      return { ...prev, [name]: value };
-    });
+    setSelectedAttributes((prev) => ({
+      ...prev,
+      [name]: value
+    }));
     setQuantity(1);
   };
+
+  useEffect(() => {
+    // Убедимся, что продукт загружен, у него есть атрибуты,
+    // и пользователь еще ничего не выбрал вручную
+    if (product && hasAttributes && Object.keys(selectedAttributes).length === 0) {
+
+      // 1. Ищем первый вариант, который ЕСТЬ В НАЛИЧИИ
+      const firstAvailableVariant = product.variants.find(
+        v => v.is_available && v.quantity > 0 && Object.keys(v.attributes).length > 0
+      );
+
+      if (firstAvailableVariant) {
+        // Если нашли - устанавливаем его атрибуты
+        setSelectedAttributes(firstAvailableVariant.attributes);
+      } else {
+        // 2. Если все не в наличии, выбираем просто первый вариант из списка
+        const firstVariant = product.variants.find(v => Object.keys(v.attributes).length > 0);
+        if (firstVariant) {
+          setSelectedAttributes(firstVariant.attributes);
+        }
+      }
+    }
+  }, [product, hasAttributes, selectedAttributes]); // Зависимости
 
   const handleAddToCart = () => {
     if (currentStock < 1) {
