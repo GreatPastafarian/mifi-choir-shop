@@ -15,7 +15,6 @@ exports.getAllProducts = async (req, res) => {
         { model: Variant, as: 'variants' },
         { model: ProductImage, as: 'images' },
       ],
-      order: [['sort_order', 'ASC']],
     });
 
     // ИСПОЛЬЗУЕМ СЕРВИС
@@ -109,7 +108,6 @@ exports.getProductsByCategory = async (req, res) => {
         { model: Variant, as: 'variants' },
         { model: ProductImage, as: 'images' },
       ],
-      order: [['sort_order', 'ASC']],
     });
 
     // ИСПОЛЬЗUЕМ СЕРВИС
@@ -196,7 +194,6 @@ exports.createProduct = async (req, res) => {
       const images = req.body.images.map((url, index) => ({
         image_url: url,
         product_id: product.id,
-        sort_order: index,
       }));
       await ProductImage.bulkCreate(images);
     }
@@ -254,7 +251,6 @@ exports.updateProduct = async (req, res) => {
         const images = req.body.images.map((url, index) => ({
           image_url: url,
           product_id: product.id,
-          sort_order: index,
         }));
         await ProductImage.bulkCreate(images);
       }
@@ -307,7 +303,6 @@ exports.adminGetAllProducts = async (req, res) => {
         { model: Variant, as: 'variants' },
         { model: ProductImage, as: 'images' },
       ],
-      order: [['sort_order', 'ASC']],
     });
 
     // ИСПОЛЬЗУЕМ СЕРВИС

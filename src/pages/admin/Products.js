@@ -1,9 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // Добавлен useMemo
 import { Link, useNavigate } from 'react-router-dom';
 import { getAdminProducts, deleteProduct } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { useAuth } from '../../context/AuthContext';
 import { BASE_URL } from '../../services/api';
+
+// (ИЗМЕНЕНИЕ) Компонент ProductCard вынесен для чистоты
+const ProductCard = ({ product, categoryName, getImageUrl, handleDelete, navigate }) => {
+  const imageUrl = getImageUrl(product.images && product.images[0]);
+
+  return (
+    <div className="admin-products__card">
+      <div
+        className="admin-products__card-image"
+        style={{ backgroundImage: `url(${imageUrl})` }}
+      >
+        {product.is_new && (
+          <div className="admin-products__card-badge">Новинка</div>
+        )}
+      </div>
+
+      <div className="admin-products__card-info">
+        <div className="admin-products__card-info-header">
+          <h3 className="admin-products__card-title">
+            {product.name}
+          </h3>
+          <span className="admin-products__card-price">
+            {product.base_price} ₽
+          </span>
+        </div>
+
+        <div className="admin-products__card-category">
+          {categoryName || 'Без категории'}
+        </div>
+
+        <div className="admin-products__card-actions">
+          <button
+            onClick={() =>
+              navigate(`/admin/products/edit/${product.id}`)
+            }
+            className="btn secondary admin-products__card-button"
+          >
+            Редактировать
+          </button>
+          <button
+            onClick={() => handleDelete(product.id)}
+            className="btn secondary admin-products__card-button admin-products__card-button--delete"
+          >
+            Удалить
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -21,8 +72,8 @@ function Products() {
 
     const fetchData = async () => {
       try {
-        // Оптимизация: категории можно вынести в Context,
-        // но пока оставим Promise.all
+        setLoading(true); // (ИЗМЕНЕНИЕ) Устанавливаем loading в начале
+        setError(null);
         const [productsData, categoriesData] = await Promise.all([
           getAdminProducts(),
           getAllCategories(),
@@ -40,13 +91,11 @@ function Products() {
     fetchData();
   }, [isAdmin, navigate]);
 
-  // 2. ОПТИМИЗАЦИЯ ЛОГИКИ УДАЛЕНИЯ
   const handleDelete = async (productId) => {
     if (window.confirm('Вы действительно хотите удалить этот товар?')) {
       try {
-        setError(null); // Сбрасываем предыдущие ошибки
+        setError(null);
         await deleteProduct(productId);
-        // Обновляем state, не перезагружая все данные с сервера
         setProducts((prevProducts) =>
           prevProducts.filter((product) => product.id !== productId)
         );
@@ -59,23 +108,66 @@ function Products() {
 
   const getImageUrl = (imagePath) => {
     if (!imagePath) {
-      return '/placeholder.jpg'; // Используем локальный плейсхолдер
+      return '/placeholder.jpg';
     }
     if (imagePath.startsWith('http')) {
-      return imagePath; // Это уже полный URL
+      return imagePath;
     }
-
-    // !! ВОТ ИСПРАВЛЕНИЕ:
-    // Убираем 'public/' из начала пути, если он там есть
     const cleanPath = imagePath.startsWith('public/')
-      ? imagePath.substring(7) // 7 — это длина 'public/'
+      ? imagePath.substring(7)
       : imagePath;
-
-    // Собираем URL с BASE_URL, убедившись, что нет двойных слэшей
     return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
   };
 
-  // 3. ЗАМЕНА INLINE-СТИЛЕЙ НА БЭМ-КЛАССЫ
+  // (НОВАЯ ЛОГИКА) Группировка товаров по категориям
+  const groupedProducts = useMemo(() => {
+    if (products.length === 0 || categories.length === 0) {
+      return [];
+    }
+
+    const productsMap = new Map();
+    const uncategorized = [];
+
+    // 1. Распределяем товары по ID категории
+    for (const product of products) {
+      if (product.category_id && categories.find(c => c.id === product.category_id)) {
+        if (!productsMap.has(product.category_id)) {
+          productsMap.set(product.category_id, []);
+        }
+        productsMap.get(product.category_id).push(product);
+      } else {
+        uncategorized.push(product);
+      }
+    }
+
+    // 2. Формируем массив секций
+    const sections = [];
+
+    // 3. Сначала добавляем секции для категорий, у которых есть товары
+    for (const category of categories) {
+      const categoryProducts = productsMap.get(category.id);
+      if (categoryProducts && categoryProducts.length > 0) {
+        sections.push({
+          id: category.id,
+          name: category.name,
+          products: categoryProducts,
+        });
+      }
+    }
+
+    // 4. В конце добавляем секцию "Без категории", если там есть товары
+    if (uncategorized.length > 0) {
+      sections.push({
+        id: 'uncategorized',
+        name: 'Без категории',
+        products: uncategorized,
+      });
+    }
+
+    return sections;
+
+  }, [products, categories]);
+
 
   if (!isAdmin) {
     return null;
@@ -96,7 +188,7 @@ function Products() {
         <p>{error}</p>
         <button
           className="btn primary admin-products__retry-button"
-          onClick={() => window.location.reload()}
+          onClick={() => window.location.reload()} // Простой способ перезагрузить
         >
           Повторить попытку
         </button>
@@ -122,60 +214,25 @@ function Products() {
             </Link>
           </div>
         ) : (
-          <div className="admin-products__grid">
-            {products.map((product) => {
-              const category = categories.find(
-                (c) => c.id === product.category_id
-              );
-              const imageUrl = getImageUrl(
-                product.images && product.images[0]
-              );
-
-              return (
-                <div key={product.id} className="admin-products__card">
-                  <div
-                    className="admin-products__card-image"
-                    style={{ backgroundImage: `url(${imageUrl})` }}
-                  >
-                    {product.is_new && (
-                      <div className="admin-products__card-badge">Новинка</div>
-                    )}
-                  </div>
-
-                  <div className="admin-products__card-info">
-                    <div className="admin-products__card-info-header">
-                      <h3 className="admin-products__card-title">
-                        {product.name}
-                      </h3>
-                      <span className="admin-products__card-price">
-                        {product.base_price} ₽
-                      </span>
-                    </div>
-
-                    <div className="admin-products__card-category">
-                      {category ? category.name : 'Без категории'}
-                    </div>
-
-                    <div className="admin-products__card-actions">
-                      <button
-                        onClick={() =>
-                          navigate(`/admin/products/edit/${product.id}`)
-                        }
-                        className="btn secondary admin-products__card-button"
-                      >
-                        Редактировать
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="btn secondary admin-products__card-button admin-products__card-button--delete"
-                      >
-                        Удалить
-                      </button>
-                    </div>
-                  </div>
+          // (НОВАЯ ЛОГИКА) Рендерим секции по категориям
+          <div className="admin-products__groups-wrapper">
+            {groupedProducts.map((group) => (
+              <section key={group.id} className="admin-products__category-group">
+                <h2 className="admin-products__category-title">{group.name}</h2>
+                <div className="admin-products__grid">
+                  {group.products.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      categoryName={group.name} // Передаем имя, чтобы не искать снова
+                      getImageUrl={getImageUrl}
+                      handleDelete={handleDelete}
+                      navigate={navigate}
+                    />
+                  ))}
                 </div>
-              );
-            })}
+              </section>
+            ))}
           </div>
         )}
       </div>

@@ -15,6 +15,7 @@ import AdminDashboard from './pages/admin/AdminDashboard';
 import Products from './pages/admin/Products';
 import ProductEdit from './pages/admin/ProductEdit';
 import AdminDonationsPanel from './components/auth/AdminDonationsPanel';
+import AdminCategories from './pages/admin/AdminCategories';
 import ContactsPage from './pages/ContactsPage';
 import AboutPage from './pages/AboutPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -278,6 +279,14 @@ const AppContent = () => {
                   <AdminDonationsPanel />
                 </AdminRoute>
               }
+            />
+            <Route
+            path="/admin/categories"
+            element={
+              <AdminRoute>
+              <AdminCategories />
+              </AdminRoute>
+            }
             />
 
             {/* Редиректы */}

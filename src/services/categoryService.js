@@ -1,24 +1,40 @@
 import api from './api';
 
-// Получить все категории
+// 1. Получить ВСЕ
 export const getAllCategories = async () => {
   try {
     const response = await api.get('/categories');
     return response.data;
   } catch (error) {
-    console.error('Ошибка при получении категорий:', error);
+    console.error('Ошибка при загрузке категорий:', error);
     throw error;
   }
 };
 
-// Создать/обновить категорию (только для администраторов)
+// 2. Получить ОДНУ по ID
+export const getCategoryById = async (id) => {
+  try {
+    const response = await api.get(`/categories/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Ошибка при загрузке категории ${id}:`, error);
+    throw error;
+  }
+};
+
+// 3. Сохранить (СОЗДАТЬ / ОБНОВИТЬ)
 export const saveCategory = async (categoryData) => {
   try {
-    if (categoryData.id) {
-      const response = await api.put(`/admin/categories/${categoryData.id}`, categoryData);
+    const { id, ...data } = categoryData;
+
+
+    if (id) {
+      // Обновление
+      const response = await api.put(`/categories/${id}`, data);
       return response.data;
     } else {
-      const response = await api.post('/admin/categories', categoryData);
+      // Создание
+      const response = await api.post('/categories', data);
       return response.data;
     }
   } catch (error) {
@@ -27,12 +43,13 @@ export const saveCategory = async (categoryData) => {
   }
 };
 
-// Удалить категорию (только для администраторов)
-export const deleteCategory = async (categoryId) => {
+// 4. Удалить
+export const deleteCategory = async (id) => {
   try {
-    await api.delete(`/admin/categories/${categoryId}`);
+    const response = await api.delete(`/categories/${id}`);
+    return response.data;
   } catch (error) {
-    console.error('Ошибка при удалении категории:', error);
+    console.error(`Ошибка при удалении категории ${id}:`, error);
     throw error;
   }
 };

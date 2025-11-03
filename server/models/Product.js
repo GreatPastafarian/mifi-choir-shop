@@ -55,10 +55,6 @@ const Product = sequelize.define(
         min: 0,
       },
     },
-    sort_order: {
-      type: DataTypes.INTEGER,
-      defaultValue: 0,
-    },
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

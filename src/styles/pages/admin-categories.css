@@ -1,0 +1,166 @@
+/*
+ * Стили для ЕДИНОЙ страницы категорий (БЭМ)
+ * Блок: admin-categories
+ */
+
+.admin-categories {
+    background-color: #f8f9fa; /* Серый фон, как у ProductEdit */
+    padding-top: 2rem;
+    padding-bottom: 5rem; /* Отступ от футера */
+    min-height: 100vh;
+}
+
+.admin-categories__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.admin-categories__container--centered {
+    text-align: center;
+    padding-top: 2rem;
+    background-color: transparent;
+}
+
+/* --- Секция со СПИСКОМ --- */
+.admin-categories__list-section {
+    background-color: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+}
+
+.admin-categories__header {
+    display: flex;
+    flex-direction: column; /* Mobile-first */
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+    .admin-categories__header {
+        flex-direction: row;
+        align-items: center;
+    }
+}
+
+.admin-categories__error {
+    color: #c33;
+    background-color: #fdecec;
+    border: 1px solid #f9c0c0;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+/* --- Стили таблицы --- */
+.admin-categories__table-wrapper {
+    overflow-x: auto;
+    border: 1px solid #eee;
+    border-radius: 8px;
+}
+
+.admin-categories__table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-categories__table th,
+.admin-categories__table td {
+    padding: 1rem;
+    text-align: left;
+    vertical-align: middle;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.admin-categories__table th {
+    background-color: #f9f9f9;
+    font-weight: 600;
+}
+
+.admin-categories__table tr:last-child td {
+    border-bottom: none;
+}
+
+.admin-categories__table-img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eee;
+}
+
+.admin-categories__table-desc {
+    font-size: 0.9rem;
+    color: #666;
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-categories__table-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-categories__table-actions .btn--danger {
+    background-color: var(--text-light, #f8f9fa);
+    color: #d32f2f;
+    border: 1px solid #d32f2f;
+}
+.admin-categories__table-actions .btn--danger:hover {
+    background-color: #fdecec;
+}
+
+
+/* Адаптивность для таблицы */
+@media (max-width: 768px) {
+    .admin-categories__table thead {
+        display: none;
+    }
+    .admin-categories__table tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .admin-categories__table tr:last-child {
+        margin-bottom: 0;
+    }
+    .admin-categories__table td {
+        display: block;
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border-bottom: 1px solid #f5f5f5;
+    }
+    .admin-categories__table td:last-child {
+        border-bottom: none;
+    }
+    .admin-categories__table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 45%;
+        text-align: left;
+        font-weight: 600;
+    }
+    .admin-categories__table-desc {
+        white-space: normal;
+        max-width: 100%;
+    }
+    .admin-categories__table-actions {
+        justify-content: flex-end;
+    }
+    .admin-categories__table-img {
+        float: right;
+    }
+}
