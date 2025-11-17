@@ -16,6 +16,7 @@ function ShopPage({ addToCart }) {
     const fetchCategories = async () => {
       try {
         const categoriesData = await getAllCategories();
+        console.log('[ShopPage] Категории с сервера:', categoriesData);
         setCategories(categoriesData);
       } catch (err) {
         setError('Не удалось загрузить категории');
@@ -86,6 +87,7 @@ function ShopPage({ addToCart }) {
     ) : (
       <div className="categories-grid">
       {categories.map((category) => {
+        // (ИЗМЕНЕНИЕ 3) Используем хелперы для генерации путей
         const imageUrl = getImageUrl(category.image);
         const { sm, srcSet } = getProductImageSet(imageUrl);
 
@@ -95,39 +97,38 @@ function ShopPage({ addToCart }) {
           className="category-card"
           onClick={() => navigate(`/category/${category.id}`)}
           >
-          {/* 1. Картинка (сверху) */}
+          {/* (ИЗМЕНЕНИЕ 4) Обертка + Тег <img> вместо background-image */}
           <div className="category-image-wrapper">
           <img
           className="category-image"
-          src={sm}
-          srcSet={srcSet}
-          sizes="(max-width: 600px) 100vw, 300px"
-          alt={category.name}
-          loading="lazy"
-          />
-          </div>
+          src={sm} // Грузим маленькую версию (400px)
+        srcSet={srcSet} // Адаптивность
+        sizes="(max-width: 600px) 100vw, 300px"
+        alt={category.name}
+        loading="lazy" // Ленивая загрузка
+        />
+        </div>
 
-          {/* 2. Контент (снизу) */}
-          <div className="category-card__content">
-          <h3 className="category-card__title">
-          {category.name}
-          </h3>
+        <div className="category-card__content">
+        <h3 className="category-card__title">
+        {category.name}
+        </h3>
 
-          <p className="category-card__description">
-          {category.description || 'Описание категории'}
-          </p>
+        <p className="category-card__description">
+        {category.description || 'Описание категории'}
+        </p>
 
-          <button
-          className="btn secondary category-card__button"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigate(`/category/${category.id}`);
-          }}
-          >
-          Смотреть товары
-          </button>
-          </div>
-          </div>
+        <button
+        className="btn secondary category-card__button"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/category/${category.id}`);
+        }}
+        >
+        Смотреть товары
+        </button>
+        </div>
+        </div>
         );
       })}
       </div>
