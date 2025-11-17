@@ -1,50 +1,64 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // (ИЗМЕНЕНИЕ) Добавлен useNavigate
+import React, { useState, useMemo } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// (ИЗМЕНЕНИЕ) Импортируем хелперы
 import { getImageUrl, getProductImageSet } from '../utils/imageUtils';
+import '../styles/pages/favorites-page.css';
 
 function FavoritesPage({ addToCart }) {
   const { favorites, toggleFavorite } = useAuth();
   const [imageErrors, setImageErrors] = useState({});
-  const navigate = useNavigate(); // (ИЗМЕНЕНИЕ)
+  const navigate = useNavigate();
 
-  // (ИЗМЕНЕНИЕ) Полностью удалены 'sizeSelections' и 'handleSizeChange'
+  // (НОВАЯ ЛОГИКА) Группировка по категориям
+  const groupedFavorites = useMemo(() => {
+    return favorites.reduce((acc, item) => {
+      const category = item.category_name || item.category || 'Без категории';
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {});
+  }, [favorites]);
 
-  // (ИЗМЕНЕНИЕ) Упрощенный обработчик
-  const handleAddToCart = (item) => {
-    // Проверяем, есть ли у товара вообще варианты (по наличию attributes в 1-м варианте)
-    // Это не 100% надежно, т.к. product неполный, но лучше, чем ничего.
-    // Самое правильное - ВСЕГДА переходить на страницу товара.
-    const hasVariants = item.variants && item.variants.length > 0 &&
+  const hasProductVariants = (item) => {
+    return item.variants && item.variants.length > 0 &&
     item.variants[0].attributes &&
     Object.keys(item.variants[0].attributes).length > 0;
+  };
 
-    // (ИЗМЕНЕНИЕ) Твоя логика: в избранном варианты не нужны,
-    // значит, для добавления в корзину нужно перейти на страницу товара.
-    if (hasVariants) {
+  const handleAddToCart = (item) => {
+    if (!hasProductVariants(item)) {
+      const itemToAdd = {
+        ...item,
+        quantity: 1,
+        category_name: item.category_name || item.category,
+        variantId: item.variants[0]?.id || item.id,
+        sku: item.variants[0]?.sku || null,
+        attributes: {},
+        price: item.base_price || item.price || 0
+      };
+      addToCart(itemToAdd);
+    } else {
       navigate(`/product/${item.id}`);
-      return;
     }
-
-    // Если это простой товар (нет вариантов), добавляем его
-    const itemToAdd = {
-      ...item,
-      category_name: item.category_name || item.category,
-      variantId: item.variants[0]?.id || item.id, // ID "простого" варианта
-      sku: item.variants[0]?.sku || null,
-      attributes: {},
-    };
-    addToCart(itemToAdd);
   };
 
   const handleAddAllToCart = () => {
-    // (ИЗМЕНЕНИЕ) Эта логика становится сложной.
-    // Лучше уведомить пользователя, что нужно добавлять по одному.
-    alert("Пожалуйста, добавьте товары в корзину по одному, чтобы выбрать нужные опции.");
+    const simpleItems = favorites.filter(item => !hasProductVariants(item));
 
-    // Либо можно добавить все "простые" товары, а "сложные" проигнорировать,
-    // но это запутает пользователя.
+    if (simpleItems.length === 0 && favorites.length > 0) {
+      alert("Все ваши избранные товары требуют выбора опций. Пожалуйста, перейдите к каждому товару отдельно.");
+      return;
+    }
+
+    simpleItems.forEach(item => {
+      handleAddToCart(item);
+    });
+
+    if (simpleItems.length < favorites.length) {
+      alert("Товары с выбором опций не были добавлены. Выберите их параметры на странице товара.");
+    }
   };
 
   const handleRemoveFromFavorites = async (item) => {
@@ -67,7 +81,6 @@ function FavoritesPage({ addToCart }) {
   };
 
   return (
-    // (ИЗМЕНЕНИЕ) БЭМ-классы
     <div className="favorites-page">
     <div className="favorites-page__container container">
     <div className="favorites-page__header">
@@ -77,62 +90,79 @@ function FavoritesPage({ addToCart }) {
 
     {favorites.length > 0 ? (
       <div className="favorites-page__content">
+
+      {/* (ИЗМЕНЕНИЕ) Список с группировкой */}
       <div className="favorites-page__list">
-      {favorites.map((item) => {
-        const price = item.base_price || item.price || 0;
+      {Object.entries(groupedFavorites).map(([categoryName, categoryItems]) => (
+        <section key={categoryName} className="favorites-page__category-section">
+        <h2 className="favorites-page__category-title">{categoryName}</h2>
+        <div className="favorites-page__items-group">
+        {categoryItems.map((item) => {
+          const price = item.base_price || item.price || 0;
+          const imageUrl = getImageUrl(item.images && item.images[0]);
+          const { sm: thumbSm, srcSet: thumbSrcSet } = getProductImageSet(imageUrl);
+          const hasImageError = imageErrors[item.id];
+          const category = item.category_name || item.category;
+          const hasVariants = hasProductVariants(item);
 
-        // (ИЗМЕНЕНИЕ) Используем хелперы для изображений
-        const imageUrl = getImageUrl(item.images && item.images[0]);
-        const { sm: thumbSm, srcSet: thumbSrcSet } = getProductImageSet(imageUrl);
-        const hasImageError = imageErrors[item.id];
-        const category = item.category_name || item.category;
-
-        return (
-          <article key={item.id} className="favorite-item-card">
-          <Link to={`/product/${item.id}`} className="favorite-item-card__image-link">
-          <div className="favorite-item-card__image-wrapper">
-          {!hasImageError ? (
-            // (ИЗМЕНЕНИЕ) Адаптивное изображение
-            <img
-            className="favorite-item-card__image"
-            src={thumbSm}
-            srcSet={thumbSrcSet}
-            sizes="120px"
-            alt={item.name}
-            loading="lazy"
-            onError={() => handleImageError(item.id)}
-            />
-          ) : (
-            <div className="favorite-item-card__placeholder">
-            <span>Нет изображения</span>
+          return (
+            <article key={item.id} className="favorite-item-card">
+            <Link to={`/product/${item.id}`} className="favorite-item-card__image-link">
+            <div className="favorite-item-card__image-wrapper">
+            {!hasImageError ? (
+              <img
+              className="favorite-item-card__image"
+              src={thumbSm}
+              srcSet={thumbSrcSet}
+              sizes="120px"
+              alt={item.name}
+              loading="lazy"
+              onError={() => handleImageError(item.id)}
+              />
+            ) : (
+              <div className="favorite-item-card__placeholder">
+              <span>Нет фото</span>
+              </div>
+            )}
             </div>
-          )}
-          </div>
-          </Link>
-          <div className="favorite-item-card__details">
-          <Link to={`/product/${item.id}`} className="favorite-item-card__info-link">
-          <div className="favorite-item-card__category">{category}</div>
-          <h3 className="favorite-item-card__name">{item.name}</h3>
+            </Link>
 
-          {/* (ИЗМЕНЕНИЕ) Селектор размера полностью удален */}
+            <div className="favorite-item-card__details">
+            <Link to={`/product/${item.id}`} className="favorite-item-card__info-link">
+            <div className="favorite-item-card__category">{category}</div>
+            <h3 className="favorite-item-card__name">{item.name}</h3>
+            </Link>
+            {/* (ИЗМЕНЕНИЕ) Цена вынесена в отдельный блок внутри details, но сверстана лучше */}
+            <div className="favorite-item-card__price-block">
+            <span className="favorite-item-card__price-label">Пожертвование:</span>
+            <span className="favorite-item-card__price-value">{price} ₽</span>
+            </div>
+            </div>
 
-          <div className="favorite-item-card__price">Рекомендованное пожертвование: {price} ₽</div>
-          </Link>
-          </div>
-          <div className="favorite-item-card__actions">
-          <button className="btn primary" onClick={() => handleAddToCart(item)}>
-          Добавить в корзину
-          </button>
-          <button
-          className="btn secondary"
-          onClick={() => handleRemoveFromFavorites(item)}
-          >
-          Удалить из избранного
-          </button>
-          </div>
-          </article>
-        );
-      })}
+            <div className="favorite-item-card__actions">
+            {hasVariants ? (
+              <Link to={`/product/${item.id}`} className="btn primary btn--full-width">
+              Выбрать опции
+              </Link>
+            ) : (
+              <button className="btn primary btn--full-width" onClick={() => handleAddToCart(item)}>
+              В корзину
+              </button>
+            )}
+
+            <button
+            className="btn secondary btn--full-width"
+            onClick={() => handleRemoveFromFavorites(item)}
+            >
+            Удалить
+            </button>
+            </div>
+            </article>
+          );
+        })}
+        </div>
+        </section>
+      ))}
       </div>
 
       <aside className="favorites-page__summary">
@@ -151,7 +181,7 @@ function FavoritesPage({ addToCart }) {
 
       <div className="favorites-summary-card__actions">
       <button className="btn primary" onClick={handleAddAllToCart}>
-      Добавить все в корзину
+      Добавить доступные в корзину
       </button>
       <Link to="/shop" className="btn secondary">
       Вернуться в каталог
@@ -169,12 +199,10 @@ function FavoritesPage({ addToCart }) {
       </div>
     )}
 
+    {/* Футер и примечание остались без изменений */}
     <footer className="favorites-page__footer">
     <div className="favorites-page__donation-note">
-    <p>
-    <strong>Важно:</strong> Рекомендованные суммы пожертвований помогают нам поддерживать качество сувенирной
-    продукции. Вы можете выбрать любое вознаграждение и определить размер пожертвования самостоятельно.
-    </p>
+    <p><strong>Важно:</strong> Рекомендованные суммы пожертвований помогают нам поддерживать качество сувенирной продукции. Вы можете выбрать любое вознаграждение и определить размер пожертвования самостоятельно.</p>
     </div>
     </footer>
     </div>

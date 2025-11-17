@@ -1,116 +1,215 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
-// (ИЗМЕНЕНИЕ) Импортируем иконки и хелперы
-import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
+import {
+  MdFavorite,
+  MdFavoriteBorder,
+  MdClose,
+  MdArrowBackIos,
+  MdArrowForwardIos,
+  MdZoomIn,
+  MdZoomOut,
+  MdFullscreen
+} from 'react-icons/md';
 import { getImageUrl, getProductImageSet } from '../../utils/imageUtils';
+import '../../styles/pages/product-gallery.css';
 
-// (ИЗМЕНЕНИЕ) Принимаем 'selectionMade'
 function ProductGallery({ images, inStock, selectionMade, isFavorite, toggleFavorite }) {
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [imageError, setImageError] = useState({});
 
+  // Состояния для Lightbox
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1);
+
   const validImages = Array.isArray(images) && images.length > 0 ? images : [];
 
-  // Сбрасываем на первое изображение, когда меняется ID продукта (список images)
+  // Сброс при смене товара
   useEffect(() => {
     setCurrentImageIndex(0);
     setImageError({});
+    setIsLightboxOpen(false);
+    setZoomLevel(1);
   }, [images]);
 
-  const handleImageError = (index) => {
-    setImageError((prev) => ({ ...prev, [index]: true }));
-  };
-
-  // Получаем URL и srcSet для ТЕКУЩЕГО ВЫБРАННОГО изображения
-  const currentImageUrl = getImageUrl(validImages[currentImageIndex]);
-  const { srcSet: mainSrcSet, lg: mainLg } = getProductImageSet(currentImageUrl);
-
-  // Функция для рендера бейджа наличия
-  const renderStockBadge = () => {
-    // Не показываем бейдж, если выбор варианта еще не сделан
-    if (!selectionMade) {
-      return null;
-    }
-
-    if (inStock > 0) {
-      return (
-        <div className="product-gallery__stock-badge product-gallery__stock-badge--in-stock">
-        В наличии ({inStock})
-        </div>
-      );
+  // Блокировка скролла
+  useEffect(() => {
+    if (isLightboxOpen) {
+      document.body.style.overflow = 'hidden';
     } else {
-      return (
-        <div className="product-gallery__stock-badge product-gallery__stock-badge--out-of-stock">
-        Нет в наличии
-        </div>
-      );
+      document.body.style.overflow = 'unset';
     }
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [isLightboxOpen]);
+
+  // --- ФУНКЦИИ УПРАВЛЕНИЯ (Определяем ДО useEffect) ---
+
+  const closeLightbox = useCallback((e) => {
+    e?.stopPropagation();
+    setIsLightboxOpen(false);
+    setZoomLevel(1);
+  }, []);
+
+  const nextImage = useCallback((e) => {
+    e?.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % validImages.length);
+    setZoomLevel(1);
+  }, [validImages.length]);
+
+  const prevImage = useCallback((e) => {
+    e?.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + validImages.length) % validImages.length);
+    setZoomLevel(1);
+  }, [validImages.length]);
+
+  const handleZoomIn = (e) => {
+    e?.stopPropagation();
+    setZoomLevel(prev => Math.min(prev + 0.5, 3));
   };
 
-  return (
-    <div className="product-gallery">
-    {/* --- Основное изображение --- */}
-    <div className="product-gallery__main-image">
-    {validImages.length > 0 && !imageError[currentImageIndex] ? (
-      <img
-      className="product-gallery__img"
-      src={mainLg} // Fallback (1200px)
-    srcSet={mainSrcSet} // Адаптивность
-    sizes="(max-width: 900px) 90vw, 50vw" // Подсказка браузеру
-    alt={`Изображение товара ${currentImageIndex + 1}`}
-    loading="eager" // Главное изображение грузим сразу
-    onError={() => handleImageError(currentImageIndex)}
-    />
-    ) : (
-      <div className="product-gallery__placeholder">
-      <div className="product-gallery__placeholder-icon"></div>
+  const handleZoomOut = (e) => {
+    e?.stopPropagation();
+    setZoomLevel(prev => Math.max(prev - 0.5, 1));
+  };
+
+  const openLightbox = () => {
+    if (validImages.length > 0) setIsLightboxOpen(true);
+  };
+
+    const handleImageError = (index) => {
+      setImageError((prev) => ({ ...prev, [index]: true }));
+    };
+
+    // --- ЭФФЕКТ КЛАВИШ (Теперь функции уже определены) ---
+    useEffect(() => {
+      const handleKeyDown = (e) => {
+        if (!isLightboxOpen) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') nextImage(e);
+        if (e.key === 'ArrowLeft') prevImage(e);
+      };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [isLightboxOpen, closeLightbox, nextImage, prevImage]);
+
+
+    // --- РЕНДЕРИНГ ---
+
+    // Текущее изображение
+    const currentImage = validImages[currentImageIndex];
+    const currentImageUrl = getImageUrl(currentImage);
+    const { srcSet: mainSrcSet, lg: mainLg } = getProductImageSet(currentImageUrl);
+
+    const renderStockBadge = () => {
+      if (!selectionMade) return null;
+      return inStock > 0 ? (
+        <div className="product-gallery__badge product-gallery__badge--instock">В наличии ({inStock})</div>
+      ) : (
+        <div className="product-gallery__badge product-gallery__badge--outstock">Нет в наличии</div>
+      );
+    };
+
+    return (
+      <div className="product-gallery">
+      {/* === 1. ОБЫЧНЫЙ РЕЖИМ === */}
+      <div className="product-gallery__main-wrapper" onClick={openLightbox}>
+      {validImages.length > 0 && !imageError[currentImageIndex] ? (
+        <img
+        className="product-gallery__main-img"
+        src={mainLg}
+        srcSet={mainSrcSet}
+        sizes="(max-width: 900px) 90vw, 50vw"
+        alt={`Товар ${currentImageIndex + 1}`}
+        loading="eager"
+        onError={() => handleImageError(currentImageIndex)}
+        />
+      ) : (
+        <div className="product-gallery__placeholder">
+        <div className="product-gallery__placeholder-icon"></div>
+        </div>
+      )}
+
+      <div className="product-gallery__overlay-hint">
+      <MdFullscreen /> Развернуть
       </div>
-    )}
 
-    {/* --- Бейджи (Статус и Избранное) --- */}
-    {renderStockBadge()}
+      {renderStockBadge()}
 
-    {user && (
-      <button
-      type="button"
-      onClick={toggleFavorite}
-      className="product-gallery__favorite-btn"
-      >
-      {/* (ИЗМЕНЕНИЕ) Иконки из react-icons */}
-      {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
-      </button>
-    )}
-    </div>
-
-    {/* --- Миниатюры --- */}
-    {validImages.length > 1 && (
-      <div className="product-gallery__thumbnails">
-      {validImages.map((image, index) => {
-        if (imageError[index]) return null;
-
-        // Получаем URL и srcSet для КАЖДОЙ миниатюры
-        const thumbUrl = getImageUrl(image);
-        const { sm: thumbSm } = getProductImageSet(thumbUrl);
-
-        return (
-          <img
-          key={index}
-          src={thumbSm} // Грузим 400px (sm) версию для миниатюры
-          alt={`Миниатюра ${index + 1}`}
-          className={`product-gallery__thumbnail-img ${
-            currentImageIndex === index ? 'product-gallery__thumbnail-img--active' : ''
-          }`}
-          loading="eager" // Миниатюры грузим "лениво"
-          onClick={() => setCurrentImageIndex(index)}
-          onError={() => handleImageError(index)}
-          />
-        );
-      })}
+      {user && (
+        <button
+        type="button"
+        className="product-gallery__fav-btn"
+        onClick={(e) => { e.stopPropagation(); toggleFavorite(); }}
+        >
+        {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+        </button>
+      )}
       </div>
-    )}
-    </div>
-  );
+
+      {/* Миниатюры */}
+      {validImages.length > 1 && (
+        <div className="product-gallery__thumbs">
+        {validImages.map((image, index) => {
+          if (imageError[index]) return null;
+          const thumbUrl = getImageUrl(image);
+          const { sm: thumbSm } = getProductImageSet(thumbUrl);
+
+          return (
+            <img
+            key={index}
+            src={thumbSm}
+            alt={`Миниатюра ${index + 1}`}
+            className={`product-gallery__thumb ${currentImageIndex === index ? 'active' : ''}`}
+            loading="lazy"
+            onClick={() => setCurrentImageIndex(index)}
+            onError={() => handleImageError(index)}
+            />
+          );
+        })}
+        </div>
+      )}
+
+      {/* === 2. ЛАЙТБОКС === */}
+      {isLightboxOpen && (
+        <div className="lightbox" onClick={closeLightbox}>
+        <div className="lightbox__toolbar" onClick={(e) => e.stopPropagation()}>
+        <span className="lightbox__counter">
+        {currentImageIndex + 1} / {validImages.length}
+        </span>
+        <div className="lightbox__tools">
+        <button onClick={handleZoomOut} disabled={zoomLevel <= 1}><MdZoomOut /></button>
+        <button onClick={handleZoomIn} disabled={zoomLevel >= 3}><MdZoomIn /></button>
+        <button onClick={closeLightbox} className="lightbox__close"><MdClose /></button>
+        </div>
+        </div>
+
+        <div
+        className="lightbox__content"
+        style={{ transform: `scale(${zoomLevel})` }}
+        onClick={(e) => e.stopPropagation()}
+        >
+        <img
+        src={mainLg}
+        alt="Full view"
+        className="lightbox__image"
+        draggable="false"
+        />
+        </div>
+
+        {validImages.length > 1 && (
+          <>
+          <button className="lightbox__nav lightbox__nav--prev" onClick={prevImage}>
+          <MdArrowBackIos />
+          </button>
+          <button className="lightbox__nav lightbox__nav--next" onClick={nextImage}>
+          <MdArrowForwardIos />
+          </button>
+          </>
+        )}
+        </div>
+      )}
+      </div>
+    );
 }
 
 export default ProductGallery;

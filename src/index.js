@@ -12,6 +12,8 @@ import './styles/pages/product-card.css';
 import './styles/pages/product-gallery.css';
 import './styles/pages/cart-page.css';
 import './styles/pages/favorites-page.css';
+import './styles/pages/category-page.css';
+import './styles/pages/shop-page.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

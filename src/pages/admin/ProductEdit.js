@@ -558,6 +558,7 @@ function ProductEdit() {
     currentImages={formData.images}
     onImagesUploaded={handleImagesUploaded}
     onImageDelete={handleImageDelete}
+    uploadType="product"
     />
     <div className="admin-product-edit__manual-upload">
     <h3 className="admin-product-edit__manual-upload-title">

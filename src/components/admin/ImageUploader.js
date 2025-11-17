@@ -2,9 +2,10 @@ import React, { useState, useRef } from 'react';
 import { uploadImages } from '../../services/productService';
 import { BASE_URL } from '../../services/api';
 
+// Вычисляем чистый домен сервера один раз
+const SERVER_URL = BASE_URL.replace(/\/api\/?$/, '');
 
-// 2. ДОБАВЛЯЕМ 'onImageDelete' В ПРОПСЫ
-const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) => {
+const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete, uploadType = 'default' }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
@@ -26,7 +27,6 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-
     const files = Array.from(e.dataTransfer.files);
     handleFiles(files);
   };
@@ -47,7 +47,8 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     try {
       setError(null);
       setUploading(true);
-      const uploadedImages = await uploadImages(imageFiles);
+      // Передаем тип загрузки (product/category)
+      const uploadedImages = await uploadImages(imageFiles, uploadType);
       onImagesUploaded(uploadedImages);
     } catch (err) {
       console.error('Upload failed:', err);
@@ -57,29 +58,32 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     }
   };
 
-  // 3. ИСПРАВЛЕНИЕ ЗДЕСЬ: Заменяем 'imagePath' на 'image'
-  const getImageUrl = (image) => {
+  // Локальный хелпер для отображения превью
+  const getPreviewUrl = (image) => {
     if (!image) {
-      // Используем плейсхолдер из public, т.к. BASE_URL может не работать для плейсхолдера
-      return '/placeholder.jpg';
+      return '/placeholder.png'; // (ИСПРАВЛЕНИЕ) .png вместо .jpg
     }
     if (image.startsWith('http')) {
-      return image; // Это уже полный URL
+      return image;
     }
 
-    // Убираем 'public/' из начала пути
-    const cleanPath = image.startsWith('public/')
-    ? image.substring(7) // 7 — это длина 'public/'
-    : image;
+    // Убираем 'public/' если вдруг он там есть
+    let cleanPath = image;
+    if (cleanPath.startsWith('public/')) {
+      cleanPath = cleanPath.substring(7);
+    }
 
-    // Собираем URL с BASE_URL
-    return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
+    // Убеждаемся, что путь начинается со слэша
+    if (!cleanPath.startsWith('/')) {
+      cleanPath = '/' + cleanPath;
+    }
+
+    // (ИСПРАВЛЕНИЕ) Используем SERVER_URL вместо BASE_URL, чтобы не было /api/uploads
+    return `${SERVER_URL}${cleanPath}`;
   };
-
 
   return (
     <div className="image-uploader">
-    {/* Зона для drag and drop */}
     <div
     className={`image-uploader__drop-zone ${
       isDragging ? 'image-uploader__drop-zone--dragging' : ''
@@ -122,7 +126,6 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     )}
     </div>
 
-    {/* Скрытый input для выбора файлов */}
     <input
     ref={fileInputRef}
     type="file"
@@ -133,28 +136,25 @@ const ImageUploader = ({ onImagesUploaded, currentImages = [], onImageDelete }) 
     disabled={uploading}
     />
 
-    {/* Отображение ошибок */}
     {error && <div className="image-uploader__error">{error}</div>}
 
-    {/* Предпросмотр загруженных изображений */}
     {currentImages && currentImages.length > 0 && (
       <div className="image-uploader__preview-grid">
       {currentImages.map((image, index) => (
         <div key={index} className="image-uploader__preview-item">
         <img
-        src={getImageUrl(image)}
+        src={getPreviewUrl(image)}
         alt={`Preview ${index + 1}`}
         className="image-uploader__preview-image"
         onError={(e) => {
-          // Если (даже после исправления) URL битый, ставим плейсхолдер
-          e.target.src = '/placeholder.jpg';
+          e.target.src = '/placeholder.png'; // (ИСПРАВЛЕНИЕ) .png
         }}
         />
         <button
         type="button"
         onClick={(e) => {
           e.stopPropagation();
-          onImageDelete(image); // Вызываем 'onImageDelete' с URL
+          onImageDelete(image);
         }}
         className="image-uploader__preview-delete"
         aria-label="Удалить изображение"

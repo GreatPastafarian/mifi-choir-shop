@@ -1,0 +1,153 @@
+/*
+ * Стили для страницы Магазина (БЭМ)
+ * Блок: shop-page
+ */
+
+.shop-page {
+  min-height: 100vh;
+  background-color: #fffdf5;
+}
+
+/* --- Герой-баннер --- */
+.shop-hero {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  color: #fff;
+  padding: 0 16px;
+  position: relative;
+  background-color: #0a2240;
+}
+
+.shop-hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  color: #fff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.shop-hero p {
+  font-size: 1.2rem;
+  max-width: 700px;
+  margin: 0 auto;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* --- Секция категорий --- */
+.shop-categories {
+  padding: 3rem 0 5rem;
+}
+
+/* Сетка категорий */
+.categories-grid {
+  display: grid;
+  /* (ИЗМЕНЕНИЕ) Уменьшил minmax с 280px до 240px, чтобы влезло 4 */
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 2rem;
+}
+
+/* --- Карточка категории --- */
+.category-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border: 1px solid transparent;
+}
+
+.category-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  border-color: #8d1f2c;
+}
+
+/* Обертка для картинки */
+.category-image-wrapper {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+  background-color: #f0f0f0;
+}
+
+.category-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.category-card:hover .category-image {
+  transform: scale(1.05);
+}
+
+/* Контент под картинкой */
+.category-card__content {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: center;
+}
+
+.category-card__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.5rem;
+  margin: 0 0 0.75rem 0;
+  color: #0a2240;
+  line-height: 1.2;
+}
+
+.category-card__description {
+  font-size: 0.95rem;
+  color: #666;
+  line-height: 1.5;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.category-card__button {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 768px) {
+  .shop-hero h1 {
+    font-size: 2rem;
+  }
+
+  .categories-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-card__content {
+    padding: 1.25rem;
+  }
+}
+
+/* (ИЗМЕНЕНИЕ) Гарантируем 4 колонки на десктопе */
+@media (min-width: 1200px) {
+  .categories-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

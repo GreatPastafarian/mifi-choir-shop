@@ -3,9 +3,8 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, incrementViewCount } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
 import ProductGallery from '../components/product/ProductGallery';
-
-// (Иконка для списка "детали")
 import { MdCheckCircle } from 'react-icons/md';
+import '../styles/pages/product-details-page.css';
 
 function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   const { id } = useParams();
@@ -30,7 +29,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
       try {
         setLoading(true);
         const productId = parseInt(id);
-
         const productData = await getProductById(productId);
 
         if (!productData) {
@@ -59,7 +57,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     fetchProduct();
   }, [id, navigate]);
 
-  // Динамически получаем АТРИБУТЫ (S, M, L, Red...)
   const availableAttributes = useMemo(() => {
     const attributesMap = {};
     if (product?.variants) {
@@ -81,11 +78,9 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     return attributesMap;
   }, [product?.variants]);
 
-  // Определяем, есть ли у товара АТРИБУТЫ ("товар с выбором")
   const attributeKeys = useMemo(() => Object.keys(availableAttributes), [availableAttributes]);
   const hasAttributes = attributeKeys.length > 0;
 
-  // Ищем ВЫБРАННЫЙ ВАРИАНT
   const selectedVariant = useMemo(() => {
     if (!hasAttributes && product && product.variants.length > 0) {
       return product.variants[0];
@@ -103,15 +98,10 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     return null;
   }, [selectedAttributes, product, hasAttributes, attributeKeys]);
 
-  // 2. (ИСПРАВЛЕНИЕ ESLint) Определяем ЦЕНУ и ОСТАТОК
   const [displayPrice, currentStock] = useMemo(() => {
-
-    // --- ИСПРАВЛЕНИЕ ---
-    // Добавляем "защиту" на случай, если product === null
     if (!product) {
-      return [0, 0]; // Возвращаем значения по умолчанию, пока продукт не загружен
+      return [0, 0];
     }
-    // --- Конец исправления ---
 
     if (selectedVariant && selectedVariant.is_available) {
       const price = selectedVariant.price || product.base_price;
@@ -122,11 +112,8 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
       return [product.base_price, 0];
     }
     return [product.base_price, 0];
-
-    // Также лучше поменять зависимость с product?.base_price на 'product'
   }, [hasAttributes, selectedVariant, product]);
 
-  // Сбрасываем количество, если выбрали > чем есть
   useEffect(() => {
     if (currentStock === 0) {
       setQuantity(1);
@@ -137,7 +124,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     }
   }, [currentStock, quantity]);
 
-
   const handleAttributeSelect = (name, value) => {
     setSelectedAttributes((prev) => ({
       ...prev,
@@ -147,27 +133,21 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   };
 
   useEffect(() => {
-    // Убедимся, что продукт загружен, у него есть атрибуты,
-    // и пользователь еще ничего не выбрал вручную
     if (product && hasAttributes && Object.keys(selectedAttributes).length === 0) {
-
-      // 1. Ищем первый вариант, который ЕСТЬ В НАЛИЧИИ
       const firstAvailableVariant = product.variants.find(
         v => v.is_available && v.quantity > 0 && Object.keys(v.attributes).length > 0
       );
 
       if (firstAvailableVariant) {
-        // Если нашли - устанавливаем его атрибуты
         setSelectedAttributes(firstAvailableVariant.attributes);
       } else {
-        // 2. Если все не в наличии, выбираем просто первый вариант из списка
         const firstVariant = product.variants.find(v => Object.keys(v.attributes).length > 0);
         if (firstVariant) {
           setSelectedAttributes(firstVariant.attributes);
         }
       }
     }
-  }, [product, hasAttributes, selectedAttributes]); // Зависимости
+  }, [product, hasAttributes, selectedAttributes]);
 
   const handleAddToCart = () => {
     if (currentStock < 1) {
@@ -175,7 +155,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
       return;
     }
     if (hasAttributes && !selectedVariant) {
-      alert('Пожалуйста, выберите все доступные опции (например, размер и цвет)');
+      alert('Пожалуйста, выберите все доступные опции');
       return;
     }
     if (quantity > currentStock) {
@@ -219,11 +199,9 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     }
   };
 
-  // ----- РЕНДЕРИНГ -----
-
   if (loading) {
     return (
-      <div className="container product-page__container--centered">
+      <div className="product-page__container product-page__container--centered">
       <h1>Загрузка товара...</h1>
       </div>
     );
@@ -231,7 +209,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
   if (error || !product) {
     return (
-      <div className="container product-page__container--centered">
+      <div className="product-page__container product-page__container--centered">
       <h1>Товар не найден</h1>
       <p>Извините, запрашиваемый товар не существует.</p>
       <Link to="/shop" className="btn primary product-page__error-btn">
@@ -244,7 +222,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   return (
     <div className="product-details-page">
     <div className="product-page__container">
-    {/* Хлебные крошки */}
     <div className="product-page__breadcrumb">
     <Link to="/">Главная</Link>
     <span>›</span>
@@ -256,7 +233,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     </div>
 
     <div className="product-page__main-content">
-    {/* Галерея */}
     <ProductGallery
     images={product.images}
     inStock={currentStock}
@@ -265,7 +241,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     toggleFavorite={handleToggleFavorite}
     />
 
-    {/* Информация о товаре */}
     <div className="product-page__info">
     <div className="product-page__meta">
     <span className="product-page__category-badge">
@@ -287,38 +262,29 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     {displayPrice} ₽
     </div>
 
-    {/* Динамический селектор вариантов */}
-    {hasAttributes ? (
+    {hasAttributes && (
       <div className="product-page__selectors">
       {attributeKeys.map((name) => (
         <div key={name} className="product-page__selector">
         <h3 className="product-page__selector-title">{name}:</h3>
         <div className="product-page__selector-options">
-        {availableAttributes[name].map((value) => {
-          const isOptionAvailable = true; // (TODO: Add advanced availability check)
-
-        return (
+        {availableAttributes[name].map((value) => (
           <button
           key={value}
           className={`product-page__option-btn ${
             selectedAttributes[name] === value ? 'selected' : ''
           }`}
           onClick={() => handleAttributeSelect(name, value)}
-          disabled={!isOptionAvailable}
           >
           {value}
           </button>
-        );
-        })}
+        ))}
         </div>
         </div>
       ))}
       </div>
-    ) : (
-      null // Это "простой" товар, селекторы не нужны
     )}
 
-    {/* Контроль количества */}
     <div className="product-page__quantity-card">
     <div className="product-page__quantity-header">
     <label htmlFor="quantity" className="product-page__quantity-label">
@@ -357,7 +323,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     </div>
     </div>
 
-    {/* Кнопки действий */}
     <div className="product-page__actions">
     <button
     className="btn primary product-page__add-btn"
@@ -369,19 +334,16 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     </div>
     </div>
 
-    {/* Описание товара */}
     <div className="product-page__description-section">
     <h2 className="product-page__description-title">Описание</h2>
     <div className="product-page__description-content">
     <p>{product.description}</p>
-
     {product.materials && (
       <>
       <h3>Материалы и особенности</h3>
       <p>{product.materials}</p>
       </>
     )}
-
     {product.details && product.details.length > 0 && (
       <ul className="product-page__details-list">
       {product.details.map((detail, index) => (

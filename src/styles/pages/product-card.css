@@ -5,50 +5,51 @@
 
 .product-card {
   background-color: white;
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-md, 8px);
   overflow: hidden;
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-sm, 0 2px 4px rgba(0,0,0,0.05));
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: 100%; /* Позволяет карточкам в сетке быть одинаковой высоты */
+  height: 100%;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-lg, 0 8px 16px rgba(0,0,0,0.1));
 }
 
-/* --- 1. Секция изображения --- */
-
+/* --- Секция изображения --- */
 .product-card__image-wrapper {
   position: relative;
-  overflow: hidden; /* Важно для ::before оверлея */
+  overflow: hidden;
+  aspect-ratio: 1 / 1; /* Квадрат */
+  width: 100%;
 }
 
 .product-card__image-link {
-  display: block; /* Чтобы <img> внутри вел себя корректно */
-  font-size: 0; /* Убирает "мусорные" отступы */
+  display: block;
+  width: 100%;
+  height: 100%;
+  font-size: 0;
 }
 
-/* * (ИЗМЕНЕНИЕ) Ключевые стили для <img>:
- * object-fit заменяет background-size
- */
 .product-card__image {
   display: block;
   width: 100%;
-  aspect-ratio: 1 / 1; /* Всегда квадрат */
-  object-fit: cover; /* Вписывает, обрезая лишнее */
+  height: 100%;
+  object-fit: cover;
   transition: transform 0.3s ease;
+  /* Анимация появления при загрузке */
   animation: fadeIn 0.5s ease-in-out;
 }
 
 .product-card:hover .product-card__image {
-  transform: scale(1.05); /* Легкий зум при наведении */
+  transform: scale(1.05);
 }
 
-/* "Новинка" */
+/* Бейдж "Новинка" */
 .product-card__badge {
   position: absolute;
   top: 12px;
@@ -56,30 +57,27 @@
   padding: 4px 10px;
   font-size: 0.8rem;
   font-weight: bold;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 4px);
   z-index: 2;
   background-color: var(--accent-gold, #d4af37);
   color: var(--primary-dark, #0a2240);
 }
 
-/* Кнопка "Избранное" (сердце) */
+/* Кнопка "Избранное" */
 .product-card__favorite-btn {
   position: absolute;
   top: 12px;
   right: 12px;
   z-index: 2;
-
   background: rgba(255, 255, 255, 0.9);
   border: none;
   border-radius: 50%;
   width: 36px;
   height: 36px;
-
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   transition: all 0.2s ease;
 }
@@ -92,16 +90,15 @@
 .product-card__favorite-btn svg {
   width: 20px;
   height: 20px;
-  color: #d32f2f; /* Основной цвет (красный) */
+  color: #d32f2f;
 }
 
-/* --- 2. Секция Информации --- */
-
+/* --- Секция Информации --- */
 .product-card__info {
   padding: 1rem;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Занимает оставшееся место, прижимая цену вниз */
+  flex-grow: 1; /* Растягиваем */
 }
 
 .product-card__title-link {
@@ -110,13 +107,12 @@
 }
 
 .product-card__title {
-  font-size: 1.1rem;
+  font-size: 1.25rem;
   font-weight: 600;
   line-height: 1.4;
   margin: 0;
-
-  /* Ограничение в 2 строки */
-  height: 3.08rem; /* (1.1rem * 1.4 * 2 строки) */
+  text-align: center;
+  height: 3.08rem; /* 2 строки */
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
@@ -131,8 +127,8 @@
 }
 
 .product-card__price-wrapper {
-  margin-top: auto; /* Прижимает этот блок к низу карточки */
-  padding-top: 1rem; /* Отступ от заголовка */
+  margin-top: auto;
+  padding-top: 1rem;
 }
 
 .product-card__price {
@@ -140,7 +136,7 @@
   color: var(--primary-dark, #0a2240);
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
-  text-align: left;
+  text-align: center;
 }
 
 .product-card__action-btn {

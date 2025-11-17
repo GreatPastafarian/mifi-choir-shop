@@ -149,7 +149,7 @@ export const createCategory = async (categoryData) => {
 };
 
 // Загрузка изображений
-export const uploadImages = async (files) => {
+export const uploadImages = async (files, type = 'default') => {
   try {
     const formData = new FormData();
 
@@ -157,7 +157,8 @@ export const uploadImages = async (files) => {
       formData.append('images', file);
     });
 
-    const response = await api.post('/upload/images', formData, {
+    // (ИЗМЕНЕНИЕ) Добавляем ?type=${type} к URL
+    const response = await api.post(`/upload/images?type=${type}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

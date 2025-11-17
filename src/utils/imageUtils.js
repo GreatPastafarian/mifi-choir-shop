@@ -1,27 +1,45 @@
-// src/utils/imageUtils.js
-// (Этот файл НЕ ИСПОЛЬЗУЕТ BASE_URL)
+import { BASE_URL } from '../services/api';
+
+// Получаем чистый домен сервера (например, "http://localhost:5000" из "http://localhost:5000/api")
+const SERVER_URL = BASE_URL.replace(/\/api\/?$/, '');
 
 /**
- * Генерирует URL изображения.
+ * Генерирует полный URL изображения.
  * @param {string} imagePath - Путь из БД (напр., "/uploads/image-123.webp")
  */
 export const getImageUrl = (imagePath) => {
     if (!imagePath) {
-        return '/placeholder.png'; // Плейсхолдер из папки /public
+        return '/placeholder.png'; // Используем правильное расширение .png
     }
-    if (imagePath.startsWith('http') || imagePath.startsWith('/placeholder')) {
+
+    // Если это уже полная ссылка (например, внешний URL)
+    if (imagePath.startsWith('http')) {
         return imagePath;
     }
-    // URL уже должен быть относительным, вида /uploads/filename.webp
-    return imagePath;
+
+    // Если это плейсхолдер (он лежит на фронтенде, в папке public)
+    if (imagePath.startsWith('/placeholder')) {
+        return imagePath;
+    }
+
+    // Если путь начинается с /uploads, добавляем домен сервера
+    if (imagePath.startsWith('/uploads')) {
+        return `${SERVER_URL}${imagePath}`;
+    }
+
+    // На случай, если путь без слэша в начале
+    return `${SERVER_URL}/uploads/${imagePath}`;
 };
 
 /**
- * Генерирует пути к разным размерам изображения
- * @param {string} baseUrl - Базовый URL, напр., "/uploads/image-123.webp"
+ * Генерирует пути к разным размерам изображения для srcset
+ * @param {string} baseUrl - Базовый URL
  */
 export const getProductImageSet = (baseUrl) => {
-    if (!baseUrl || !baseUrl.includes('.webp') || !baseUrl.startsWith('/uploads')) {
+    // Сначала получаем полный URL через нашу функцию
+    const fullUrl = getImageUrl(baseUrl);
+
+    if (!fullUrl || fullUrl.includes('/placeholder.png')) {
         const placeholder = '/placeholder.png';
         return {
             sm: placeholder,
@@ -32,17 +50,17 @@ export const getProductImageSet = (baseUrl) => {
     }
 
     // Убираем ".webp", чтобы добавить суффиксы
-    const base = baseUrl.replace('.webp', '');
+    const base = fullUrl.replace('.webp', '');
 
+    // Генерируем полные пути для версий
     const sm = `${base}-sm.webp`;
     const md = `${base}-md.webp`;
-    const lg = baseUrl; // "lg" - это наш базовый URL без суффикса
+    const lg = fullUrl; // lg - это и есть оригинал
 
     return {
         sm,
         md,
         lg,
-        // Строка для атрибута srcset
         srcSet: `${sm} 400w, ${md} 800w, ${lg} 1200w`,
     };
 };

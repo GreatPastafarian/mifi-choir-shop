@@ -1,116 +1,232 @@
+/*
+ * Стили для Галереи и Лайтбокса (БЭМ)
+ */
+
 .product-gallery {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    position: relative; /* Для дочерних absolute-элементов */
+    position: relative;
+    user-select: none;
 }
 
-/* --- 1. Главное изображение --- */
-.product-gallery__main-image {
+/* --- Главное фото на странице --- */
+.product-gallery__main-wrapper {
     position: relative;
     aspect-ratio: 1 / 1;
     background-color: #f9f9f9;
-    border-radius: var(--radius-md, 8px);
+    border-radius: 8px;
     overflow: hidden;
-    border: 1px solid #f0f0f0;
+    border: 1px solid #eee;
+    cursor: zoom-in;
 }
 
-.product-gallery__img {
+.product-gallery__main-img {
     width: 100%;
     height: 100%;
-    object-fit: cover; /* Заполняет квадрат, обрезая лишнее */
+    object-fit: cover;
+    transition: transform 0.3s ease;
 }
 
-/* Плейсхолдер, если нет фото */
-.product-gallery__placeholder {
-    width: 100%;
-    height: 100%;
+.product-gallery__main-wrapper:hover .product-gallery__main-img {
+    transform: scale(1.02);
+}
+
+/* Оверлей "Развернуть" */
+.product-gallery__overlay-hint {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 30px;
+    font-size: 1rem;
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: #f9f9f9;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-.product-gallery__placeholder-icon {
-    height: 80%;
-    width: 80%;
-    background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
-    background-size: 40px 40px;
-    opacity: 0.8;
+.product-gallery__main-wrapper:hover .product-gallery__overlay-hint {
+    opacity: 1;
 }
 
-/* --- 2. Бейджи (Статус и Избранное) --- */
-.product-gallery__stock-badge {
+/* Бейджи */
+.product-gallery__badge {
     position: absolute;
     top: 1rem;
     left: 1rem;
     color: white;
-    padding: 0.25rem 0.75rem;
+    padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
     z-index: 2;
 }
-.product-gallery__stock-badge--in-stock {
-    background-color: #4caf50; /* Зеленый */
-}
-.product-gallery__stock-badge--out-of-stock {
-    background-color: #f44336; /* Красный */
-}
+.product-gallery__badge--instock { background-color: #4caf50; }
+.product-gallery__badge--outstock { background-color: #f44336; }
 
-.product-gallery__favorite-btn {
+.product-gallery__fav-btn {
     position: absolute;
     top: 1rem;
     right: 1rem;
-    background: rgba(255, 255, 255, 0.8);
-    border: none;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 10;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    transition: all 0.2s ease;
+    z-index: 5;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
-.product-gallery__favorite-btn:hover {
-    transform: scale(1.1);
-    background: white;
-}
-.product-gallery__favorite-btn svg {
-    width: 20px;
-    height: 20px;
-    color: #d32f2f;
-}
+.product-gallery__fav-btn:hover { transform: scale(1.1); }
+.product-gallery__fav-btn svg { font-size: 1.5rem; color: #d32f2f; }
 
-/* --- 3. Миниатюры --- */
-.product-gallery__thumbnails {
+/* Миниатюры */
+.product-gallery__thumbs {
     display: flex;
     gap: 0.5rem;
     overflow-x: auto;
-    padding: 0.5rem 0; /* Даем тень от :hover */
+    padding: 4px 0;
+}
+.product-gallery__thumb {
+    width: 70px;
+    height: 70px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.product-gallery__thumb:hover { opacity: 0.8; }
+.product-gallery__thumb.active {
+    border-color: #8d1f2c;
+    box-shadow: 0 0 0 2px rgba(141, 31, 44, 0.2);
 }
 
-.product-gallery__thumbnail-img {
+/* =========================================
+ *  LIGHTBOX (Модальное окно)
+ *  ========================================= */
+
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.92); /* Почти черный фон */
+    z-index: 9999; /* Поверх всего */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: lightboxFadeIn 0.3s ease;
+}
+
+@keyframes lightboxFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Верхняя панель (Счетчик и инструменты) */
+.lightbox__toolbar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    z-index: 10002;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+}
+
+.lightbox__counter {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+.lightbox__tools {
+    display: flex;
+    gap: 1rem;
+}
+
+.lightbox__tools button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+}
+.lightbox__tools button:hover { opacity: 1; }
+.lightbox__tools button:disabled { opacity: 0.3; cursor: default; }
+
+/* Центральный контент */
+.lightbox__content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-out; /* Плавный зум */
+}
+
+.lightbox__image {
+    max-width: 90vw;
+    max-height: 85vh;
+    object-fit: contain;
+    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+}
+
+/* Навигация (Стрелки) */
+.lightbox__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: white;
     width: 60px;
     height: 60px;
-    object-fit: cover;
-    border-radius: 4px;
-    border: 2px solid #ddd;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
     cursor: pointer;
-    flex-shrink: 0;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
+    z-index: 10001;
 }
-
-.product-gallery__thumbnail-img:hover {
-    border-color: #aaa;
-    transform: scale(1.05);
+.lightbox__nav:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-50%) scale(1.1);
 }
+.lightbox__nav--prev { left: 2rem; padding-left: 5px; }
+.lightbox__nav--next { right: 2rem; padding-left: 5px; }
 
-.product-gallery__thumbnail-img--active {
-    border-color: var(--primary-accent, #8d1f2c);
-    transform: scale(1.05);
-    box-shadow: 0 0 5px rgba(141, 31, 44, 0.5);
+/* Адаптивность Лайтбокса */
+@media (max-width: 768px) {
+    .lightbox__nav {
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+    }
+    .lightbox__nav--prev { left: 10px; }
+    .lightbox__nav--next { right: 10px; }
+    .lightbox__toolbar { padding: 0 1rem; }
 }
