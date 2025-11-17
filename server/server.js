@@ -132,11 +132,19 @@ app.get('/api/test', (req, res) => {
 app.use('/api/upload', uploadRoutes);
 
 // Добавьте обслуживание статических файлов
-app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 дней в миллисекундах
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+  maxAge: oneWeek,
+  immutable: true
+}));
 
 // Обслуживание статических файлов из build-папки в продакшене
 if (process.env.NODE_ENV === 'production') {
-  app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+  const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 дней в миллисекундах
+  app.use('/uploads', express.static(path.join(__dirname, 'public/uploads'), {
+    maxAge: oneWeek,
+    immutable: true
+  }));
   app.use(express.static(path.join(__dirname, '../build')));
 
   // Критично: обработка SPA ДОЛЖНА БЫТЬ ПОСЛЕДНЕЙ!
