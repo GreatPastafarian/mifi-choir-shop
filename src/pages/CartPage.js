@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { BASE_URL } from '../services/api';
+import { getImageUrl, getProductImageSet } from '../utils/imageUtils'; // 1. Импорт хелперов
+import { MdShoppingCart } from 'react-icons/md';
+import '../styles/pages/cart-page.css'; // 2. Импорт БЭМ-стилей
 
 function CartPage({ cartItems, updateCart }) {
   const [items, setItems] = useState(cartItems);
@@ -20,20 +22,16 @@ function CartPage({ cartItems, updateCart }) {
     return acc;
   }, {});
 
-  const safeCalculateSubtotal = (items) => {
-    return items.reduce((sum, item) => {
-      const price = Number(item.price) || 0;
-      const quantity = Number(item.quantity) || 0;
-      return sum + price * quantity;
-    }, 0);
-  };
-
-  const subtotal = safeCalculateSubtotal(items);
+  const subtotal = items.reduce((sum, item) => {
+    const price = Number(item.price) || 0;
+    const quantity = Number(item.quantity) || 0;
+    return sum + price * quantity;
+  }, 0);
 
   const updateQuantity = (id, quantity, variantId) => {
     const newItems = items
-      .map((item) => (item.id === id && item.variantId === variantId ? { ...item, quantity } : item))
-      .filter((item) => item.quantity > 0);
+    .map((item) => (item.id === id && item.variantId === variantId ? { ...item, quantity } : item))
+    .filter((item) => item.quantity > 0);
     setItems(newItems);
     updateCart(newItems);
   };
@@ -44,162 +42,149 @@ function CartPage({ cartItems, updateCart }) {
     updateCart(newItems);
   };
 
-  const getImageUrl = (image) => {
-    if (!image) return '/placeholder.jpg';
-    if (image.startsWith('http')) return image;
-    if (image.startsWith('/uploads')) return `${BASE_URL}${image}`;
-    return `${BASE_URL}/uploads${image.startsWith('/') ? '' : '/'}${image}`;
+  const handleImageError = (itemIdKey) => {
+    setImageError((prev) => ({ ...prev, [itemIdKey]: true }));
   };
 
-  const handleImageError = (itemId, variantId, index) => {
-    setImageError((prev) => ({
-      ...prev,
-      [`${itemId}-${variantId || 'no-variant'}-${index}`]: true,
-    }));
+  // 3. (НОВАЯ ЛОГИКА) Рендеринг атрибутов
+  const renderAttributes = (attributes) => {
+    if (!attributes || Object.keys(attributes).length === 0) {
+      return null;
+    }
+    return Object.entries(attributes)
+    .map(([key, value]) => `${key}: ${value}`)
+    .join(', ');
   };
+
+  // 4. (УДАЛЕНО) Локальная функция getImageUrl
 
   return (
-    <div className={'container'}>
-      <h1 className={'pageTitle'}>Ваши выбранные вознаграждения</h1>
+    <div className="cart-page">
+    <div className="cart-page__container container">
+    <h1 className="cart-page__title">Ваши выбранные вознаграждения</h1>
 
-      <div className={'cartLayout'}>
-        <div className={'cartContent'}>
-          {Object.entries(groupedItems).map(([categoryName, categoryItems]) => (
-            <div key={categoryName} className={'categorySection'}>
-              <h2 className={'categoryTitle'}>{categoryName}</h2>
-              <div className={'cartItemsList'}>
-                {categoryItems.map((item) => {
-                  const price = Number(item.price) || 0;
-                  const quantity = Number(item.quantity) || 0;
-                  const itemTotal = price * quantity;
-                  const itemIdKey = `${item.id}-${item.variantId || 'no-variant'}`;
+    <div className="cart-page__layout">
+    <div className="cart-page__content">
+    {Object.entries(groupedItems).map(([categoryName, categoryItems]) => (
+      <section key={categoryName} className="cart-page__category-section">
+      <h2 className="cart-page__category-title">{categoryName}</h2>
+      <div className="cart-page__items-list">
+      {categoryItems.map((item) => {
+        const price = Number(item.price) || 0;
+        const quantity = Number(item.quantity) || 0;
+        const itemTotal = price * quantity;
+        const itemIdKey = `${item.id}-${item.variantId || 'no-variant'}`;
 
-                  const validImages = Array.isArray(item.images) && item.images.length > 0 ? item.images : [];
+        // 5. (ИЗМЕНЕНИЕ) Используем хелперы для изображений
+        const imageUrl = getImageUrl(item.images && item.images[0]);
+        const { sm: thumbSm, srcSet: thumbSrcSet } = getProductImageSet(imageUrl);
+        const hasImageError = imageError[itemIdKey];
+        const attributesText = renderAttributes(item.attributes);
 
-                  const hasImageError = imageError[`${item.id}-${item.variantId || 'no-variant'}-0`];
-
-                  return (
-                    <div key={itemIdKey} className={'cartItemCard'}>
-                      <Link to={`/product/${item.id}`} className={'cartItemImageLink'}>
-                        <div className={'cartItemImageContainer'}>
-                          {validImages.length > 0 && !hasImageError ? (
-                            <img
-                              src={getImageUrl(validImages[0])}
-                              alt={item.name}
-                              className={'cartItemImage'}
-                              onError={() => handleImageError(item.id, item.variantId, 0)}
-                            />
-                          ) : (
-                            <div className={'cartImagePlaceholder'}>
-                              <div className={'imagePlaceholderIcon'}></div>
-                            </div>
-                          )}
-                        </div>
-                      </Link>
-
-                      <div className={'cartItemDetails'}>
-                        <Link to={`/product/${item.id}`} className={'cartItemLink'}>
-                          <h3 className={'cartItemName'}>{item.name}</h3>
-                          {item.category_name && <div className={'cartItemCategory'}>{item.category_name}</div>}
-                          <div className={'cartItemPrice'}>Рекомендованное пожертвование: {price} ₽</div>
-
-                          {item.variantId && (
-                            <div className={'cartItemVariant'}>
-                              {item.size && `Размер: ${item.size}`}
-                              {item.color && (item.size ? `, Цвет: ${item.color}` : `Цвет: ${item.color}`)}
-                              {item.sku && ` (Арт: ${item.sku})`}
-                            </div>
-                          )}
-                        </Link>
-
-                        <div className={'cartItemControls'}>
-                          <div className={'quantitySelector'}>
-                            <label>Количество:</label>
-                            <div className={'quantityControl'}>
-                              <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.variantId)}>
-                                -
-                              </button>
-                              <input
-                                type="number"
-                                value={quantity}
-                                onChange={(e) => {
-                                  const value = Math.max(1, parseInt(e.target.value) || 1);
-                                  updateQuantity(item.id, value, item.variantId);
-                                }}
-                                min="1"
-                              />
-                              <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.variantId)}>
-                                +
-                              </button>
-                            </div>
-                          </div>
-
-                          <button className={'removeItemButton'} onClick={() => removeItem(item.id, item.variantId)}>
-                            Удалить
-                          </button>
-                        </div>
-                      </div>
-
-                      <div className={'cartItemTotal'}>{itemTotal} ₽</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-
-          {items.length === 0 && (
-            <div className={'emptyCartState'}>
-              <div className={'emptyCartIcon'}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="64"
-                  height="64"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="9" cy="21" r="1"></circle>
-                  <circle cx="20" cy="21" r="1"></circle>
-                  <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                </svg>
-              </div>
-              <p className={'emptyCartMessage'}>Вы еще не выбрали вознаграждения</p>
-              <Link to="/shop" className={`${'btn'} ${'btnPrimary'}`}>
-                Перейти к выбору
-              </Link>
+        return (
+          <article key={itemIdKey} className="cart-item-card">
+          <Link to={`/product/${item.id}`} className="cart-item-card__image-link">
+          <div className="cart-item-card__image-wrapper">
+          {!hasImageError ? (
+            <img
+            className="cart-item-card__image"
+            src={thumbSm} // Маленькая версия
+            srcSet={thumbSrcSet}
+            sizes="120px"
+            alt={item.name}
+            loading="lazy"
+            onError={() => handleImageError(itemIdKey)}
+            />
+          ) : (
+            <div className="cart-item-card__placeholder">
+            <div className="cart-item-card__placeholder-icon"></div>
             </div>
           )}
-        </div>
-
-        {items.length > 0 && (
-          <div className={'cartSummary'}>
-            <div className={'summaryCard'}>
-              <h2 className={'summaryTitle'}>Сводка пожертвования</h2>
-              <div className={'summaryContent'}>
-                <div className={'summaryRow'}>
-                  <span>Сумма рекомендованного пожертвования:</span>
-                  <span className={'summaryValue'}>{subtotal} ₽</span>
-                </div>
-
-                <div className={'summaryNote'}>
-                  <p>
-                    <strong>Важно:</strong> Фактический размер пожертвования вы определяете самостоятельно.
-                  </p>
-                  <p>Выбранные сувениры являются благодарностью за вашу поддержку хора МИФИ.</p>
-                </div>
-
-                <Link to="/checkout" className={`${'btn'} ${'btnPrimary'} ${'btnLarge'} ${'fullWidth'}`}>
-                  Подтвердить пожертвование
-                </Link>
-              </div>
-            </div>
           </div>
-        )}
+          </Link>
+
+          <div className="cart-item-card__details">
+          <Link to={`/product/${item.id}`} className="cart-item-card__info-link">
+          <h3 className="cart-item-card__name">{item.name}</h3>
+          {item.category_name && <div className="cart-item-card__category">{item.category_name}</div>}
+          <div className="cart-item-card__price">Рекомендованное пожертвование: {price} ₽</div>
+
+          {/* 6. (ИЗМЕНЕНИЕ) Динамический рендер атрибутов */}
+          {attributesText && (
+            <div className="cart-item-card__variant">{attributesText}</div>
+          )}
+          {item.sku && <div className="cart-item-card__sku">(Арт: {item.sku})</div>}
+          </Link>
+
+          <div className="cart-item-card__controls">
+          <div className="quantity-selector">
+          <label>Количество:</label>
+          <div className="quantity-selector__control">
+          <button onClick={() => updateQuantity(item.id, item.quantity - 1, item.variantId)}>
+          -
+          </button>
+          <input
+          type="number"
+          value={quantity}
+          onChange={(e) => {
+            const value = Math.max(1, parseInt(e.target.value) || 1);
+            updateQuantity(item.id, value, item.variantId);
+          }}
+          min="1"
+          />
+          <button onClick={() => updateQuantity(item.id, item.quantity + 1, item.variantId)}>
+          +
+          </button>
+          </div>
+          </div>
+          <button className="cart-item-card__remove-btn" onClick={() => removeItem(item.id, item.variantId)}>
+          Удалить
+          </button>
+          </div>
+          </div>
+          <div className="cart-item-card__total">{itemTotal} ₽</div>
+          </article>
+        );
+      })}
       </div>
+      </section>
+    ))}
+
+    {items.length === 0 && (
+      <div className="cart-page__empty-state">
+      <MdShoppingCart className="cart-page__empty-icon" />
+      <p className="cart-page__empty-message">Вы еще не выбрали вознаграждения</p>
+      <Link to="/shop" className="btn primary">
+      Перейти к выбору
+      </Link>
+      </div>
+    )}
+    </div>
+
+    {items.length > 0 && (
+      <aside className="cart-page__summary">
+      <div className="cart-summary-card">
+      <h2 className="cart-summary-card__title">Сводка пожертвования</h2>
+      <div className="cart-summary-card__content">
+      <div className="cart-summary-card__row">
+      <span>Сумма рекомендованного пожертвования:</span>
+      <span className="cart-summary-card__value">{subtotal} ₽</span>
+      </div>
+      <div className="cart-summary-card__note">
+      <p>
+      <strong>Важно:</strong> Фактический размер пожертвования вы определяете самостоятельно.
+      </p>
+      <p>Выбранные сувениры являются благодарностью за вашу поддержку хора МИФИ.</p>
+      </div>
+      <Link to="/checkout" className="btn primary btn-size-lg cart-summary-card__checkout-btn">
+      Подтвердить пожертвование
+      </Link>
+      </div>
+      </div>
+      </aside>
+    )}
+    </div>
+    </div>
     </div>
   );
 }

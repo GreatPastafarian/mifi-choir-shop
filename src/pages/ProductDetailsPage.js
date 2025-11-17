@@ -260,6 +260,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
     <ProductGallery
     images={product.images}
     inStock={currentStock}
+    selectionMade={!!selectedVariant}
     isFavorite={isFavorite}
     toggleFavorite={handleToggleFavorite}
     />

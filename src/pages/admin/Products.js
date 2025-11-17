@@ -1,57 +1,65 @@
-import React, { useState, useEffect, useMemo } from 'react'; // Добавлен useMemo
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAdminProducts, deleteProduct } from '../../services/productService';
 import { getAllCategories } from '../../services/categoryService';
 import { useAuth } from '../../context/AuthContext';
-import { BASE_URL } from '../../services/api';
+// (ИЗМЕНЕНИЕ) Импортируем хелперы
+import { getImageUrl, getProductImageSet } from '../../utils/imageUtils';
 
-// (ИЗМЕНЕНИЕ) Компонент ProductCard вынесен для чистоты
-const ProductCard = ({ product, categoryName, getImageUrl, handleDelete, navigate }) => {
+// (ИЗМЕНЕНИЕ) Компонент ProductCard теперь использует <img>
+const ProductCard = ({ product, categoryName, handleDelete, navigate }) => {
+
+  // 1. Получаем базовый URL
   const imageUrl = getImageUrl(product.images && product.images[0]);
+  // 2. Получаем набор картинок (нам нужен маленький 'sm' и 'srcSet')
+  const { srcSet, sm } = getProductImageSet(imageUrl);
 
   return (
     <div className="admin-products__card">
-      <div
-        className="admin-products__card-image"
-        style={{ backgroundImage: `url(${imageUrl})` }}
-      >
-        {product.is_new && (
-          <div className="admin-products__card-badge">Новинка</div>
-        )}
-      </div>
+    {/* 3. (ИЗМЕНЕНИЕ) Заменяем <div> на <img> */}
+    <img
+    className="admin-products__card-image"
+    src={sm} // Фоллбэк на маленькую (400px)
+  srcSet={srcSet} // Адаптивность
+  sizes="300px" // Подсказка браузеру (т.к. колонка 300px)
+  alt={product.name}
+  />
+  {product.is_new && (
+    <div className="admin-products__card-badge">Новинка</div>
+  )}
 
-      <div className="admin-products__card-info">
-        <div className="admin-products__card-info-header">
-          <h3 className="admin-products__card-title">
-            {product.name}
-          </h3>
-          <span className="admin-products__card-price">
-            {product.base_price} ₽
-          </span>
-        </div>
+  <div className="admin-products__card-info">
+  <div className="admin-products__card-info-header">
+  <h3 className="admin-products__card-title">
+  {product.name}
+  </h3>
+  <span className="admin-products__card-price">
+  {product.base_price} ₽
+  </span>
+  </div>
 
-        <div className="admin-products__card-category">
-          {categoryName || 'Без категории'}
-        </div>
+  <div className="admin-products__card-category">
+  {categoryName || 'Без категории'}
+  </div>
 
-        <div className="admin-products__card-actions">
-          <button
-            onClick={() =>
-              navigate(`/admin/products/edit/${product.id}`)
-            }
-            className="btn secondary admin-products__card-button"
-          >
-            Редактировать
-          </button>
-          <button
-            onClick={() => handleDelete(product.id)}
-            className="btn secondary admin-products__card-button admin-products__card-button--delete"
-          >
-            Удалить
-          </button>
-        </div>
-      </div>
-    </div>
+  <div className="admin-products__card-actions">
+  <button
+  onClick={() =>
+    navigate(`/admin/products/edit/${product.id}`)
+  }
+  className="btn secondary admin-products__card-button"
+  >
+  Редактировать
+  </button>
+  <button
+  onClick={() => handleDelete(product.id)}
+  className="btn secondary admin-products__card-button admin-products__card-button--delete"
+  >
+  Удалить
+  </button>
+  </div>
+  </div>
+  </div>
   );
 };
 
@@ -72,11 +80,11 @@ function Products() {
 
     const fetchData = async () => {
       try {
-        setLoading(true); // (ИЗМЕНЕНИЕ) Устанавливаем loading в начале
+        setLoading(true);
         setError(null);
         const [productsData, categoriesData] = await Promise.all([
           getAdminProducts(),
-          getAllCategories(),
+                                                                 getAllCategories(),
         ]);
 
         setProducts(productsData);
@@ -97,7 +105,7 @@ function Products() {
         setError(null);
         await deleteProduct(productId);
         setProducts((prevProducts) =>
-          prevProducts.filter((product) => product.id !== productId)
+        prevProducts.filter((product) => product.id !== productId)
         );
       } catch (err) {
         console.error('Ошибка при удалении товара:', err);
@@ -106,18 +114,7 @@ function Products() {
     }
   };
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) {
-      return '/placeholder.jpg';
-    }
-    if (imagePath.startsWith('http')) {
-      return imagePath;
-    }
-    const cleanPath = imagePath.startsWith('public/')
-      ? imagePath.substring(7)
-      : imagePath;
-    return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
-  };
+  // (ИЗМЕНЕНИЕ) Удалена локальная функция getImageUrl, т.к. она теперь в ProductCard
 
   // (НОВАЯ ЛОГИКА) Группировка товаров по категориям
   const groupedProducts = useMemo(() => {
@@ -176,7 +173,7 @@ function Products() {
   if (loading) {
     return (
       <div className="admin-products__container admin-products__container--centered">
-        <h1>Загрузка...</h1>
+      <h1>Загрузка...</h1>
       </div>
     );
   }
@@ -184,58 +181,57 @@ function Products() {
   if (error) {
     return (
       <div className="admin-products__container admin-products__container--centered">
-        <h1>Ошибка</h1>
-        <p>{error}</p>
-        <button
-          className="btn primary admin-products__retry-button"
-          onClick={() => window.location.reload()} // Простой способ перезагрузить
-        >
-          Повторить попытку
-        </button>
+      <h1>Ошибка</h1>
+      <p>{error}</p>
+      <button
+      className="btn primary admin-products__retry-button"
+      onClick={() => window.location.reload()}
+      >
+      Повторить попытку
+      </button>
       </div>
     );
   }
 
   return (
     <div className="admin-products">
-      <div className="admin-products__container">
-        <div className="admin-products__header">
-          <h1>Управление товарами</h1>
-          <Link to="/admin/products/new" className="btn primary">
-            Добавить товар
-          </Link>
-        </div>
+    <div className="admin-products__container">
+    <div className="admin-products__header">
+    <h1>Управление товарами</h1>
+    <Link to="/admin/products/new" className="btn primary">
+    Добавить товар
+    </Link>
+    </div>
 
-        {products.length === 0 ? (
-          <div className="admin-products__empty-state">
-            <p className="admin-products__empty-text">Нет добавленных товаров</p>
-            <Link to="/admin/products/new" className="btn primary">
-              Добавить первый товар
-            </Link>
-          </div>
-        ) : (
-          // (НОВАЯ ЛОГИКА) Рендерим секции по категориям
-          <div className="admin-products__groups-wrapper">
-            {groupedProducts.map((group) => (
-              <section key={group.id} className="admin-products__category-group">
-                <h2 className="admin-products__category-title">{group.name}</h2>
-                <div className="admin-products__grid">
-                  {group.products.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      categoryName={group.name} // Передаем имя, чтобы не искать снова
-                      getImageUrl={getImageUrl}
-                      handleDelete={handleDelete}
-                      navigate={navigate}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        )}
+    {products.length === 0 ? (
+      <div className="admin-products__empty-state">
+      <p className="admin-products__empty-text">Нет добавленных товаров</p>
+      <Link to="/admin/products/new" className="btn primary">
+      Добавить первый товар
+      </Link>
       </div>
+    ) : (
+      <div className="admin-products__groups-wrapper">
+      {groupedProducts.map((group) => (
+        <section key={group.id} className="admin-products__category-group">
+        <h2 className="admin-products__category-title">{group.name}</h2>
+        <div className="admin-products__grid">
+        {group.products.map((product) => (
+          <ProductCard
+          key={product.id}
+          product={product}
+          categoryName={group.name}
+          // (ИЗМЕНЕНИЕ) getImageUrl больше не передаем
+          handleDelete={handleDelete}
+          navigate={navigate}
+          />
+        ))}
+        </div>
+        </section>
+      ))}
+      </div>
+    )}
+    </div>
     </div>
   );
 }

@@ -177,14 +177,16 @@ function CategoryPage({ addToCart }) {
               </div>
             ) : (
               <div className="items-grid">
-                {sortedProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    addToCart={addToCart}
-                    toggleFavorite={toggleFavorite}
-                    isFavorite={favorites?.some((fav) => fav.id === product.id) || false}
-                  />
+              {sortedProducts.map((product, index) => (
+                <ProductCard
+                key={product.id}
+                product={product}
+                addToCart={addToCart}
+                toggleFavorite={toggleFavorite}
+                isFavorite={favorites?.some((fav) => fav.id === product.id) || false}
+                // Первые 8 товаров грузим сразу, остальные - лениво
+                priority={index < 8}
+                />
                 ))}
               </div>
             )}

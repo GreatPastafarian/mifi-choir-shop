@@ -95,10 +95,11 @@
 
 .admin-products__card-image {
     aspect-ratio: 1 / 1;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    width: 100%; /* (ИЗМЕНЕНИЕ) Добавлено для <img> */
+    object-fit: cover; /* (ИЗМЕНЕНИЕ) Замена 'background-size' */
+    object-position: center; /* (ИЗМЕНЕНИЕ) Замена 'background-position' */
     position: relative;
+    background-color: #f0f0f0; /* Фон для плейсхолдера */
 }
 
 .admin-products__card-badge {

@@ -1,0 +1,251 @@
+/*
+ * Стили для страницы Избранного (БЭМ)
+ * Блок: favorites-page, favorite-item-card, favorites-summary-card
+ */
+
+.favorites-page {
+  padding: 2rem 0 4rem;
+  min-height: 60vh;
+}
+
+.favorites-page__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.favorites-page__header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.favorites-page__header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  color: #0a2240;
+  margin-bottom: 1rem;
+}
+
+.favorites-page__header p {
+  font-size: 1.1rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.favorites-page__content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.favorites-page__list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Карточка товара в избранном */
+.favorite-item-card {
+  display: grid; /* (ИЗМЕНЕНИЕ) Используем Grid */
+  grid-template-columns: 120px 1fr 180px; /* 3 колонки: Фото, Инфо, Кнопки */
+  padding: 1.5rem;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.favorite-item-card__image-link {
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.favorite-item-card__image-wrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+}
+
+.favorite-item-card__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.favorite-item-card__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%);
+  background-size: 40px 40px;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.favorite-item-card__details {
+  flex: 1;
+}
+
+.favorite-item-card__info-link {
+  text-decoration: none;
+  color: inherit;
+}
+.favorite-item-card__info-link:hover .favorite-item-card__name {
+  color: var(--primary-accent, #8d1f2c);
+}
+
+.favorite-item-card__category {
+  font-size: 0.9rem;
+  color: #8d1f2c;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.favorite-item-card__name {
+  font-size: 1.2rem;
+  margin: 0 0 1rem 0;
+  color: #0a2240;
+  font-weight: 600;
+}
+
+.favorite-item-card__price {
+  font-weight: bold;
+  color: #0a2240;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
+
+.favorite-item-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-width: 180px;
+}
+/* Кнопки .btn уже стилизованы глобально */
+
+
+/* Сводка */
+.favorites-page__summary {
+  position: sticky;
+  top: 6.5rem; /* 4.5rem (header) + 2rem (отступ) */
+}
+.favorites-summary-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  align-self: start;
+}
+.favorites-summary-card__title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #0a2240;
+}
+.favorites-summary-card__content {
+  margin-bottom: 1.5rem;
+}
+.favorites-summary-card__row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #eee;
+}
+.favorites-summary-card__row--total {
+  border-top: 2px solid #eee;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+.favorites-summary-card__total-amount {
+  color: #8d1f2c;
+}
+.favorites-summary-card__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* Пустое состояние */
+.favorites-page__empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: #f5f0e5;
+  border-radius: 8px;
+  margin: 2rem 0;
+}
+.favorites-page__empty-state p {
+  font-size: 1.2rem;
+  color: #0a2240;
+  margin-bottom: 1.5rem;
+}
+
+/* Футер */
+.favorites-page__footer {
+  margin-top: 3rem;
+}
+.favorites-page__donation-note {
+  border-left: 3px solid #d4af37;
+  padding-left: 1rem;
+  margin-top: 2rem;
+  background-color: #f5f0e5;
+  padding: 1rem;
+  border-radius: 4px;
+}
+.favorites-page__donation-note p {
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Адаптивность */
+@media (max-width: 992px) {
+  .favorites-page__content {
+    grid-template-columns: 1fr;
+  }
+  .favorites-page__summary {
+    position: static;
+    order: -1;
+  }
+}
+@media (max-width: 768px) {
+  .favorite-item-card {
+    grid-template-columns: 1fr; /* 1 колонка */
+    text-align: center;
+  }
+  .favorite-item-card__image-wrapper {
+    width: 100%;
+    height: 200px;
+    margin: 0 auto;
+  }
+  .favorite-item-card__actions {
+    flex-direction: row;
+    justify-content: center;
+    min-width: auto;
+  }
+  .favorites-page__header h1 {
+    font-size: 2rem;
+  }
+}
+@media (max-width: 576px) {
+  .favorite-item-card__actions {
+    flex-direction: column;
+  }
+  .favorite-item-card {
+    padding: 1rem;
+  }
+  .favorites-summary-card {
+    padding: 1rem;
+  }
+  .favorites-page__empty-state {
+    padding: 2rem 1rem;
+  }
+}

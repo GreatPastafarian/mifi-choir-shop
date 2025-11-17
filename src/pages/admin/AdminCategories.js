@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-// (ИЗМЕНЕНИЕ) 'Link' убран, так как не используется
 import { useNavigate } from 'react-router-dom';
 import { getAllCategories, saveCategory, deleteCategory } from '../../services/categoryService';
 import { useAuth } from '../../context/AuthContext';
 import ImageUploader from '../../components/admin/ImageUploader';
-import { BASE_URL } from '../../services/api';
-// (ИЗМЕНЕНИЕ) Добавлен импорт slugify
+// (ИЗМЕНЕНИЕ) Импортируем хелперы
+import { getImageUrl, getProductImageSet } from '../../utils/imageUtils';
 import { slugify } from '../../utils/slugify';
 
 const initialState = {
@@ -21,16 +20,14 @@ function AdminCategories() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // State для формы
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState(initialState);
     const [formLoading, setFormLoading] = useState(false);
 
     const { isAdmin } = useAuth();
     const navigate = useNavigate();
-    const formRef = useRef(null); // Для скролла к форме
+    const formRef = useRef(null);
 
-    // Загрузка списка категорий
     const fetchCategories = async () => {
         try {
             setLoading(true);
@@ -59,9 +56,9 @@ function AdminCategories() {
         if (window.confirm('Вы уверены? Товары, связанные с этой категорией, останутся без категории.')) {
             try {
                 await deleteCategory(categoryId);
-                fetchCategories(); // Обновляем список
+                fetchCategories();
                 if (isEditing && formData.id === categoryId) {
-                    handleCancelEdit(); // Сбрасываем форму, если удалили то, что редактировали
+                    handleCancelEdit();
                 }
             } catch (err) {
                 setError('Не удалось удалить категорию');
@@ -73,10 +70,9 @@ function AdminCategories() {
     const handleEditClick = (category) => {
         setFormData({
             ...category,
-            image: category.image || '', // Убедимся, что image не null
+            image: category.image || '',
         });
         setIsEditing(true);
-        // Скролл к форме
         formRef.current?.scrollIntoView({ behavior: 'smooth' });
     };
 
@@ -99,7 +95,7 @@ function AdminCategories() {
     const handleImagesUploaded = (newImages) => {
         setFormData((prev) => ({
             ...prev,
-            image: newImages[0] || '', // Только 1 изображение
+            image: newImages[0] || '',
         }));
     };
 
@@ -110,23 +106,19 @@ function AdminCategories() {
         }));
     };
 
-    // (ИЗМЕНЕНИЕ) handleSubmit теперь генерирует slug
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             setFormLoading(true);
             setError(null);
 
-            // Генерируем slug здесь, если его нет
-            // (или если имя изменилось)
             const dataToSave = {
                 ...formData,
-                slug: slugify(formData.name) // Всегда генерируем свежий slug по имени
+                slug: slugify(formData.name)
             };
 
-            await saveCategory(dataToSave); // Отправляем dataToSave
+            await saveCategory(dataToSave);
 
-            // Сбрасываем форму и обновляем список
             handleCancelEdit();
             await fetchCategories();
 
@@ -138,12 +130,7 @@ function AdminCategories() {
         }
     };
 
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '/placeholder.png'; // Убедись, что плейсхолдер есть в /public
-        if (imagePath.startsWith('http')) return imagePath;
-        const cleanPath = imagePath.startsWith('public/') ? imagePath.substring(7) : imagePath;
-        return `${BASE_URL}/${cleanPath.startsWith('/') ? cleanPath.substring(1) : cleanPath}`;
-    };
+    // (ИЗМЕНЕНИЕ) Локальная функция getImageUrl удалена
 
     // --- РЕНДЕРИНГ ---
 
@@ -166,8 +153,8 @@ function AdminCategories() {
         <button
         className="btn primary"
         onClick={() => {
-            handleCancelEdit(); // <-- Исправление бага (сброс формы)
-    formRef.current?.scrollIntoView({ behavior: 'smooth' });
+            handleCancelEdit();
+            formRef.current?.scrollIntoView({ behavior: 'smooth' });
         }}
         >
         Добавить новую
@@ -190,37 +177,44 @@ function AdminCategories() {
             </tr>
             </thead>
             <tbody>
-            {categories.map((category) => (
-                <tr key={category.id}>
-                <td data-label="Изображение">
-                <img
-                src={getImageUrl(category.image)}
-                alt={category.name}
-                className="admin-categories__table-img"
-                />
-                </td>
-                <td data-label="Название">{category.name}</td>
-                <td data-label="Описание" className="admin-categories__table-desc">
-                {category.description || '...'}
-                </td>
-                <td data-label="Действия">
-                <div className="admin-categories__table-actions">
-                <button
-                onClick={() => handleEditClick(category)}
-                className="btn secondary"
-                >
-                Редактировать
-                </button>
-                <button
-                onClick={() => handleDelete(category.id)}
-                className="btn secondary btn--danger"
-                >
-                Удалить
-                </button>
-                </div>
-                </td>
-                </tr>
-            ))}
+            {categories.map((category) => {
+                // (ИЗМЕНЕНИЕ) Используем хелперы
+                const imageUrl = getImageUrl(category.image);
+                const { sm: thumbSm } = getProductImageSet(imageUrl);
+
+                return (
+                    <tr key={category.id}>
+                    <td data-label="Изображение">
+                    <img
+                    src={thumbSm} // Используем маленькую версию
+                    alt={category.name}
+                    className="admin-categories__table-img"
+                    loading="lazy"
+                    />
+                    </td>
+                    <td data-label="Название">{category.name}</td>
+                    <td data-label="Описание" className="admin-categories__table-desc">
+                    {category.description || '...'}
+                    </td>
+                    <td data-label="Действия">
+                    <div className="admin-categories__table-actions">
+                    <button
+                    onClick={() => handleEditClick(category)}
+                    className="btn secondary"
+                    >
+                    Редактировать
+                    </button>
+                    <button
+                    onClick={() => handleDelete(category.id)}
+                    className="btn secondary btn--danger"
+                    >
+                    Удалить
+                    </button>
+                    </div>
+                    </td>
+                    </tr>
+                );
+            })}
             </tbody>
             </table>
             </div>
@@ -228,7 +222,6 @@ function AdminCategories() {
         </div>
 
         {/* --- 2. ФОРМА РЕДАКТИРОВАНИЯ/СОЗДАНИЯ --- */}
-        {/* Мы используем классы из admin-product-edit.css для экономии */}
         <form onSubmit={handleSubmit} className="admin-product-edit__form" ref={formRef}>
         <div className="admin-product-edit__form-section">
         <h2 className="admin-product-edit__section-title">
@@ -279,10 +272,11 @@ function AdminCategories() {
         <div className="admin-product-edit__form-section">
         <h2 className="admin-product-edit__section-title">Изображение категории</h2>
         <ImageUploader
-        currentImages={formData.image ? [formData.image] : []}
+        currentImages={formData.image ? [getImageUrl(formData.image)] : []} // (ИЗМЕНЕНИЕ) Используем getImageUrl
         onImagesUploaded={handleImagesUploaded}
         onImageDelete={handleImageDelete}
-        multiple={false} // Разрешаем загрузку только 1 фото
+        multiple={false}
+        uploadType="category" // (ИЗМЕНЕНИЕ) Передаем тип
         />
         </div>
 

@@ -88,6 +88,7 @@ function HomePage({ addToCart }) {
                 addToCart={addToCart}
                 toggleFavorite={toggleFavorite}
                 isFavorite={favorites?.some((fav) => fav.id === product.id) || false}
+                priority={true}
               />
             ))}
           </div>
