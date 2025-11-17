@@ -16,7 +16,8 @@ const PROCESSING_PROFILES = {
   ],
   category: [
     { name: 'sm', width: 400, quality: 75 },
-    { name: 'lg', width: 800, quality: 75 }, // Основной файл
+    { name: 'md', width: 800, quality: 78 },
+    { name: 'lg', width: 1200, quality: 80 }, // Основной файл
   ],
   default: [
     { name: 'lg', width: 1080, quality: 70 }, // Один размер по умолчанию
