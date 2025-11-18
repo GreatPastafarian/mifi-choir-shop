@@ -8,6 +8,17 @@
   background-color: #fffdf5;
 }
 
+/* --- Состояния загрузки и ошибки --- */
+.shop-page__status-container {
+  margin-top: 4rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.shop-page__retry-btn {
+  margin-top: 1rem;
+}
+
 /* --- Герой-баннер --- */
 .shop-hero {
   height: 300px;
@@ -16,7 +27,28 @@
   color: #fff;
   padding: 0 16px;
   position: relative;
-  background-color: #0a2240;
+  background-color: #0a2240; /* Фолбэк цвет */
+  /* Background image задается inline, т.к. это динамический импорт */
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}
+
+/* Градиент накладываем через ::before, чтобы не смешивать с инлайн-стилем картинки */
+.shop-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(rgba(10, 34, 64, 0.8), rgba(10, 34, 64, 0.8));
+  z-index: 1;
+}
+
+.shop-hero .container {
+  position: relative;
+  z-index: 2;
 }
 
 .shop-hero h1 {
@@ -39,10 +71,37 @@
   padding: 3rem 0 5rem;
 }
 
+/* Заголовок секции и кнопка админки */
+.shop-categories__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.shop-categories__header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: #0a2240;
+}
+
+/* Пустое состояние */
+.shop-categories__empty {
+  text-align: center;
+  padding: 3rem;
+  background-color: #f5f0e5; /* var(--accent-beige) */
+  border-radius: 8px;
+}
+
+.shop-categories__empty p {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
 /* Сетка категорий */
 .categories-grid {
   display: grid;
-  /* (ИЗМЕНЕНИЕ) Уменьшил minmax с 280px до 240px, чтобы влезло 4 */
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 2rem;
 }
@@ -67,7 +126,6 @@
   border-color: #8d1f2c;
 }
 
-/* Обертка для картинки */
 .category-image-wrapper {
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -87,7 +145,6 @@
   transform: scale(1.05);
 }
 
-/* Контент под картинкой */
 .category-card__content {
   padding: 1.5rem;
   display: flex;
@@ -110,7 +167,6 @@
   line-height: 1.5;
   margin-bottom: 1.5rem;
   flex-grow: 1;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -123,15 +179,15 @@
   font-size: 1rem;
 }
 
-/* --- Адаптивность --- */
+/* Адаптивность */
 @media (max-width: 768px) {
   .shop-hero h1 {
     font-size: 2rem;
   }
-
-  .categories-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 1.5rem;
+  .shop-categories__header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
   }
 }
 
@@ -139,13 +195,11 @@
   .categories-grid {
     grid-template-columns: 1fr;
   }
-
   .category-card__content {
     padding: 1.25rem;
   }
 }
 
-/* (ИЗМЕНЕНИЕ) Гарантируем 4 колонки на десктопе */
 @media (min-width: 1200px) {
   .categories-grid {
     grid-template-columns: repeat(4, 1fr);

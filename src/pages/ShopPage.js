@@ -16,7 +16,6 @@ function ShopPage({ addToCart }) {
     const fetchCategories = async () => {
       try {
         const categoriesData = await getAllCategories();
-        console.log('[ShopPage] Категории с сервера:', categoriesData);
         setCategories(categoriesData);
       } catch (err) {
         setError('Не удалось загрузить категории');
@@ -30,7 +29,7 @@ function ShopPage({ addToCart }) {
 
   if (loading) {
     return (
-      <div className="container" style={{ marginTop: '4rem', textAlign: 'center', padding: '2rem' }}>
+      <div className="container shop-page__status-container">
       <h1>Загрузка магазина...</h1>
       </div>
     );
@@ -38,10 +37,13 @@ function ShopPage({ addToCart }) {
 
   if (error) {
     return (
-      <div className="container" style={{ marginTop: '4rem', textAlign: 'center', padding: '2rem' }}>
+      <div className="container shop-page__status-container">
       <h1>Ошибка</h1>
       <p>{error}</p>
-      <button className="btn primary" onClick={() => window.location.reload()} style={{ marginTop: '1rem' }}>
+      <button
+      className="btn primary shop-page__retry-btn"
+      onClick={() => window.location.reload()}
+      >
       Повторить попытку
       </button>
       </div>
@@ -54,7 +56,8 @@ function ShopPage({ addToCart }) {
     <section
     className="shop-hero"
     style={{
-      background: `linear-gradient(rgba(10, 34, 64, 0.8), rgba(10, 34, 64, 0.8)), url(${choirBackground}) no-repeat center center/cover`,
+      // Единственный оправданный inline-стиль: динамическая картинка
+      backgroundImage: `url(${choirBackground})`,
     }}
     >
     <div className="container">
@@ -66,7 +69,7 @@ function ShopPage({ addToCart }) {
     {/* Категории товаров */}
     <section className="shop-categories">
     <div className="container">
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+    <div className="shop-categories__header">
     <h2>Категории товаров</h2>
     {isAdmin && (
       <Link to="/admin" className="btn secondary">
@@ -76,8 +79,8 @@ function ShopPage({ addToCart }) {
     </div>
 
     {categories.length === 0 ? (
-      <div style={{ textAlign: 'center', padding: '3rem', backgroundColor: '#f5f0e5', borderRadius: '8px' }}>
-      <p style={{ marginBottom: '1rem', fontSize: '1.2rem' }}>Нет доступных категорий</p>
+      <div className="shop-categories__empty">
+      <p>Нет доступных категорий</p>
       {isAdmin && (
         <Link to="/admin" className="btn primary">
         Перейти в админ-панель
@@ -87,7 +90,6 @@ function ShopPage({ addToCart }) {
     ) : (
       <div className="categories-grid">
       {categories.map((category) => {
-        // (ИЗМЕНЕНИЕ 3) Используем хелперы для генерации путей
         const imageUrl = getImageUrl(category.image);
         const { sm, srcSet } = getProductImageSet(imageUrl);
 
@@ -97,38 +99,37 @@ function ShopPage({ addToCart }) {
           className="category-card"
           onClick={() => navigate(`/category/${category.id}`)}
           >
-          {/* (ИЗМЕНЕНИЕ 4) Обертка + Тег <img> вместо background-image */}
           <div className="category-image-wrapper">
           <img
           className="category-image"
-          src={sm} // Грузим маленькую версию (400px)
-        srcSet={srcSet} // Адаптивность
-        sizes="(max-width: 600px) 100vw, 300px"
-        alt={category.name}
-        loading="lazy" // Ленивая загрузка
-        />
-        </div>
+          src={sm}
+          srcSet={srcSet}
+          sizes="(max-width: 600px) 100vw, 300px"
+          alt={category.name}
+          loading="lazy"
+          />
+          </div>
 
-        <div className="category-card__content">
-        <h3 className="category-card__title">
-        {category.name}
-        </h3>
+          <div className="category-card__content">
+          <h3 className="category-card__title">
+          {category.name}
+          </h3>
 
-        <p className="category-card__description">
-        {category.description || 'Описание категории'}
-        </p>
+          <p className="category-card__description">
+          {category.description || 'Описание категории'}
+          </p>
 
-        <button
-        className="btn secondary category-card__button"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(`/category/${category.id}`);
-        }}
-        >
-        Смотреть товары
-        </button>
-        </div>
-        </div>
+          <button
+          className="btn secondary category-card__button"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/category/${category.id}`);
+          }}
+          >
+          Смотреть товары
+          </button>
+          </div>
+          </div>
         );
       })}
       </div>
