@@ -12,6 +12,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
 // Добавьте импорт uploadRoutes здесь
 const uploadRoutes = require('./routes/uploadRoutes');
+const addressRoutes = require('./routes/addressRoutes');
 require('dotenv').config();
 
 const app = express();
@@ -52,6 +53,10 @@ app.use('/api/users', userRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/favorites', favoriteRoutes);
+
+// Подключаем маршруты для адресов
+app.use('/api/users', userRoutes);
+app.use('/api/addresses', addressRoutes);
 
 // API endpoint для контактов
 app.post('/api/contact', async (req, res) => {

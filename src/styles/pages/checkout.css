@@ -1,456 +1,300 @@
-/* checkout.css */
+/*
+ * Стили для CheckoutPage (БЭМ)
+ */
+
 .checkout-page {
-  padding: var(--space-xl) 0;
-  color: var(--text-dark);
-  font-family: 'Open Sans', sans-serif;
+  padding: 3rem 0 5rem;
+  background-color: #fcfcfc;
+  min-height: 100vh;
 }
 
-.checkout-page h1 {
-  font-size: var(--font-size-4xl);
-  font-weight: 700;
-  margin-bottom: var(--space-lg);
-  color: var(--primary);
+.checkout-page__container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.checkout-page__title {
   text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  color: #0a2240;
+  margin-bottom: 2rem;
 }
 
-/* Стили для шагов */
+.checkout-page__empty {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.5rem;
+}
+
+/* --- Прогресс бар --- */
 .checkout-steps {
   display: flex;
   justify-content: space-between;
-  margin: 2.5rem 0;
+  margin-bottom: 3rem;
   position: relative;
-  counter-reset: step-counter;
 }
 
 .checkout-steps::before {
   content: '';
   position: absolute;
-  top: 20px;
+  top: 15px;
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--accent-light);
-  z-index: -1;
+  background: #eee;
+  z-index: 1;
 }
 
-.step {
+.checkout-step {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 1;
-  position: relative;
-  width: 33.33%;
+  cursor: pointer;
+  background: #fcfcfc;
+  padding: 0 10px;
 }
 
-.step-number {
-  width: 40px;
-  height: 40px;
+.checkout-step__number {
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background-color: var(--accent-light);
-  color: white;
+  background: white;
+  border: 2px solid #ddd;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  position: relative;
-  z-index: 2;
-  transition: all var(--transition-md);
+  font-weight: bold;
+  color: #999;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s;
 }
 
-.step-title {
-  font-weight: 600;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
-  text-align: center;
-  line-height: 1.3;
+.checkout-step__label {
+  font-size: 0.9rem;
+  color: #999;
 }
 
-.step.active .step-number {
-  background-color: var(--primary);
-  transform: scale(1.1);
+/* Активный шаг */
+.checkout-step--active .checkout-step__number {
+  border-color: #8d1f2c;
+  color: #8d1f2c;
+  background: #fff0f0;
 }
-
-.step.completed .step-number {
-  background-color: var(--primary);
-}
-
-.step.completed::after {
-  content: '';
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  right: 100%;
-  height: 2px;
-  background-color: var(--primary);
-  z-index: -1;
-}
-
-/* Содержимое шагов */
-.step-content {
-  background-color: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  padding: var(--space-xl);
-  margin-bottom: var(--space-xl);
-}
-
-.step-description {
-  color: var(--text-secondary);
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-lg);
-  line-height: 1.6;
-}
-
-/* Карточки подтверждения */
-.order-summary-card,
-.contact-info-card {
-  background-color: var(--accent-beige);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  margin-bottom: var(--space-lg);
-}
-
-.order-summary-card h3,
-.contact-info-card h3 {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--space-md);
-  color: var(--text-dark);
+.checkout-step--active .checkout-step__label {
+  color: #8d1f2c;
   font-weight: 600;
 }
 
-.order-items {
-  margin: var(--space-md) 0;
+
+/* --- Секции --- */
+.checkout-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  animation: fadeIn 0.4s ease;
 }
 
-.order-item {
+.checkout-section__title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #0a2240;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.5rem;
+}
+
+/* --- Табы доставки --- */
+.delivery-tabs {
   display: flex;
-  justify-content: space-between;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  gap: 1rem;
+  margin-bottom: 2rem;
+  background: #f5f5f5;
+  padding: 0.5rem;
+  border-radius: 8px;
 }
 
-.order-item:last-child {
-  border-bottom: none;
+.delivery-tabs__btn {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
 }
 
-.item-details {
+.delivery-tabs__btn.active {
+  background: white;
+  color: #8d1f2c;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.delivery-tabs__btn svg {
+  font-size: 1.2rem;
+}
+
+/* --- Карточки адресов/пунктов --- */
+.pickup-points, .saved-addresses {
   display: flex;
   flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
-.item-name {
-  font-weight: 600;
-  color: var(--text-dark);
+.pickup-card, .address-card {
+  border: 2px solid #eee;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
 }
 
-.item-quantity {
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  margin-top: 0.25rem;
+.pickup-card:hover, .address-card:hover {
+  border-color: #ccc;
 }
 
-.item-price {
-  font-weight: 600;
-  color: var(--primary);
+.pickup-card.selected, .address-card.selected {
+  border-color: #8d1f2c;
+  background-color: #fffbfb;
 }
 
-.order-total {
+.address-card {
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.address-card__header {
   display: flex;
   justify-content: space-between;
-  padding-top: var(--space-md);
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
-  font-weight: 700;
-  margin-top: 0.75rem;
-}
-
-.total-label {
-  font-size: var(--font-size-lg);
-}
-
-.total-amount {
-  font-size: var(--font-size-xl);
-  color: var(--primary);
-}
-
-.contact-details {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-sm);
-}
-
-.contact-row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.contact-label {
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.contact-value {
-  color: var(--text-dark);
-  font-weight: 500;
-}
-
-/* Страница оплаты */
-.payment-header {
-  display: flex;
-  justify-content: space-between;
+  width: 100%;
   align-items: center;
-  margin-bottom: var(--space-lg);
 }
 
-.payment-amount {
-  background-color: var(--primary-light);
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
+.address-card__title {
   font-weight: 700;
+  color: #0a2240;
 }
 
-.amount-label {
+.address-card__delete {
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+.address-card__delete:hover { color: #f44336; }
+
+
+/* --- Форма нового адреса --- */
+.new-address-form {
+  background: #fafafa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-group--half {
+  grid-column: span 1;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group__label {
   display: block;
-  font-size: var(--font-size-sm);
-  opacity: 0.9;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
 }
 
-.amount-value {
-  font-size: var(--font-size-3xl);
-}
-
-.payment-methods {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-xl);
-}
-
-.payment-method-card {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-  transition: all var(--transition-md);
-  background-color: white;
-}
-
-.payment-method-card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-  border-color: var(--primary-light);
-}
-
-.method-header h3 {
-  font-size: var(--font-size-xl);
-  margin-bottom: var(--space-sm);
-  color: var(--text-dark);
-}
-
-.method-description {
-  color: var(--text-secondary);
-  font-size: var(--font-size-md);
-  line-height: 1.5;
-  margin-bottom: var(--space-md);
-}
-
-.method-features {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-sm);
-  margin-bottom: var(--space-lg);
-}
-
-.feature {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  color: var(--text-dark);
-}
-
-.feature-icon {
-  color: var(--primary);
-  font-size: 1.1rem;
-}
-
-.payment-note {
-  background-color: var(--accent-beige);
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-}
-
-.note-header h3 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-sm);
-  color: var(--text-dark);
-}
-
-.note-content {
-  padding-left: var(--space-md);
-}
-
-.note-content p {
-  margin-bottom: var(--space-sm);
-  color: var(--text-secondary);
-}
-
-.note-content ol {
-  padding-left: var(--space-lg);
-  margin-top: var(--space-xs);
-}
-
-.note-content li {
-  margin-bottom: var(--space-xs);
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-/* Подтверждение оплаты */
-.confirmation-header {
-  display: flex;
-  align-items: center;
-  gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
-}
-
-.confirmation-icon {
-  color: var(--primary);
-  font-size: 2.5rem;
-}
-
-.confirmation-content {
-  background-color: var(--accent-beige);
-  border-radius: var(--radius-lg);
-  padding: var(--space-xl);
-}
-
-.donation-id-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: var(--space-lg);
-  padding-bottom: var(--space-lg);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-}
-
-.id-label {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-bottom: var(--space-xs);
-}
-
-.id-value {
-  font-weight: 600;
-  font-size: var(--font-size-lg);
-  color: var(--text-dark);
-  background-color: rgba(141, 31, 44, 0.05);
-  padding: 0.5rem 1.25rem;
-  border-radius: 20px;
-}
-
-.status-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: var(--space-xl);
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-xs);
-  padding: 0.5rem 1.25rem;
-  border-radius: 20px;
-  font-weight: 600;
-  margin-bottom: var(--space-md);
+.form-group__input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   font-size: 1rem;
 }
-
-.status-badge.pending {
-  background-color: rgba(255, 193, 7, 0.15);
-  color: #e68a00;
-  border: 1px solid rgba(255, 193, 7, 0.3);
+.form-group__input:focus {
+  border-color: #8d1f2c;
+  outline: none;
 }
 
-.status-icon {
-  font-size: 1.1rem;
-}
-
-.status-description {
-  font-size: var(--font-size-lg);
-  color: var(--text-dark);
-  margin-bottom: var(--space-xs);
-  line-height: 1.5;
-}
-
-.status-additional-info {
-  font-size: var(--font-size-md);
-  color: var(--text-secondary);
-  line-height: 1.5;
-  font-style: italic;
-}
-
-.confirmation-instructions {
-  background-color: white;
-  border-radius: var(--radius-md);
-  padding: var(--space-lg);
-  border: 1px solid var(--border-color);
-}
-
-.confirmation-instructions h3 {
-  font-size: var(--font-size-lg);
-  margin-bottom: var(--space-md);
-  color: var(--text-dark);
+.form-actions {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
+  gap: 1rem;
+  margin-top: 1rem;
 }
 
-.confirmation-instructions ol {
-  padding-left: var(--space-lg);
-}
 
-.confirmation-instructions li {
-  margin-bottom: var(--space-md);
-  line-height: 1.5;
-  color: var(--text-dark);
+/* --- Сводка заказа --- */
+.order-review__block {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #eee;
 }
-
-/* Кнопки действий */
-.step-actions {
+.order-review__block h3 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #888;
+}
+.order-review__items {
+  background: #fafafa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+.review-item {
   display: flex;
   justify-content: space-between;
-  gap: var(--space-md);
-  margin-top: var(--space-md);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+.review-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 2px solid #ddd;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #8d1f2c;
 }
 
-/* Адаптивные стили */
-@media (max-width: 768px) {
-  .checkout-page h1 {
-    font-size: var(--font-size-3xl);
-  }
+.checkout-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
 
-  .step-content {
-    padding: 1.5rem;
-  }
+.btn--full-width { width: 100%; }
+.btn--large { padding: 1rem 2rem; font-size: 1.1rem; }
 
-  .step-actions {
-    flex-direction: column;
-  }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
-  .btn {
-    width: 100%;
-  }
-
-  .payment-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-
-  .amount-value {
-    font-size: var(--font-size-2xl);
-  }
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .checkout-steps__label { display: none; } /* Скрываем подписи шагов на мобильном */
 }

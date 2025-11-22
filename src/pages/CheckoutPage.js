@@ -1,551 +1,389 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MdArrowBack, MdOpenInNew, MdCheckCircle, MdAccessTime, MdArrowRight } from 'react-icons/md';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { addDonationToHistory } from '../services/authService';
-import { updateProductVariant } from '../services/productService';
+import { getUserAddresses, createAddress, deleteAddress } from '../services/addressService';
+import { createDonation } from '../services/authService'; // Предполагаем, что создание заказа там
+import YandexMap from '../components/YandexMap'; // Ваш компонент карты
+import '../styles/pages/checkout.css';
 
-function CheckoutPage({ cartItems, updateCart }) {
-  const [step, setStep] = useState(1);
-  const [isCompleting, setIsCompleting] = useState(false);
-  const { user, isAuthenticated, login: contextLogin } = useAuth();
+// Иконки
+import { MdLocalShipping, MdStorefront, MdAdd, MdDeleteOutline, MdCheckCircle } from 'react-icons/md';
+
+const PICKUP_POINTS = [
+  { id: 1, name: 'Хоровая комната МИФИ', address: 'Москва, Каширское шоссе, 31, Г-014', coordinates: [55.649, 37.664] }
+];
+
+function CheckoutPage({ cartItems = [], clearCart }) {
+  const { user, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+
+  // --- Состояния ---
+  const [step, setStep] = useState(1); // 1: Контакты, 2: Доставка, 3: Подтверждение
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const [donationId, setDonationId] = useState(null);
-  const [paymentInitiated, setPaymentInitiated] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [loginError, setLoginError] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
 
-  const progressClass = isAuthenticated
-    ? step === 2
-      ? 'active-step-2'
-      : ''
-    : step === 2
-      ? 'active-step-2'
-      : step === 3
-        ? 'active-step-3'
-        : '';
-
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    comment: '',
+  // Контакты
+  const [contactInfo, setContactInfo] = useState({
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || ''
   });
 
-  // Эффект для отслеживания изменений аутентификации
+  // Доставка
+  const [deliveryType, setDeliveryType] = useState('pickup'); // 'pickup' | 'delivery'
+  const [savedAddresses, setSavedAddresses] = useState([]);
+  const [selectedAddressId, setSelectedAddressId] = useState(null);
+  const [selectedPickupPoint, setSelectedPickupPoint] = useState(PICKUP_POINTS[0].id);
+
+  // Форма нового адреса
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    city: 'Москва', street: '', building: '', flat: '', zip_code: '', title: ''
+  });
+
+  // Итоговая сумма
+  const totalAmount = cartItems.reduce((sum, item) => sum + (Number(item.price || item.base_price) * item.quantity), 0);
+
+  // Загрузка адресов
   useEffect(() => {
-    if (!isCompleting && cartItems.length === 0) {
-      navigate('/cart', { replace: true });
-      return;
+    if (isAuthenticated) {
+      loadAddresses();
     }
+  }, [isAuthenticated]);
 
-    if (isAuthenticated && user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: user.name || prev.name,
-        email: user.email || prev.email,
-        phone: user.phone || prev.phone,
-      }));
-
-      // Если пользователь аутентифицирован и находится на шаге 1, переключаемся на шаг 2
-      if (step === 1) {
-        setStep(2);
-      }
+  const loadAddresses = async () => {
+    try {
+      const data = await getUserAddresses();
+      setSavedAddresses(data);
+      if (data.length > 0) setSelectedAddressId(data[0].id);
+    } catch (err) {
+      console.error('Не удалось загрузить адреса', err);
     }
-  }, [cartItems, navigate, isAuthenticated, user, isCompleting, step]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
   };
 
-  const validateContactForm = useCallback(() => {
-    if (!formData.name || !formData.email) {
-      setError('Имя и email обязательны для заполнения');
-      return false;
+  // --- Обработчики ---
+
+  const handleContactChange = (e) => {
+    setContactInfo({ ...contactInfo, [e.target.name]: e.target.value });
+  };
+
+  const handleAddressChange = (e) => {
+    setNewAddress({ ...newAddress, [e.target.name]: e.target.value });
+  };
+
+  const handleSaveAddress = async () => {
+    if (!newAddress.city || !newAddress.street || !newAddress.building) {
+      alert('Заполните обязательные поля (Город, Улица, Дом)');
+      return;
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Некорректный формат email');
-      return false;
-    }
-    return true;
-  }, [formData.name, formData.email]);
-
-  const handleNextStep = useCallback(() => {
-    if (isProcessing) return;
-
-    setIsProcessing(true);
-    setError('');
-    setSuccess('');
-
-    setTimeout(() => {
-      try {
-        if (step === 1) {
-          if (!validateContactForm()) {
-            setIsProcessing(false);
-            return;
-          }
-          setStep(2);
-        } else if (step === 2) {
-          setStep(3);
-        }
-      } finally {
-        setTimeout(() => setIsProcessing(false), 100);
-      }
-    }, 10);
-  }, [step, validateContactForm, isProcessing]);
-
-  const handlePaymentRedirect = useCallback(async () => {
-    if (isProcessing) return;
-
-    setIsProcessing(true);
-    setLoading(true);
-    setError('');
-
     try {
-      // Подготавливаем данные о товарах
-      const itemsData = cartItems.map((item) => ({
-        productId: item.id,
-        name: item.name,
-        quantity: item.quantity,
-        price: item.price,
-        variantId: item.variantId || null,
-        sku: item.sku || null,
-        size: item.size || null,
-        color: item.color || null,
-      }));
-
-      // Подготавливаем данные для запроса
-      const donationData = {
-        amount: subtotal,
-        payment_method: 'Онлайн-платеж',
-        items: itemsData,
-        comment: formData.comment || '',
-        status: 'Ожидает проверки',
-        contact: {
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || '',
-        },
-      };
-
-      // Добавляем userId или anonymousId
-      if (isAuthenticated && user) {
-        donationData.userId = user.id;
-      } else {
-        let anonymousId = localStorage.getItem('anonymousId');
-        if (!anonymousId) {
-          anonymousId = `anon-${Math.random().toString(36).substr(2, 9)}`;
-          localStorage.setItem('anonymousId', anonymousId);
-        }
-        donationData.anonymousId = anonymousId;
-      }
-
-      // Отправляем данные на сервер
-      const donation = await addDonationToHistory(donationData);
-      setDonationId(donation.id);
-      setPaymentInitiated(true);
-
-      // Обновляем количество товаров на складе с обработкой ошибок
-      for (const item of cartItems) {
-        if (item.variantId) {
-          try {
-            await updateProductVariant(item.id, item.variantId, {
-              quantity: item.quantity * -1, // уменьшаем количество
-            });
-          } catch (updateError) {
-            console.error('Ошибка при обновлении варианта товара:', updateError);
-            // Продолжаем выполнение, даже если не удалось обновить запас
-          }
-        }
-      }
-
-      // ОЧИСТКА КОРЗИНЫ ПОСЛЕ УСПЕШНОГО СОЗДАНИЯ ПОЖЕРТВОВАНИЯ
-      updateCart([]);
-
-      // Перенаправляем на оплату
-      const paymentUrl = `https://endowment.mephi.ru/pay?edit[submitted][ya_rekomenduyu_popechitelskomu_sovetu_endaumenta_mifi_napravlyat]=Мужской хор&amount=${subtotal}&donation_id=${donation.id}`;
-      window.open(paymentUrl, '_blank');
+      setLoading(true);
+      const saved = await createAddress(newAddress);
+      setSavedAddresses([saved, ...savedAddresses]);
+      setSelectedAddressId(saved.id);
+      setIsAddingAddress(false);
+      setNewAddress({ city: 'Москва', street: '', building: '', flat: '', zip_code: '', title: '' });
     } catch (err) {
-      console.error('Ошибка при сохранении пожертвования:', err);
-      setError(err.message || 'Не удалось сохранить данные пожертвования. Пожалуйста, свяжитесь с нами.');
+      alert('Ошибка сохранения адреса');
     } finally {
       setLoading(false);
-      setTimeout(() => setIsProcessing(false), 100);
     }
-  }, [subtotal, cartItems, formData, isProcessing, isAuthenticated, user, updateCart]); // Добавляем updateCart в зависимости
+  };
 
-  const handlePrevStep = useCallback(() => {
-    if (isProcessing) return;
-
-    setIsProcessing(true);
-    setError('');
-
-    setTimeout(() => {
-      if (step > 1) setStep(step - 1);
-      setTimeout(() => setIsProcessing(false), 100);
-    }, 10);
-  }, [step, isProcessing]);
-
-  const handleViewHistory = useCallback(() => {
-    if (isProcessing) return;
-
-    setIsProcessing(true);
-    setIsCompleting(true);
-    // Убираем очистку корзины, так как она уже очищена после создания пожертвования
-    // updateCart([]);
-
-    if (isAuthenticated) {
-      navigate('/account?tab=donations', { replace: true });
-    } else {
-      localStorage.setItem('postLoginRedirect', encodeURIComponent('/account?tab=donations'));
-      setShowLoginModal(true);
-    }
-
-    setTimeout(() => setIsProcessing(false), 100);
-  }, [isAuthenticated, navigate, isProcessing]); // Убираем updateCart из зависимостей
-
-  const stepsClass = isAuthenticated ? 'two-steps' : 'three-steps';
-
-  // Обработчик для входа через модальное окно
-  const handleLoginSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      if (isProcessing) return;
-
-      setLoginError('');
-      setIsProcessing(true);
-
+  const handleDeleteAddress = async (e, id) => {
+    e.stopPropagation();
+    if (window.confirm('Удалить этот адрес?')) {
       try {
-        const email = e.target.email.value;
-        const password = e.target.password.value;
-
-        await contextLogin({ email, password });
-        setShowLoginModal(false);
-
-        const redirectPath = localStorage.getItem('postLoginRedirect') || '/account?tab=donations';
-        localStorage.removeItem('postLoginRedirect');
-        navigate(decodeURIComponent(redirectPath), { replace: true });
+        await deleteAddress(id);
+        const updated = savedAddresses.filter(a => a.id !== id);
+        setSavedAddresses(updated);
+        if (selectedAddressId === id && updated.length > 0) setSelectedAddressId(updated[0].id);
       } catch (err) {
-        console.error('Ошибка при входе:', err);
-        setLoginError('Неверный email или пароль');
-      } finally {
-        setTimeout(() => setIsProcessing(false), 100);
+        console.error(err);
       }
-    },
-    [contextLogin, navigate, isProcessing]
-  );
+    }
+  };
+
+  const handlePlaceOrder = async () => {
+    setLoading(true);
+
+    // Формируем данные доставки
+    let deliveryInfo = {};
+    if (deliveryType === 'pickup') {
+      const point = PICKUP_POINTS.find(p => p.id === selectedPickupPoint);
+      deliveryInfo = { type: 'pickup', point };
+    } else {
+      if (isAuthenticated && !isAddingAddress) {
+        const addr = savedAddresses.find(a => a.id === selectedAddressId);
+        if (!addr) { alert('Выберите адрес доставки'); setLoading(false); return; }
+        deliveryInfo = { type: 'delivery', address: addr };
+      } else {
+        // Для гостя или если вводим адрес вручную
+        if (!newAddress.street) { alert('Введите адрес доставки'); setLoading(false); return; }
+        deliveryInfo = { type: 'delivery', address: newAddress };
+      }
+    }
+
+    const orderData = {
+      amount: totalAmount,
+      items: cartItems,
+      contact: contactInfo,
+      delivery_type: deliveryType,
+      delivery_info: deliveryInfo,
+    };
+
+    try {
+      // Здесь вызов API создания заказа (нужно реализовать в authService или donationService)
+      // const result = await createDonation(orderData);
+      console.log('Заказ отправлен:', orderData);
+
+      // Имитация успеха
+      setTimeout(() => {
+        clearCart();
+        navigate('/profile'); // Или на страницу успеха
+      }, 1000);
+    } catch (err) {
+      alert('Ошибка при оформлении заказа');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (cartItems.length === 0) {
+    return <div className="checkout-page__empty">Корзина пуста</div>;
+  }
 
   return (
     <div className="checkout-page">
-      <div className="container">
-        <h1>Оформление пожертвования</h1>
+    <div className="checkout-page__container">
+    <h1 className="checkout-page__title">Оформление пожертвования</h1>
 
-        {error && <div className="alert error">{error}</div>}
-        {success && <div className="alert success">{success}</div>}
+    {/* Прогресс бар */}
+    <div className={`checkout-steps checkout-steps--step-${step}`}>
+    <div className={`checkout-step ${step >= 1 ? 'checkout-step--active' : ''}`} onClick={() => setStep(1)}>
+    <div className="checkout-step__number">1</div>
+    <div className="checkout-step__label">Контакты</div>
+    </div>
+    <div className={`checkout-step ${step >= 2 ? 'checkout-step--active' : ''}`} onClick={() => step > 1 && setStep(2)}>
+    <div className="checkout-step__number">2</div>
+    <div className="checkout-step__label">Получение</div>
+    </div>
+    <div className={`checkout-step ${step >= 3 ? 'checkout-step--active' : ''}`}>
+    <div className="checkout-step__number">3</div>
+    <div className="checkout-step__label">Подтверждение</div>
+    </div>
+    </div>
 
-        <div className={`checkout-steps ${stepsClass} ${progressClass}`}>
-          {!isAuthenticated && (
-            <div className={`checkout-step ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}>
-              <div className="checkout-step-number">1</div>
-              <div className="checkout-step-title">Контакты</div>
-            </div>
-          )}
+    <div className="checkout-page__content">
+    {/* ШАГ 1: КОНТАКТЫ */}
+    {step === 1 && (
+      <div className="checkout-section">
+      <h2 className="checkout-section__title">Контактные данные</h2>
+      <div className="form-group">
+      <label className="form-group__label">Ваше имя</label>
+      <input
+      type="text" name="name" className="form-group__input"
+      value={contactInfo.name} onChange={handleContactChange}
+      />
+      </div>
+      <div className="form-group">
+      <label className="form-group__label">Email</label>
+      <input
+      type="email" name="email" className="form-group__input"
+      value={contactInfo.email} onChange={handleContactChange}
+      />
+      </div>
+      <div className="form-group">
+      <label className="form-group__label">Телефон</label>
+      <input
+      type="tel" name="phone" className="form-group__input"
+      value={contactInfo.phone} onChange={handleContactChange}
+      />
+      </div>
+      <button className="btn primary checkout-page__next-btn" onClick={() => setStep(2)}>
+      Далее к доставке
+      </button>
+      </div>
+    )}
 
-          <div className={`checkout-step ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}>
-            <div className="checkout-step-number">{isAuthenticated ? 1 : 2}</div>
-            <div className="checkout-step-title">Подтверждение</div>
-          </div>
+    {/* ШАГ 2: ДОСТАВКА */}
+    {step === 2 && (
+      <div className="checkout-section">
+      <h2 className="checkout-section__title">Способ получения</h2>
 
-          <div className={`checkout-step ${step === 3 ? 'active' : ''}`}>
-            <div className="checkout-step-number">{isAuthenticated ? 2 : 3}</div>
-            <div className="checkout-step-title">Оплата</div>
-          </div>
-        </div>
-
-        <div className="step-content">
-          {step === 1 && !isAuthenticated && (
-            <div className="step-contacts">
-              <h2>Ваши контактные данные</h2>
-              <p className="step-description">Пожалуйста, заполните форму ниже, чтобы мы могли связаться с вами.</p>
-
-              <div className="form-group">
-                <label htmlFor="name">ФИО *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  placeholder="Иванов Иван Иванович"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email *</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  placeholder="example@example.com"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="phone">Телефон</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  placeholder="+7 (XXX) XXX-XX-XX"
-                />
-              </div>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="step-confirmation">
-              <h2>Подтверждение пожертвования</h2>
-              <p className="step-description">Пожалуйста, проверьте данные перед оплатой.</p>
-
-              <div className="order-summary-card">
-                <h3>Ваш заказ</h3>
-                <div className="order-items">
-                  {cartItems.map((item) => (
-                    <div key={`${item.id}-${item.variantId || 'no-variant'}`} className="order-item">
-                      <div className="item-details">
-                        <span className="item-name">
-                          {item.name}
-                          <span className="item-quantity-checkout"> × {item.quantity}</span>
-                        </span>
-                        {item.variantId && (
-                          <div className="item-variant">
-                            {item.size && `Размер: ${item.size}`}
-                            {item.color && (item.size ? `, Цвет: ${item.color}` : `Цвет: ${item.color}`)}
-                          </div>
-                        )}
-                      </div>
-                      <span className="item-price">{item.price * item.quantity} ₽</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="order-total">
-                  <span className="total-label">Итого:</span>
-                  <span className="total-amount">{subtotal} ₽</span>
-                </div>
-              </div>
-
-              <div className="contact-info-card">
-                <h3>Контактная информация</h3>
-                <div className="contact-details">
-                  <div className="contact-row">
-                    <span className="contact-label">ФИО:</span>
-                    <span className="contact-value">{formData.name}</span>
-                  </div>
-                  <div className="contact-row">
-                    <span className="contact-label">Email:</span>
-                    <span className="contact-value">{formData.email}</span>
-                  </div>
-                  {formData.phone && (
-                    <div className="contact-row">
-                      <span className="contact-label">Телефон:</span>
-                      <span className="contact-value">{formData.phone}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="comment-section">
-                <div className="form-group">
-                  <label htmlFor="comment">Комментарий</label>
-                  <textarea
-                    id="comment"
-                    name="comment"
-                    value={formData.comment}
-                    onChange={handleChange}
-                    rows="3"
-                    placeholder="Ваш комментарий к пожертвованию..."
-                  ></textarea>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="step-payment">
-              {paymentInitiated ? (
-                <div className="payment-confirmation">
-                  <div className="confirmation-header">
-                    <MdCheckCircle className="confirmation-icon" />
-                    <h2>Оплата инициирована</h2>
-                  </div>
-
-                  <div className="confirmation-content">
-                    <div className="donation-id-section">
-                      <span className="id-label">Номер пожертвования:</span>
-                      <span className="id-value">{donationId}</span>
-                    </div>
-
-                    <div className="status-section">
-                      <div className="status-badge pending">
-                        <MdAccessTime className="status-icon" />
-                        <span>Ожидает проверки</span>
-                      </div>
-                      <p className="status-description">
-                        После завершения оплаты ожидайте проверки вашего пожертвования администраторами.
-                      </p>
-                      <p className="status-additional-info">
-                        Для проверки статуса пожертвования перейдите в личный кабинет.
-                      </p>
-                    </div>
-
-                    <div className="confirmation-instructions">
-                      <h3>Что дальше?</h3>
-                      <ol>
-                        <li>Завершите оплату на сайте эндаунмента МИФИ</li>
-                        <li>Администраторы проверят ваше пожертвование в течение 1-2 рабочих дней</li>
-                        <li>Статус вашего пожертвования обновится в личном кабинете</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="payment-options">
-                  <div className="payment-header">
-                    <h2>Оплата пожертвования</h2>
-                    <div className="payment-amount">
-                      <span className="amount-label">Сумма к оплате:</span>
-                      <span className="amount-value">{subtotal} ₽</span>
-                    </div>
-                  </div>
-
-                  <div className="payment-methods">
-                    <div className="payment-method-card">
-                      <div className="method-header">
-                        <h3>Безопасная оплата через эндаунмент МИФИ</h3>
-                        <p className="method-description">Перейдите на сайт эндаунмента МИФИ для завершения оплаты</p>
-                      </div>
-
-                      <div className="method-features">
-                        <div className="feature">
-                          <MdCheckCircle className="feature-icon" />
-                          <span>Безопасные платежи</span>
-                        </div>
-                        <div className="feature">
-                          <MdCheckCircle className="feature-icon" />
-                          <span>Поддержка 24/7</span>
-                        </div>
-                        <div className="feature">
-                          <MdCheckCircle className="feature-icon" />
-                          <span>Официальная квитанция</span>
-                        </div>
-                      </div>
-
-                      <button
-                        className="btn primary btn-size-payment"
-                        onClick={handlePaymentRedirect}
-                        disabled={loading || isProcessing}
-                      >
-                        {loading ? (
-                          'Подготовка...'
-                        ) : (
-                          <>
-                            <MdOpenInNew /> Перейти к оплате
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="payment-note">
-                    <div className="note-header">
-                      <h3>Информация об оплате</h3>
-                    </div>
-                    <div className="note-content">
-                      <p>После нажатия кнопки:</p>
-                      <ol>
-                        <li>Откроется новая вкладка с сайтом эндаунмента МИФИ</li>
-                        <li>Вы сможете завершить процесс оплаты</li>
-                        <li>После оплаты ожидайте проверки администратором</li>
-                      </ol>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        <div className="step-actions">
-          {step > 1 && step < 3 && !(isAuthenticated && step === 2) && (
-            <button className="btn secondary btn-size-md" onClick={handlePrevStep} disabled={loading || isProcessing}>
-              <MdArrowBack /> Назад
-            </button>
-          )}
-
-          {step < 3 ? (
-            <button className="btn primary btn-size-md" onClick={handleNextStep} disabled={loading || isProcessing}>
-              {step === 1 ? 'Продолжить' : 'Перейти к оплате'}
-            </button>
-          ) : !paymentInitiated ? (
-            <button className="btn secondary btn-size-md" onClick={handlePrevStep} disabled={loading || isProcessing}>
-              <MdArrowBack /> Вернуться к подтверждению
-            </button>
-          ) : (
-            <button className="btn primary btn-size-md" onClick={handleViewHistory} disabled={isProcessing}>
-              Перейти в историю пожертвований <MdArrowRight />
-            </button>
-          )}
-        </div>
+      {/* Табы переключения */}
+      <div className="delivery-tabs">
+      <button
+      className={`delivery-tabs__btn ${deliveryType === 'pickup' ? 'active' : ''}`}
+      onClick={() => setDeliveryType('pickup')}
+      >
+      <MdStorefront /> Самовывоз
+      </button>
+      <button
+      className={`delivery-tabs__btn ${deliveryType === 'delivery' ? 'active' : ''}`}
+      onClick={() => setDeliveryType('delivery')}
+      >
+      <MdLocalShipping /> Доставка
+      </button>
       </div>
 
-      {showLoginModal && (
-        <div className="login-modal-overlay" onClick={() => !isProcessing && setShowLoginModal(false)}>
-          <div className="login-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Вход в аккаунт</h3>
-            <div className="login-form">
-              <form onSubmit={handleLoginSubmit}>
-                {loginError && <div className="alert error">{loginError}</div>}
-                <div className="form-group">
-                  <label htmlFor="modal-email">Email</label>
-                  <input type="email" id="modal-email" name="email" required autoFocus disabled={isProcessing} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="modal-password">Пароль</label>
-                  <input type="password" id="modal-password" name="password" required disabled={isProcessing} />
-                </div>
-                <div className="modal-actions">
-                  <button type="submit" className="modal-primary-btn" disabled={isProcessing}>
-                    {isProcessing ? 'Вход...' : 'Войти'}
-                  </button>
-                  <button
-                    type="button"
-                    className="modal-secondary-btn"
-                    onClick={() => !isProcessing && navigate('/register')}
-                    disabled={isProcessing}
-                  >
-                    Зарегистрироваться
-                  </button>
-                </div>
-              </form>
-            </div>
+      {/* Контент Самовывоза */}
+      {deliveryType === 'pickup' && (
+        <div className="delivery-content">
+        <p className="delivery-content__hint">Выберите пункт выдачи на карте или из списка:</p>
+        <div className="pickup-points">
+        {PICKUP_POINTS.map(point => (
+          <div
+          key={point.id}
+          className={`pickup-card ${selectedPickupPoint === point.id ? 'selected' : ''}`}
+          onClick={() => setSelectedPickupPoint(point.id)}
+          >
+          <div className="pickup-card__radio">
+          <div className="radio-circle"></div>
           </div>
+          <div className="pickup-card__info">
+          <div className="pickup-card__name">{point.name}</div>
+          <div className="pickup-card__address">{point.address}</div>
+          </div>
+          </div>
+        ))}
+        </div>
+        <div className="delivery-map-wrapper">
+        <YandexMap /> {/* Здесь должна быть ваша карта */}
+        </div>
         </div>
       )}
+
+      {/* Контент Доставки */}
+      {deliveryType === 'delivery' && (
+        <div className="delivery-content">
+        {isAuthenticated && savedAddresses.length > 0 && !isAddingAddress ? (
+          <div className="saved-addresses">
+          <p className="delivery-content__hint">Выберите сохраненный адрес:</p>
+          {savedAddresses.map(addr => (
+            <div
+            key={addr.id}
+            className={`address-card ${selectedAddressId === addr.id ? 'selected' : ''}`}
+            onClick={() => setSelectedAddressId(addr.id)}
+            >
+            <div className="address-card__header">
+            <span className="address-card__title">{addr.title || 'Адрес'}</span>
+            <button className="address-card__delete" onClick={(e) => handleDeleteAddress(e, addr.id)}>
+            <MdDeleteOutline />
+            </button>
+            </div>
+            <div className="address-card__text">
+            {addr.city}, {addr.street}, д. {addr.building}
+            {addr.flat && `, кв. ${addr.flat}`}
+            </div>
+            </div>
+          ))}
+          <button className="btn secondary btn--full-width" onClick={() => setIsAddingAddress(true)}>
+          <MdAdd /> Добавить новый адрес
+          </button>
+          </div>
+        ) : (
+          <div className="new-address-form">
+          <h3 className="new-address-form__title">
+          {isAuthenticated ? 'Новый адрес' : 'Адрес доставки'}
+          </h3>
+          <div className="form-grid">
+          <div className="form-group">
+          <label className="form-group__label">Город</label>
+          <input className="form-group__input" name="city" value={newAddress.city} onChange={handleAddressChange} />
+          </div>
+          <div className="form-group">
+          <label className="form-group__label">Улица</label>
+          <input className="form-group__input" name="street" value={newAddress.street} onChange={handleAddressChange} />
+          </div>
+          <div className="form-group form-group--half">
+          <label className="form-group__label">Дом</label>
+          <input className="form-group__input" name="building" value={newAddress.building} onChange={handleAddressChange} />
+          </div>
+          <div className="form-group form-group--half">
+          <label className="form-group__label">Кв/Офис</label>
+          <input className="form-group__input" name="flat" value={newAddress.flat} onChange={handleAddressChange} />
+          </div>
+          <div className="form-group">
+          <label className="form-group__label">Индекс</label>
+          <input className="form-group__input" name="zip_code" value={newAddress.zip_code} onChange={handleAddressChange} />
+          </div>
+          {isAuthenticated && (
+            <div className="form-group">
+            <label className="form-group__label">Название (напр. Дом)</label>
+            <input className="form-group__input" name="title" value={newAddress.title} onChange={handleAddressChange} />
+            </div>
+          )}
+          </div>
+
+          {isAuthenticated && (
+            <div className="form-actions">
+            <button className="btn primary" onClick={handleSaveAddress}>Сохранить адрес</button>
+            {savedAddresses.length > 0 && (
+              <button className="btn secondary" onClick={() => setIsAddingAddress(false)}>Отмена</button>
+            )}
+            </div>
+          )}
+          </div>
+        )}
+        </div>
+      )}
+
+      <div className="checkout-actions">
+      <button className="btn secondary" onClick={() => setStep(1)}>Назад</button>
+      <button className="btn primary" onClick={() => setStep(3)}>Далее к оплате</button>
+      </div>
+      </div>
+    )}
+
+    {/* ШАГ 3: ПОДТВЕРЖДЕНИЕ (Сводка) */}
+    {step === 3 && (
+      <div className="checkout-section">
+      <h2 className="checkout-section__title">Подтверждение</h2>
+
+      <div className="order-review">
+      <div className="order-review__block">
+      <h3>Получатель</h3>
+      <p>{contactInfo.name}, {contactInfo.phone}</p>
+      <p>{contactInfo.email}</p>
+      </div>
+
+      <div className="order-review__block">
+      <h3>Способ получения</h3>
+      {deliveryType === 'pickup' ? (
+        <p>Самовывоз: {PICKUP_POINTS.find(p => p.id === selectedPickupPoint)?.name}</p>
+      ) : (
+        <p>Доставка: {isAuthenticated && !isAddingAddress
+          ? (() => { const a = savedAddresses.find(s => s.id === selectedAddressId); return a ? `${a.city}, ${a.street}` : 'Адрес не выбран'; })()
+          : `${newAddress.city}, ${newAddress.street}`
+        }</p>
+      )}
+      </div>
+
+      <div className="order-review__items">
+      {cartItems.map(item => (
+        <div key={item.id} className="review-item">
+        <span>{item.name} x {item.quantity}</span>
+        <span>{item.price * item.quantity} ₽</span>
+        </div>
+      ))}
+      <div className="review-total">
+      <span>Итого к оплате:</span>
+      <span>{totalAmount} ₽</span>
+      </div>
+      </div>
+      </div>
+
+      <div className="checkout-actions">
+      <button className="btn secondary" onClick={() => setStep(2)}>Назад</button>
+      <button className="btn primary btn--large" onClick={handlePlaceOrder} disabled={loading}>
+      {loading ? 'Обработка...' : 'Оформить пожертвование'}
+      </button>
+      </div>
+      </div>
+    )}
+
+    </div>
+    </div>
     </div>
   );
 }

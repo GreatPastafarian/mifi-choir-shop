@@ -38,6 +38,31 @@ const Donation = sequelize.define(
       allowNull: false,
       defaultValue: 'Ожидает проверки', // ИЗМЕНИТЕ ЗДЕСЬ
     },
+    // Тип получения
+    delivery_type: {
+      type: DataTypes.ENUM('pickup', 'delivery'),
+                                  defaultValue: 'pickup',
+                                    allowNull: false
+    },
+    // Данные доставки (JSON)
+    // Здесь будет лежать полный адрес или ID точки самовывоза
+    delivery_info: {
+      type: DataTypes.JSONB, // Используем JSONB для PostgreSQL
+      allowNull: true,
+      defaultValue: {}
+    },
+
+    // ФИО получателя (может отличаться от плательщика)
+    recipient_name: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+
+    // Телефон получателя
+    recipient_phone: {
+      type: DataTypes.STRING,
+      allowNull: true
+    }
   },
   {
     tableName: 'donations',

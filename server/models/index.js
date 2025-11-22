@@ -6,6 +6,7 @@ const Product = require('./Product');
 const Category = require('./Category');
 const Variant = require('./Variant');
 const ProductImage = require('./ProductImage');
+const Address = require('./Address');
 
 const db = {};
 
@@ -17,6 +18,7 @@ db.Product = Product;
 db.Category = Category;
 db.Variant = Variant;
 db.ProductImage = ProductImage;
+db.Address = Address;
 
 // Устанавливаем связи между моделями ТОЛЬКО В ЭТОМ ФАЙЛЕ
 
@@ -71,5 +73,9 @@ Product.belongsToMany(User, {
   as: 'favoritedBy',
   foreignKey: 'productId',
 });
+
+// --- Связи для Адресов ---
+User.hasMany(Address, { foreignKey: 'user_id', as: 'addresses' });
+Address.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 module.exports = db;
