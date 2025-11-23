@@ -1,4 +1,4 @@
-const { User, Donation, sequelize } = require('../models');
+const { User, Donation, Variant, Product, sequelize } = require('../models');
 
 const getProfile = async (req, res) => {
   try {
@@ -143,6 +143,8 @@ const getDonationHistory = async (req, res) => {
 
 // Добавить пожертвование в историю
 const addDonation = async (req, res) => {
+  const t = await sequelize.transaction(); // Начинаем транзакцию
+
   try {
     const {
       amount,
@@ -150,21 +152,24 @@ const addDonation = async (req, res) => {
       items,
       anonymousId,
       status,
-      // Новые поля (теперь имена совпадают с БД)
       delivery_type,
       delivery_info,
       recipient_name,
       recipient_phone
     } = req.body;
 
+    console.log('--- ADD DONATION START ---'); // LOG
+
+    // 1. Подготовка данных
+    const parsedItems = typeof items === 'string' ? JSON.parse(items) : (items || []);
+
+    console.log('Parsed Items:', parsedItems); // LOG: Проверим, что пришло
+
     const donationData = {
       amount,
       payment_method,
-      // Убедимся, что items это строка JSON
-      items: typeof items === 'string' ? items : JSON.stringify(items || []),
+      items: JSON.stringify(parsedItems),
       status: status || 'Ожидает проверки',
-
-      // Сохраняем новые данные
       delivery_type: delivery_type || 'pickup',
       delivery_info: delivery_info || {},
       recipient_name,
@@ -179,17 +184,52 @@ const addDonation = async (req, res) => {
     } else if (anonymousId) {
       donationData.anonymousId = anonymousId;
     } else {
+      await t.rollback();
       return res.status(400).json({
         message: 'Требуется авторизация или анонимный ID',
       });
     }
 
-    const donation = await Donation.create(donationData);
+    // 2. СПИСАНИЕ ОСТАТКОВ
+    for (const item of parsedItems) {
+      console.log(`Processing item: ${item.name}, variantId: ${item.variantId}`); // LOG
+
+      if (item.variantId) {
+        // ВАЖНО: Добавил { transaction: t } в findByPk
+        const variant = await Variant.findByPk(item.variantId, {
+          transaction: t,
+          lock: t.LOCK.UPDATE // Блокируем строку для обновления (защита от гонки)
+        });
+
+        if (!variant) {
+          throw new Error(`Вариант товара "${item.name}" (ID: ${item.variantId}) не найден`);
+        }
+
+        console.log(`Current quantity for variant ${variant.id}: ${variant.quantity}. Requested: ${item.quantity}`); // LOG
+
+        if (variant.quantity < item.quantity) {
+          throw new Error(`Недостаточно товара "${item.name}" на складе (доступно: ${variant.quantity})`);
+        }
+
+        // Уменьшаем количество
+        await variant.decrement('quantity', { by: item.quantity, transaction: t });
+        console.log(`Decremented quantity for variant ${variant.id}`); // LOG
+      } else {
+        console.warn(`Item "${item.name}" has no variantId! Skipping inventory check.`); // LOG
+      }
+    }
+
+    // 3. Создание записи о заказе
+    const donation = await Donation.create(donationData, { transaction: t });
+
+    await t.commit();
+    console.log('--- ADD DONATION SUCCESS ---'); // LOG
     res.status(201).json(donation);
 
   } catch (error) {
+    await t.rollback();
     console.error('Ошибка при добавлении пожертвования:', error);
-    res.status(500).json({ message: 'Ошибка сервера' });
+    res.status(500).json({ message: error.message || 'Ошибка сервера' });
   }
 };
 
@@ -277,14 +317,34 @@ const getAdminDonations = async (req, res) => {
       include: [
         {
           model: User,
-          as: 'user', // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ - указываем алиас, который использовался при определении ассоциации
+          as: 'user',
           attributes: ['id', 'name', 'email'],
         },
       ],
       order: [['created_at', 'DESC']],
     });
 
-    res.json(donations);
+    // Форматируем данные перед отправкой (парсим items)
+    const formattedDonations = donations.map((donation) => {
+      const plainDonation = donation.get({ plain: true }); // Получаем чистый JS объект
+
+      let parsedItems = [];
+      try {
+        // Если items уже объект (иногда sequelize делает это сам для JSON полей) или строка
+        parsedItems = typeof plainDonation.items === 'string'
+        ? JSON.parse(plainDonation.items)
+        : plainDonation.items;
+      } catch (e) {
+        console.error(`Ошибка парсинга items для donation ${donation.id}:`, e);
+      }
+
+      return {
+        ...plainDonation,
+        items: parsedItems || [],
+      };
+    });
+
+    res.json(formattedDonations);
   } catch (error) {
     console.error('Ошибка при получении данных для админки:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
@@ -293,18 +353,54 @@ const getAdminDonations = async (req, res) => {
 
 // Обновить статус пожертвования
 const updateDonationStatus = async (req, res) => {
+  const t = await sequelize.transaction();
+
   try {
     const { id } = req.params;
     const { status } = req.body;
 
-    const donation = await Donation.findByPk(id);
+    const donation = await Donation.findByPk(id, { transaction: t });
     if (!donation) {
+      await t.rollback();
       return res.status(404).json({ message: 'Пожертвование не найдено' });
     }
 
-    await donation.update({ status });
+    const oldStatus = donation.status;
+
+    // Логика возврата товара
+    // Если новый статус "Отклонено" И старый статус НЕ "Отклонено" -> Возвращаем товары
+    if (status === 'Отклонено' && oldStatus !== 'Отклонено') {
+      let items = [];
+      try {
+        items = typeof donation.items === 'string' ? JSON.parse(donation.items) : donation.items;
+      } catch (e) {
+        console.error('Ошибка парсинга items при возврате:', e);
+      }
+
+      if (Array.isArray(items)) {
+        for (const item of items) {
+          if (item.variantId) {
+            // Возвращаем количество обратно
+            await Variant.increment('quantity', {
+              by: item.quantity,
+              where: { id: item.variantId },
+              transaction: t
+            });
+          }
+        }
+      }
+    }
+
+    // Примечание: Если вы вдруг решите вернуть статус из "Отклонено" в "Ожидает проверки" или "Завершено",
+    // по-хорошему нужно снова списывать товар. Но обычно поток идет только в одну сторону.
+    // Если нужно, добавьте блок else if (oldStatus === 'Отклонено' && status !== 'Отклонено') { ...decrement... }
+
+    await donation.update({ status }, { transaction: t });
+
+    await t.commit();
     res.json({ message: 'Статус обновлен', donation });
   } catch (error) {
+    await t.rollback();
     console.error('Ошибка при обновлении статуса:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
   }

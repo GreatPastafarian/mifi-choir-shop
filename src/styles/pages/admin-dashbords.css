@@ -1,0 +1,78 @@
+/* --- AdminDashboard Styles --- */
+
+.admin-dashboard {
+    margin-top: 4rem;
+    /* 1. Вот корректный отступ от футера */
+    padding-bottom: 5rem;
+}
+
+/* Блок "Доступ запрещен" */
+.admin-dashboard__access-denied {
+    margin-top: 4rem;
+    text-align: center;
+}
+.admin-dashboard__home-link {
+    margin-top: 1rem;
+}
+
+/* Сетка карточек */
+.admin-dashboard__grid {
+    display: grid;
+    /* (ИЗМЕНЕНИЕ) Сделаем карточки чуть уже для лучшего вида */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* 2. (НОВЫЙ ДИЗАЙН) Базовый класс карточки */
+.admin-dashboard__card {
+    border-radius: var(--radius-md);
+    padding: 2.5rem 2rem; /* Больше вертикального отступа */
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #FFFFFF; /* Весь текст - белый */
+}
+
+/* 3. (НОВЫЙ ДИЗАЙН) Модификаторы цвета */
+.admin-dashboard__card--products {
+    background-color: #A12B3B; /* Глубокий красный (под бренд) */
+}
+.admin-dashboard__card--donations {
+    background-color: #2A7D4F; /* Солидный зеленый */
+}
+.admin-dashboard__card--categories {
+    background-color: #3A5A99; /* Солидный синий */
+}
+
+/* 4. (НОВЫЙ ДИЗАЙН) Эффект при наведении */
+.admin-dashboard__card:hover {
+    transform: translateY(-8px); /* Более заметный эффект */
+    box-shadow: var(--shadow-lg);
+    filter: brightness(110%); /* Карточка становится чуть ярче */
+}
+
+/* 5. (НОВЫЙ ДИЗАЙН) Стили для React-иконок */
+.admin-dashboard__card-icon {
+    font-size: 3.5rem; /* Делаем иконки крупными */
+    margin-bottom: 1.25rem;
+    line-height: 1;
+}
+
+.admin-dashboard__card-title {
+    margin-bottom: 0.5rem;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #FFFFFF; /* Белый заголовок */
+}
+
+.admin-dashboard__card-description {
+    font-size: 0.9rem;
+    line-height: 1.4;
+    color: #FFFFFF;
+    opacity: 0.85; /* Описание чуть прозрачнее */
+}

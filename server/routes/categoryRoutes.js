@@ -4,6 +4,7 @@ const {
   getAllCategories,
   createCategory,
   updateCategory,
+  getCategoryById,
   deleteCategory,
 } = require('../controllers/categoryController');
 // Заменяем импорт на существующие middleware
@@ -12,6 +13,7 @@ const { checkAdmin } = require('../utils/middleware/adminAuth');
 
 // Публичные маршруты
 router.get('/', getAllCategories);
+router.get('/:id', getCategoryById);
 
 // Маршруты для администраторов
 router.use(authenticateToken);

@@ -5,7 +5,7 @@ import './styles/pages/admin-product-edit.css';
 import './styles/pages/admin-products.css';
 import './styles/components/image-uploader.css';
 import './styles/pages/product-details-page.css';
-import './styles/components/admin-panel.css';
+import './styles/pages/admin-panel.css';
 import './styles/components/form.css';
 import './styles/pages/admin-categories.css';
 import './styles/pages/product-card.css';
@@ -16,6 +16,8 @@ import './styles/pages/category-page.css';
 import './styles/pages/shop-page.css';
 import './styles/pages/checkout-page.css';
 import './styles/pages/account-page.css';
+import './styles/pages/admin-dashbords.css';
+import './styles/components/sort-filter.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

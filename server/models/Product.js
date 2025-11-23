@@ -33,12 +33,19 @@ const Product = sequelize.define(
       type: DataTypes.TEXT,
       defaultValue: '',
     },
+    // --- ДОБАВЛЕНО ПОЛЕ DETAILS ---
+    details: {
+      type: DataTypes.TEXT, // Храним как JSON-строку
+      allowNull: true,
+      defaultValue: '[]',
+    },
+    // -----------------------------
     base_price: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false,
-      validate: {
-        min: 0,
-      },
+                                 allowNull: false,
+                                 validate: {
+                                   min: 0,
+                                 },
     },
     is_new: {
       type: DataTypes.BOOLEAN,
@@ -51,9 +58,9 @@ const Product = sequelize.define(
     views_count: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-      validate: {
-        min: 0,
-      },
+        validate: {
+          min: 0,
+        },
     },
     is_active: {
       type: DataTypes.BOOLEAN,

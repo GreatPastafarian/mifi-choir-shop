@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// Убрал лишние иконки (MdArrowBack, MdAccessTime, MdEdit)
+// Removed unused icons and updateProductVariant
 import { MdOpenInNew, MdCheckCircle, MdArrowRight, MdSearch, MdSave, MdDeleteOutline } from 'react-icons/md';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-// Импорты сервисов
+// Service Imports
 import { addDonationToHistory } from '../services/authService';
 import {
   getUserAddresses,
@@ -11,7 +11,7 @@ import {
   updateAddress,
   deleteAddress
 } from '../services/addressService';
-import { updateProductVariant } from '../services/productService';
+// REMOVED: import { updateProductVariant } from '../services/productService'; <--- This line caused the warning
 import { getZipCodeByAddress } from '../utils/dadataService';
 import { getImageUrl, getProductImageSet } from '../utils/imageUtils';
 
@@ -21,19 +21,18 @@ function CheckoutPage({ cartItems, updateCart }) {
   const { user, isAuthenticated, login: contextLogin } = useAuth();
   const navigate = useNavigate();
 
-  // Состояния UI
+  // UI States
   const [error, setError] = useState('');
-  // Убрал const [success, setSuccess], так как она не использовалась
   const [isProcessing, setIsProcessing] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [loginError, setLoginError] = useState('');
 
-  // Состояния заказа
+  // Order States
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const [donationId, setDonationId] = useState(null);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
 
-  // Состояния доставки и адресов
+  // Delivery and Address States
   const [deliveryType, setDeliveryType] = useState('pickup');
   const [savedAddresses, setSavedAddresses] = useState([]);
   const [selectedAddressId, setSelectedAddressId] = useState('new');
@@ -44,7 +43,7 @@ function CheckoutPage({ cartItems, updateCart }) {
     phone: '',
     comment: '',
     isAnonymous: false,
-    // Адрес
+    // Address
     address_title: '',
     city: '',
     street: '',
@@ -53,7 +52,7 @@ function CheckoutPage({ cartItems, updateCart }) {
     zip_code: ''
   });
 
-  // Инициализация
+  // Initialization
   useEffect(() => {
     if (!isCompleting && cartItems.length === 0) {
       navigate('/cart', { replace: true });
@@ -68,12 +67,12 @@ function CheckoutPage({ cartItems, updateCart }) {
         phone: user.phone || prev.phone,
       }));
 
-      // Загружаем адреса из профиля
+      // Load addresses from profile
       const fetchAddresses = async () => {
         try {
           const addresses = await getUserAddresses();
           setSavedAddresses(addresses);
-          // Если есть адреса, выбираем первый по умолчанию
+          // Select default address if available
           if (addresses.length > 0) {
             const defAddr = addresses[0];
             setSelectedAddressId(defAddr.id);
@@ -88,7 +87,7 @@ function CheckoutPage({ cartItems, updateCart }) {
             }));
           }
         } catch (err) {
-          console.error('Не удалось загрузить адреса:', err);
+          console.error('Failed to load addresses:', err);
         }
       };
       fetchAddresses();
@@ -103,7 +102,7 @@ function CheckoutPage({ cartItems, updateCart }) {
     }));
   };
 
-  // --- ЛОГИКА АДРЕСОВ ---
+  // --- ADDRESS LOGIC ---
 
   const handleAddressSelect = (e) => {
     const val = e.target.value;
@@ -135,10 +134,10 @@ function CheckoutPage({ cartItems, updateCart }) {
     }
   };
 
-  // Авто-поиск индекса через DaData
+  // Auto-find ZIP via DaData
   const handleAutoZip = async () => {
     if (!formData.city || !formData.street) {
-      alert('Пожалуйста, сначала заполните Город, Улицу и Дом');
+      alert('Please fill in City, Street, and Building first');
       return;
     }
     setIsProcessing(true);
@@ -147,7 +146,7 @@ function CheckoutPage({ cartItems, updateCart }) {
       if (zip) {
         setFormData(prev => ({ ...prev, zip_code: zip }));
       } else {
-        alert('Не удалось определить индекс. Введите вручную.');
+        alert('Could not determine ZIP code. Please enter manually.');
       }
     } catch (e) {
       console.error(e);
@@ -156,15 +155,14 @@ function CheckoutPage({ cartItems, updateCart }) {
     }
   };
 
-  // Сохранить НОВЫЙ адрес в профиль
+  // Save NEW address to profile
   const handleSaveNewAddress = async () => {
     if (!user) return;
     if (!formData.city || !formData.street || !formData.building) {
-      alert('Заполните обязательные поля адреса');
+      alert('Fill in required address fields');
       return;
     }
 
-    // Формируем название, если пусто
     const finalTitle = formData.address_title || `${formData.street}, ${formData.building}`;
 
     setIsProcessing(true);
@@ -179,17 +177,16 @@ function CheckoutPage({ cartItems, updateCart }) {
       });
       setSavedAddresses([newAddress, ...savedAddresses]);
       setSelectedAddressId(newAddress.id);
-      // Обновляем title в форме, если он был автосгенерирован
       setFormData(prev => ({ ...prev, address_title: finalTitle }));
-      alert('Адрес сохранен в профиль!');
+      alert('Address saved to profile!');
     } catch (e) {
-      alert('Ошибка сохранения адреса');
+      alert('Error saving address');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Обновить ТЕКУЩИЙ адрес в профиле
+  // Update CURRENT address in profile
   const handleUpdateCurrentAddress = async () => {
     if (selectedAddressId === 'new' || !user) return;
 
@@ -206,18 +203,18 @@ function CheckoutPage({ cartItems, updateCart }) {
         zip_code: formData.zip_code
       });
       setSavedAddresses(savedAddresses.map(a => a.id === updated.id ? updated : a));
-      alert('Адрес обновлен!');
+      alert('Address updated!');
     } catch (e) {
-      alert('Ошибка обновления адреса');
+      alert('Error updating address');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Удалить ТЕКУЩИЙ адрес из профиля
+  // Delete CURRENT address from profile
   const handleDeleteCurrentAddress = async () => {
     if (selectedAddressId === 'new' || !user) return;
-    if (!window.confirm('Удалить этот адрес из списка сохраненных?')) return;
+    if (!window.confirm('Delete this address from saved list?')) return;
 
     setIsProcessing(true);
     try {
@@ -227,26 +224,26 @@ function CheckoutPage({ cartItems, updateCart }) {
       setSelectedAddressId('new');
       setFormData(prev => ({ ...prev, address_title: '', city: '', street: '', building: '', flat: '', zip_code: '' }));
     } catch (e) {
-      alert('Ошибка удаления адреса');
+      alert('Error deleting address');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // --- Валидация и переходы ---
+  // --- Validation and Steps ---
 
   const validateContactForm = useCallback(() => {
     if (!formData.name || !formData.email) {
-      setError('Имя и email обязательны для заполнения');
+      setError('Name and email are required');
       return false;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setError('Некорректный формат email');
+      setError('Invalid email format');
       return false;
     }
     if (deliveryType === 'delivery') {
       if (!formData.city || !formData.street || !formData.building) {
-        setError('Пожалуйста, заполните адрес доставки (Город, Улица, Дом)');
+        setError('Please fill in delivery address (City, Street, Building)');
         return false;
       }
     }
@@ -302,7 +299,7 @@ function CheckoutPage({ cartItems, updateCart }) {
 
       let finalDeliveryInfo = {};
       if (deliveryType === 'pickup') {
-        finalDeliveryInfo = { type: 'pickup', text: 'Самовывоз (Москва, Каширское ш., 31)' };
+        finalDeliveryInfo = { type: 'pickup', text: 'Самовывоз (г. Москва, Каширское шоссе, 64, корп. 1А)' };
       } else {
         finalDeliveryInfo = {
           title: formData.address_title,
@@ -338,18 +335,11 @@ function CheckoutPage({ cartItems, updateCart }) {
 
       donationData.is_anonymous = formData.isAnonymous;
 
+      // 1. Create order (Server now handles inventory deduction!)
       const donation = await addDonationToHistory(donationData);
+
       setDonationId(donation.id);
       setPaymentInitiated(true);
-
-      // Обновляем остатки (опционально)
-      for (const item of cartItems) {
-        if (item.variantId) {
-          try {
-            await updateProductVariant(item.id, item.variantId, { quantity: item.quantity * -1 });
-          } catch (updateError) { console.error(updateError); }
-        }
-      }
 
       setIsCompleting(true);
       setStep(3);
@@ -359,8 +349,8 @@ function CheckoutPage({ cartItems, updateCart }) {
       window.open(paymentUrl, '_blank');
 
     } catch (err) {
-      console.error('Ошибка заказа:', err);
-      setError(err.message || 'Ошибка при создании заказа');
+      console.error('Order error:', err);
+      setError(err.response?.data?.message || err.message || 'Error creating order');
       setIsCompleting(false);
     } finally {
       setIsProcessing(false);
@@ -394,7 +384,7 @@ function CheckoutPage({ cartItems, updateCart }) {
       localStorage.removeItem('postLoginRedirect');
       navigate(decodeURIComponent(redirectPath), { replace: true });
     } catch (err) {
-      setLoginError('Неверный email или пароль');
+      setLoginError('Invalid email or password');
     } finally {
       setTimeout(() => setIsProcessing(false), 100);
     }
@@ -409,16 +399,14 @@ function CheckoutPage({ cartItems, updateCart }) {
     .join(', ');
   };
 
-  const progressModifier = isAuthenticated
-  ? step === 2 ? 'checkout-steps--step-2' : ''
-  : step === 2 ? 'checkout-steps--step-2' : step === 3 ? 'checkout-steps--step-3' : '';
-  const stepsLayoutModifier = isAuthenticated ? 'checkout-steps--two-steps' : 'checkout-steps--three-steps';
+  const progressModifier = step === 2 ? 'checkout-steps--step-2' : step === 3 ? 'checkout-steps--step-3' : '';
+  const stepsLayoutModifier = 'checkout-steps--three-steps';
 
   return (
     <div className="checkout-page">
     <div className="checkout-page__container">
 
-    {/* Модалка входа */}
+    {/* Login Modal */}
     {showLoginModal && (
       <div className="checkout-auth-modal" onClick={() => !isProcessing && setShowLoginModal(false)}>
       <div className="checkout-auth-modal__content" onClick={(e) => e.stopPropagation()}>
@@ -449,24 +437,22 @@ function CheckoutPage({ cartItems, updateCart }) {
     {error && <div className="alert error">{error}</div>}
 
     <div className={`checkout-steps ${stepsLayoutModifier} ${progressModifier}`}>
-    {!isAuthenticated && (
-      <div className={`checkout-steps__item ${step >= 1 ? 'checkout-steps__item--active' : ''} ${step > 1 ? 'checkout-steps__item--completed' : ''}`}>
-      <div className="checkout-steps__number">1</div>
-      <span className="checkout-steps__label">Контакты</span>
-      </div>
-    )}
+    <div className={`checkout-steps__item ${step >= 1 ? 'checkout-steps__item--active' : ''} ${step > 1 ? 'checkout-steps__item--completed' : ''}`}>
+    <div className="checkout-steps__number">1</div>
+    <span className="checkout-steps__label">Контакты</span>
+    </div>
     <div className={`checkout-steps__item ${step >= 2 ? 'checkout-steps__item--active' : ''} ${step > 2 ? 'checkout-steps__item--completed' : ''}`}>
-    <div className="checkout-steps__number">{isAuthenticated ? 1 : 2}</div>
+    <div className="checkout-steps__number">2</div>
     <span className="checkout-steps__label">Подтверждение</span>
     </div>
     <div className={`checkout-steps__item ${step >= 3 ? 'checkout-steps__item--active' : ''}`}>
-    <div className="checkout-steps__number">{isAuthenticated ? 2 : 3}</div>
+    <div className="checkout-steps__number">3</div>
     <span className="checkout-steps__label">Оплата</span>
     </div>
     </div>
 
     <div className="checkout-page__section">
-    {/* ШАГ 1 */}
+    {/* STEP 1 */}
     {step === 1 && (
       <>
       <h2 className="checkout-page__section-title">1. Контактные данные</h2>
@@ -492,12 +478,12 @@ function CheckoutPage({ cartItems, updateCart }) {
       <div className="checkout-delivery__content">
       {deliveryType === 'pickup' ? (
         <div>
-        <p className="checkout-delivery__text"><strong>Адрес:</strong> Москва, Каширское шоссе, 31 (НИЯУ МИФИ)</p>
+        <p className="checkout-delivery__text"><strong>Адрес:</strong> г. Москва, Каширское шоссе, 64, корп. 1А</p>
         <p className="checkout-delivery__text">Мы свяжемся с вами для уточнения времени.</p>
         </div>
       ) : (
         <div>
-        {/* СЕЛЕКТОР АДРЕСОВ + КНОПКИ УПРАВЛЕНИЯ */}
+        {/* ADDRESS SELECTOR */}
         {user && savedAddresses.length > 0 && (
           <div className="form-group">
           <div style={{display: 'flex', alignItems: 'flex-end', gap: '10px'}}>
@@ -516,7 +502,6 @@ function CheckoutPage({ cartItems, updateCart }) {
           <option value="new">+ Ввести новый адрес</option>
           </select>
           </div>
-          {/* Кнопки редактирования/удаления */}
           {selectedAddressId !== 'new' && (
             <div style={{display: 'flex', gap: '5px'}}>
             <button type="button" className="btn secondary" onClick={handleUpdateCurrentAddress} title="Обновить в профиле" style={{padding: '0.75rem'}} disabled={isProcessing}>
@@ -531,8 +516,7 @@ function CheckoutPage({ cartItems, updateCart }) {
           </div>
         )}
 
-        {/* ПОЛЯ АДРЕСА */}
-        {/* НОВОЕ ПОЛЕ: НАЗВАНИЕ */}
+        {/* ADDRESS FIELDS */}
         <div className="form-group">
         <label className="checkout-form__label">Название адреса (например, Дом, Работа)</label>
         <input
@@ -554,7 +538,6 @@ function CheckoutPage({ cartItems, updateCart }) {
         <input className="checkout-form__input" type="text" name="street" value={formData.street} onChange={handleChange} />
         </div>
 
-        {/* Вернул старую сетку */}
         <div className="checkout-form__row">
         <div className="form-group">
         <label className="checkout-form__label">Дом *</label>
@@ -566,7 +549,6 @@ function CheckoutPage({ cartItems, updateCart }) {
         </div>
         </div>
 
-        {/* Индекс + DaData */}
         <div className="form-group">
         <label className="checkout-form__label">Индекс</label>
         <div style={{display: 'flex', gap: '10px'}}>
@@ -590,7 +572,6 @@ function CheckoutPage({ cartItems, updateCart }) {
         </div>
         </div>
 
-        {/* Кнопка сохранения НОВОГО адреса */}
         {user && selectedAddressId === 'new' && (
           <button type="button" className="btn secondary" onClick={handleSaveNewAddress} style={{fontSize: '0.9rem'}} disabled={isProcessing}>
           <MdSave style={{marginRight: '5px'}}/> Сохранить этот адрес в профиль
@@ -620,7 +601,7 @@ function CheckoutPage({ cartItems, updateCart }) {
       </>
     )}
 
-    {/* ШАГ 2: Подтверждение */}
+    {/* STEP 2 */}
     {step === 2 && (
       <>
       <h2 className="checkout-page__section-title">Проверьте данные</h2>
@@ -682,7 +663,7 @@ function CheckoutPage({ cartItems, updateCart }) {
       </>
     )}
 
-    {/* ШАГ 3: Финал */}
+    {/* STEP 3 */}
     {step === 3 && (
       <div className="checkout-confirmation">
       {paymentInitiated ? (

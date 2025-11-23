@@ -1,0 +1,418 @@
+/* ===== Admin Panel Styles ===== */
+
+.admin-panel {
+  padding: 2rem;
+  background-color: #fdfbf7; /* Очень легкий бежевый оттенок, "бумажный" */
+  min-height: 100%;
+}
+
+/* --- Header --- */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+
+.admin-header h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  color: #0a2240;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* --- Filters --- */
+.admin-filters {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  background: #fff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+  min-width: 280px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8d1f2c; /* Акцентный цвет бренда */
+  font-size: 1.2rem;
+}
+
+.search-box input,
+.status-filter {
+  width: 100%;
+  padding: 0.8rem 1rem 0.8rem 2.8rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background-color: #fafafa;
+}
+
+.status-filter {
+  padding-left: 1rem;
+  width: auto;
+  min-width: 200px;
+  cursor: pointer;
+}
+
+.search-box input:focus,
+.status-filter:focus {
+  border-color: #8d1f2c;
+  background-color: #fff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(141, 31, 44, 0.1);
+}
+
+/* --- Table --- */
+.donations-table-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  overflow: hidden; /* Скругляет углы таблицы */
+}
+
+.donations-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.donations-table thead {
+  background-color: #f4f1ea; /* Легкий акцент в заголовке */
+}
+
+.donations-table th {
+  text-align: left;
+  padding: 1.2rem 1.5rem;
+  color: #0a2240;
+  font-weight: 700;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.donations-table td {
+  padding: 1.2rem 1.5rem;
+  vertical-align: middle;
+  border-bottom: 1px solid #f0f0f0;
+  color: #333;
+}
+
+.donations-table tr:last-child td {
+  border-bottom: none;
+}
+
+.donations-table tr {
+  transition: background-color 0.2s;
+}
+
+.donations-table tr:hover {
+  background-color: #faf9f5;
+}
+
+/* Specific Columns */
+.donation-id {
+  font-family: monospace;
+  color: #666;
+  font-weight: 600;
+}
+
+.donation-amount {
+  font-weight: 700;
+  color: #0a2240;
+  font-size: 1.05rem;
+}
+
+.donation-user {
+  color: #444;
+}
+
+/* --- Status Badges --- */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 50px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.status-badge.ожидает-проверки {
+  background-color: #fff8e1;
+  color: #b78103;
+  border: 1px solid #ffe082;
+}
+
+.status-badge.завершено {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.status-badge.отклонено {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+/* --- Actions Buttons (Улучшенные) --- */
+.donation-actions {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+/* Общий стиль для круглых кнопок */
+.btn-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  color: #fff;
+}
+
+.btn-circle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.btn-circle:active {
+  transform: translateY(0);
+}
+
+.btn-circle svg {
+  font-size: 1.3rem;
+}
+
+/* Цвета кнопок */
+.action-view {
+  background-color: #fff;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+.action-view:hover {
+  background-color: #0a2240;
+  color: #fff;
+  border-color: #0a2240;
+}
+
+.action-approve {
+  background-color: #4caf50; /* Зеленый */
+}
+.action-approve:hover {
+  background-color: #43a047;
+}
+
+.action-reject {
+  background-color: #ef5350; /* Красный */
+}
+.action-reject:hover {
+  background-color: #e53935;
+}
+
+/* --- Refresh Button --- */
+.refresh-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  font-weight: 500;
+}
+
+/* --- Messages --- */
+.loading, .error, .no-data {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+  font-size: 1.1rem;
+}
+.error { color: #dc3545; }
+
+/* --- Modal Styles (БЭМ внутри файла) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 650px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  animation: modalFadeIn 0.3s ease;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fafafa;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem;
+  color: #0a2240;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #999;
+  transition: color 0.2s;
+  padding: 0;
+  line-height: 1;
+}
+.close-btn:hover { color: #333; }
+
+.modal-body {
+  padding: 2rem;
+}
+
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px dashed #eee;
+}
+
+.detail-section {
+  margin-top: 2rem;
+  background: #fdfbf7; /* Акцентный фон секций */
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+.detail-section h4 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #0a2240;
+  border-bottom: 2px solid rgba(141, 31, 44, 0.1);
+  padding-bottom: 0.5rem;
+  display: inline-block;
+}
+
+.items-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.8rem 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.order-item:last-child { border-bottom: none; }
+
+.item-sku {
+  font-size: 0.8rem;
+  color: #888;
+  margin-left: 0.5rem;
+}
+
+.item-qty-price {
+  font-weight: 700;
+  color: #8d1f2c;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid #e0e0e0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #0a2240;
+}
+
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  background: #fafafa;
+}
+
+/* Кнопки в футере модалки (текстовые) */
+.btn-text {
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.btn-approve {
+  background-color: #4caf50;
+  color: white;
+}
+.btn-approve:hover { background-color: #43a047; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
+
+.btn-reject {
+  background-color: #ef5350;
+  color: white;
+}
+.btn-reject:hover { background-color: #e53935; box-shadow: 0 4px 10px rgba(239, 83, 80, 0.3); }
+
+.btn-close {
+  background-color: #e0e0e0;
+  color: #333;
+}
+.btn-close:hover { background-color: #d5d5d5; }
