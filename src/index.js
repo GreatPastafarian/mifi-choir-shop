@@ -15,6 +15,7 @@ import './styles/pages/favorites-page.css';
 import './styles/pages/category-page.css';
 import './styles/pages/shop-page.css';
 import './styles/pages/checkout-page.css';
+import './styles/pages/account-page.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

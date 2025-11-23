@@ -55,7 +55,6 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/favorites', favoriteRoutes);
 
 // Подключаем маршруты для адресов
-app.use('/api/users', userRoutes);
 app.use('/api/addresses', addressRoutes);
 
 // API endpoint для контактов

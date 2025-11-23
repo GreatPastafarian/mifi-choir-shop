@@ -42,6 +42,7 @@ const Address = sequelize.define('Address', {
 }, {
     tableName: 'addresses',
     timestamps: true,
+    underscored: true,
 });
 
 module.exports = Address;

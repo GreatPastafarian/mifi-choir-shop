@@ -8,6 +8,7 @@ router.use(authenticateToken);
 
 router.get('/', addressController.getUserAddresses);
 router.post('/', addressController.createAddress);
+router.put('/:id', addressController.updateAddress);
 router.delete('/:id', addressController.deleteAddress);
 
 module.exports = router;

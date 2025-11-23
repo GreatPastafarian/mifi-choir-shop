@@ -144,45 +144,49 @@ const getDonationHistory = async (req, res) => {
 // Добавить пожертвование в историю
 const addDonation = async (req, res) => {
   try {
-    const { amount, payment_method, items, anonymousId, status } = req.body;
+    const {
+      amount,
+      payment_method,
+      items,
+      anonymousId,
+      status,
+      // Новые поля (теперь имена совпадают с БД)
+      delivery_type,
+      delivery_info,
+      recipient_name,
+      recipient_phone
+    } = req.body;
 
-    // Если пользователь авторизован, сохраняем с userId
+    const donationData = {
+      amount,
+      payment_method,
+      // Убедимся, что items это строка JSON
+      items: typeof items === 'string' ? items : JSON.stringify(items || []),
+      status: status || 'Ожидает проверки',
+
+      // Сохраняем новые данные
+      delivery_type: delivery_type || 'pickup',
+      delivery_info: delivery_info || {},
+      recipient_name,
+      recipient_phone
+    };
+
+    // Привязка пользователя
     if (req.user) {
-      const donation = await Donation.create({
-        userId: req.user.id,
-        amount,
-        payment_method,
-        items: JSON.stringify(items || []),
-        status: status, // Убираем значение по умолчанию
-      });
-      res.status(201).json(donation);
-    }
-    // Если есть анонимный ID (из middleware), сохраняем с ним
-    else if (req.anonymousId) {
-      const donation = await Donation.create({
-        anonymousId: req.anonymousId,
-        amount,
-        payment_method,
-        items: JSON.stringify(items || []),
-        status: status, // Убираем значение по умолчанию
-      });
-      res.status(201).json(donation);
-    }
-    // Если есть анонимный ID в теле запроса
-    else if (anonymousId) {
-      const donation = await Donation.create({
-        anonymousId,
-        amount,
-        payment_method,
-        items: JSON.stringify(items || []),
-        status: status, // Убираем значение по умолчанию
-      });
-      res.status(201).json(donation);
+      donationData.userId = req.user.id;
+    } else if (req.anonymousId) {
+      donationData.anonymousId = req.anonymousId;
+    } else if (anonymousId) {
+      donationData.anonymousId = anonymousId;
     } else {
-      res.status(400).json({
+      return res.status(400).json({
         message: 'Требуется авторизация или анонимный ID',
       });
     }
+
+    const donation = await Donation.create(donationData);
+    res.status(201).json(donation);
+
   } catch (error) {
     console.error('Ошибка при добавлении пожертвования:', error);
     res.status(500).json({ message: 'Ошибка сервера' });
