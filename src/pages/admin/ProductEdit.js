@@ -14,11 +14,12 @@ const initialState = {
   images: [],
   base_price: '',
   is_new: true,
+  is_preorder: false,
   publication_date: new Date().toISOString().split('T')[0],
-    views_count: 0,
-    // (ИЗМЕНЕНИЕ) 'sort_order' удален
-    is_active: true,
-    variants: [],
+  views_count: 0,
+  // (ИЗМЕНЕНИЕ) 'sort_order' удален
+  is_active: true,
+  variants: [],
 };
 
 // Хелпер для получения Декартова произведения (для генерации вариантов)
@@ -118,9 +119,9 @@ function ProductEdit() {
               publication_date: productData.publication_date
                 ? productData.publication_date.split('T')[0]
                 : new Date().toISOString().split('T')[0],
-                        details: productData.details || [],
-                        images: productData.images || [],
-                        variants: initialVariants,
+              details: productData.details || [],
+              images: productData.images || [],
+              variants: initialVariants,
             });
 
             // (НОВАЯ ЛОГИКА)
@@ -183,14 +184,14 @@ function ProductEdit() {
   // Обновление имени опции (напр., "Размер")
   const handleOptionNameChange = (id, newName) => {
     setOptionSetup(prev =>
-    prev.map(opt => (opt.id === id ? { ...opt, name: newName } : opt))
+      prev.map(opt => (opt.id === id ? { ...opt, name: newName } : opt))
     );
   };
 
   // Обновление значений опции (напр., "S, M, L")
   const handleOptionValuesChange = (id, newValues) => {
     setOptionSetup(prev =>
-    prev.map(opt => (opt.id === id ? { ...opt, values: newValues } : opt))
+      prev.map(opt => (opt.id === id ? { ...opt, values: newValues } : opt))
     );
   };
 
@@ -211,11 +212,11 @@ function ProductEdit() {
   const handleGenerateVariants = () => {
     // 1. Фильтруем и парсим опции
     const validOptions = optionSetup
-    .map(opt => ({
-      name: opt.name.trim(),
-                 values: opt.values.split(',').map(v => v.trim()).filter(Boolean),
-    }))
-    .filter(opt => opt.name && opt.values.length > 0);
+      .map(opt => ({
+        name: opt.name.trim(),
+        values: opt.values.split(',').map(v => v.trim()).filter(Boolean),
+      }))
+      .filter(opt => opt.name && opt.values.length > 0);
 
     if (validOptions.length === 0) {
       setFormData(prev => ({ ...prev, variants: [] }));
@@ -295,8 +296,8 @@ function ProductEdit() {
     const value = e.target.type === 'number' ? (parseInt(e.target.value) || 0) : e.target.value;
     setFormData(prev => {
       const newVariants = (prev.variants && prev.variants.length > 0)
-      ? [...prev.variants]
-      : [{}];
+        ? [...prev.variants]
+        : [{}];
       newVariants[0] = {
         ...newVariants[0],
         attributes: {},
@@ -318,11 +319,11 @@ function ProductEdit() {
         ...prev,
         variants: [{
           id: (prev.variants[0] && prev.variants[0].id) || undefined,
-                           sku: (prev.variants[0] && prev.variants[0].sku) || '',
-                           attributes: {},
-                           price: null,
-                           quantity: (prev.variants[0] && prev.variants[0].quantity) || 0,
-                           is_available: true
+          sku: (prev.variants[0] && prev.variants[0].sku) || '',
+          attributes: {},
+          price: null,
+          quantity: (prev.variants[0] && prev.variants[0].quantity) || 0,
+          is_available: true
         }]
       }));
     } else {
@@ -363,9 +364,9 @@ function ProductEdit() {
           return {
             ...v,
             sku: v.sku || `VAR-${formData.name.substring(0, 3).toUpperCase()}-${index}-${Date.now().toString().slice(-4)}`,
-                                                  attributes: v.attributes, // Атрибуты уже есть
-                                                  price: v.price ? parseFloat(v.price) : null,
-                                                  quantity: v.quantity ? parseInt(v.quantity) : 0,
+            attributes: v.attributes, // Атрибуты уже есть
+            price: v.price ? parseFloat(v.price) : null,
+            quantity: v.quantity ? parseInt(v.quantity) : 0,
           };
         });
       } else {
@@ -374,10 +375,10 @@ function ProductEdit() {
         processedVariants.push({
           id: simpleVariant.id || undefined,
           sku: simpleVariant.sku || `BASE-${formData.name.substring(0, 3).toUpperCase()}-${Date.now().toString().slice(-6)}`,
-                               attributes: {},
-                               quantity: parseInt(simpleVariant.quantity) || 0,
-                               price: null, // У простого товара цена = base_price
-                               is_available: true,
+          attributes: {},
+          quantity: parseInt(simpleVariant.quantity) || 0,
+          price: null, // У простого товара цена = base_price
+          is_available: true,
         });
       }
 
@@ -418,7 +419,7 @@ function ProductEdit() {
   if (loading && id !== 'new') {
     return (
       <div className="admin-product-edit__container admin-product-edit__container--centered">
-      <h1>Загрузка данных...</h1>
+        <h1>Загрузка данных...</h1>
       </div>
     );
   }
@@ -426,367 +427,387 @@ function ProductEdit() {
   if (error) {
     return (
       <div className="admin-product-edit__container admin-product-edit__container--centered">
-      <h1>Ошибка</h1>
-      <p>{error}</p>
-      <Link to="/admin/products" className="btn primary">
-      Вернуться к списку товаров
-      </Link>
+        <h1>Ошибка</h1>
+        <p>{error}</p>
+        <Link to="/admin/products" className="btn primary">
+          Вернуться к списку товаров
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="admin-product-edit">
-    <div className="admin-product-edit__container">
-    <div className="admin-product-edit__header">
-    <h1>{id === 'new' ? 'Новый товар' : `Редактирование: ${formData.name}`}</h1>
-    <Link to="/admin/products" className="btn secondary">
-    Назад к списку
-    </Link>
-    </div>
-
-    <form onSubmit={handleSubmit} className="admin-product-edit__form">
-    {/* --- Основная информация --- */}
-    <div className="admin-product-edit__form-section">
-    <h2 className="admin-product-edit__section-title">Основная информация</h2>
-    <div className="admin-product-edit__grid">
-
-    <div className="admin-product-edit__form-group">
-    <label htmlFor="name" className="admin-product-edit__label">Название *</label>
-    <input
-    type="text" id="name" name="name"
-    className="admin-product-edit__input"
-    value={formData.name} onChange={handleChange} required
-    />
-    </div>
-
-    <div className="admin-product-edit__form-group">
-    <label className="admin-product-edit__label">Категория *</label>
-    <div className="admin-product-edit__category-group">
-    <select
-    id="category_id" name="category_id"
-    className="admin-product-edit__select"
-    value={formData.category_id} onChange={handleCategorySelect} required
-    >
-    <option value="">Выберите категорию</option>
-    {categories.map((category) => (
-      <option key={category.id} value={category.id}>{category.name}</option>
-    ))}
-    </select>
-    {/* (ИЗМЕНЕНИЕ) Текст кнопки */}
-    <Link
-    to="/admin/categories"
-    className="admin-product-edit__manage-category-btn"
-    title="Управление категориями"
-    >
-    Управление категориями
-    </Link>
-    </div>
-    </div>
-
-    <div className="admin-product-edit__form-group">
-    <label htmlFor="base_price" className="admin-product-edit__label">Базовая цена *</label>
-    <input
-    type="number" id="base_price" name="base_price"
-    className="admin-product-edit__input"
-    value={formData.base_price} onChange={handleChange} required
-    min="0" step="0.01"
-    />
-    </div>
-
-    <div className="admin-product-edit__form-group">
-    <label className="admin-product-edit__label">Параметры</label>
-    <div className="admin-product-edit__checkbox-group">
-    <label className="custom-checkbox">
-    <input type="checkbox" name="is_new" checked={formData.is_new} onChange={handleChange} />
-    <span className="custom-checkbox__box"></span>
-    <span className="custom-checkbox__label-text">Новинка</span>
-    </label>
-    <label className="custom-checkbox">
-    <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} />
-    <span className="custom-checkbox__box"></span>
-    <span className="custom-checkbox__label-text">Активный (виден на сайте)</span>
-    </label>
-    </div>
-    </div>
-    </div>
-    </div>
-
-    {/* --- Описание --- */}
-    <div className="admin-product-edit__form-section">
-    <h2 className="admin-product-edit__section-title">Описание</h2>
-    <div className="admin-product-edit__form-group">
-    <label htmlFor="description" className="admin-product-edit__label">Описание *</label>
-    <textarea
-    id="description" name="description" className="admin-product-edit__textarea"
-    value={formData.description} onChange={handleChange} required rows="5"
-    ></textarea>
-    </div>
-    <div className="admin-product-edit__form-group">
-    <label htmlFor="materials" className="admin-product-edit__label">Материалы и особенности</label>
-    <textarea
-    id="materials" name="materials" className="admin-product-edit__textarea"
-    value={formData.materials} onChange={handleChange} rows="3"
-    ></textarea>
-    </div>
-    <div className="admin-product-edit__form-group">
-    <label className="admin-product-edit__label">Детали (список)</label>
-    {formData.details.map((detail, index) => (
-      <div key={index} className="admin-product-edit__dynamic-item">
-      <input
-      type="text" value={detail}
-      onChange={(e) => handleArrayChange(e, index, 'details')}
-      className="admin-product-edit__dynamic-item-input"
-      />
-      <button
-      type="button" onClick={() => removeArrayItem('details', index)}
-      className="admin-product-edit__button--remove"
-      > <MdDeleteOutline /> Удалить </button>
-      </div>
-    ))}
-    <button
-    type="button" onClick={() => addArrayItem('details')}
-    className="admin-product-edit__button--add"
-    > <MdAdd /> Добавить деталь </button>
-    </div>
-    </div>
-
-    {/* --- Изображения --- */}
-    <div className="admin-product-edit__form-section">
-    <h2 className="admin-product-edit__section-title">Изображения</h2>
-    <ImageUploader
-    currentImages={formData.images}
-    onImagesUploaded={handleImagesUploaded}
-    onImageDelete={handleImageDelete}
-    uploadType="product"
-    />
-    <div className="admin-product-edit__manual-upload">
-    <h3 className="admin-product-edit__manual-upload-title">
-    Или добавьте URL изображения вручную:
-    </h3>
-    {formData.images.map((image, index) => (
-      <div key={index} className="admin-product-edit__dynamic-item">
-      <input
-      type="text"
-      value={image}
-      onChange={(e) => handleArrayChange(e, index, 'images')}
-      placeholder="URL изображения"
-      className="admin-product-edit__dynamic-item-input"
-      />
-      <button
-      type="button"
-      onClick={() => removeArrayItem('images', index)}
-      className="admin-product-edit__button--remove"
-      >
-      <MdDeleteOutline /> Удалить
-      </button>
-      </div>
-    ))}
-    <button
-    type="button"
-    onClick={() => addArrayItem('images')}
-    className="admin-product-edit__button--add"
-    >
-    <MdAdd /> Добавить URL
-    </button>
-    </div>
-    </div>
-
-    {/* --- (ПОЛНЫЙ РЕФАКТОРИНГ) Варианты и остатки --- */}
-    <div className="admin-product-edit__form-section">
-    <h2 className="admin-product-edit__section-title">Варианты и остатки</h2>
-
-    <div className="admin-product-edit__form-group">
-    <label className="custom-checkbox">
-    <input
-    type="checkbox"
-    name="hasOptions"
-    checked={hasOptions}
-    onChange={handleHasOptionsChange}
-    />
-    <span className="custom-checkbox__box"></span>
-    <span className="custom-checkbox__label-text">У этого товара есть опции (например, размер или цвет)</span>
-    </label>
-    </div>
-
-    {!hasOptions ? (
-      // --- РЕЖИМ "ПРОСТОГО ТОВАРА" ---
-      <div className="admin-product-edit__variant-card">
-      <p className="admin-product-edit__variant-hint">
-      Укажите общее количество товара на складе.
-      </p>
-      <div className="admin-product-edit__grid">
-      <div className="admin-product-edit__form-group">
-      <label className="admin-product-edit__label">Количество на складе *</label>
-      <input
-      type="number"
-      value={formData.variants[0]?.quantity || 0}
-      onChange={(e) => handleSimpleVariantChange(e, 'quantity')}
-      required
-      min="0"
-      className="admin-product-edit__input"
-      />
-      </div>
-      <div className="admin-product-edit__form-group">
-      <label className="admin-product-edit__label">SKU (Артикул)</label>
-      {/* (ИЗМЕНЕНИЕ) SKU readOnly */}
-      <input
-      type="text"
-      value={formData.variants[0]?.sku || ''}
-      readOnly
-      placeholder="Генерируется при сохранении..."
-      className="admin-product-edit__input"
-      />
-      </div>
-      </div>
-      </div>
-
-    ) : (
-      // --- РЕЖИМ "ТОВАРА С ОПЦИЯМИ" ---
-      <>
-      {/* --- Генератор опций --- */}
-      <div className="admin-product-edit__option-generator">
-      <h3 className="admin-product-edit__option-generator-title">1. Определите опции</h3>
-      {optionSetup.map((opt) => (
-        <div key={opt.id} className="admin-product-edit__option-item">
-        <input
-        type="text"
-        placeholder="Название (напр., Размер)"
-        value={opt.name}
-        onChange={(e) => handleOptionNameChange(opt.id, e.target.value)}
-        className="admin-product-edit__input admin-product-edit__option-item-name"
-        />
-        <input
-        type="text"
-        placeholder="Значения (напр., S, M, L)"
-        value={opt.values}
-        onChange={(e) => handleOptionValuesChange(opt.id, e.target.value)}
-        className="admin-product-edit__input admin-product-edit__option-item-values"
-        />
-        <button
-        type="button"
-        onClick={() => handleRemoveOption(opt.id)}
-        className="admin-product-edit__button--remove-option"
-        >
-        <MdClose />
-        </button>
+      <div className="admin-product-edit__container">
+        <div className="admin-product-edit__header">
+          <h1>{id === 'new' ? 'Новый товар' : `Редактирование: ${formData.name}`}</h1>
+          <Link to="/admin/products" className="btn secondary">
+            Назад к списку
+          </Link>
         </div>
-      ))}
-      <button
-      type="button"
-      onClick={handleAddOption}
-      className="admin-product-edit__button--add-option"
-      >
-      <MdAdd /> Добавить опцию
-      </button>
-      <button
-      type="button"
-      onClick={handleGenerateVariants}
-      className="btn primary"
-      style={{marginTop: '1rem', width: '100%'}}
-      >
-      2. Сгенерировать варианты
-      </button>
+
+        <form onSubmit={handleSubmit} className="admin-product-edit__form">
+          {/* --- Основная информация --- */}
+          <div className="admin-product-edit__form-section">
+            <h2 className="admin-product-edit__section-title">Основная информация</h2>
+            <div className="admin-product-edit__grid">
+
+              <div className="admin-product-edit__form-group">
+                <label htmlFor="name" className="admin-product-edit__label">Название *</label>
+                <input
+                  type="text" id="name" name="name"
+                  className="admin-product-edit__input"
+                  value={formData.name} onChange={handleChange} required
+                />
+              </div>
+
+              <div className="admin-product-edit__form-group">
+                <label className="admin-product-edit__label">Категория *</label>
+                <div className="admin-product-edit__category-group">
+                  <select
+                    id="category_id" name="category_id"
+                    className="admin-product-edit__select"
+                    value={formData.category_id} onChange={handleCategorySelect} required
+                  >
+                    <option value="">Выберите категорию</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
+                  </select>
+                  {/* (ИЗМЕНЕНИЕ) Текст кнопки */}
+                  <Link
+                    to="/admin/categories"
+                    className="admin-product-edit__manage-category-btn"
+                    title="Управление категориями"
+                  >
+                    Управление категориями
+                  </Link>
+                </div>
+              </div>
+
+              <div className="admin-product-edit__form-group">
+                <label htmlFor="base_price" className="admin-product-edit__label">Базовая цена *</label>
+                <input
+                  type="number" id="base_price" name="base_price"
+                  className="admin-product-edit__input"
+                  value={formData.base_price} onChange={handleChange} required
+                  min="0" step="0.01"
+                />
+              </div>
+
+              <div className="admin-product-edit__form-group">
+                <label className="admin-product-edit__label">Маркетинговый статус</label>
+
+                <div className="admin-product-edit__segmented-control">
+                  <button
+                    type="button"
+                    className={`admin-product-edit__segment ${!formData.is_new && !formData.is_preorder ? 'active' : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, is_new: false, is_preorder: false }))}
+                  >
+                    Обычный
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-product-edit__segment ${formData.is_new ? 'active' : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, is_new: true, is_preorder: false }))}
+                  >
+                    Новинка
+                  </button>
+                  <button
+                    type="button"
+                    className={`admin-product-edit__segment ${formData.is_preorder ? 'active' : ''}`}
+                    onClick={() => setFormData(prev => ({ ...prev, is_new: false, is_preorder: true }))}
+                  >
+                    Предзаказ
+                  </button>
+                </div>
+
+                <div className="admin-product-edit__checkbox-group" style={{ marginTop: '1.5rem' }}>
+                  <label className="custom-checkbox">
+                    <input type="checkbox" name="is_active" checked={formData.is_active} onChange={handleChange} />
+                    <span className="custom-checkbox__box"></span>
+                    <span className="custom-checkbox__label-text">Активный (виден на сайте)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* --- Описание --- */}
+          <div className="admin-product-edit__form-section">
+            <h2 className="admin-product-edit__section-title">Описание</h2>
+            <div className="admin-product-edit__form-group">
+              <label htmlFor="description" className="admin-product-edit__label">Описание *</label>
+              <textarea
+                id="description" name="description" className="admin-product-edit__textarea"
+                value={formData.description} onChange={handleChange} required rows="5"
+              ></textarea>
+            </div>
+            <div className="admin-product-edit__form-group">
+              <label htmlFor="materials" className="admin-product-edit__label">Материалы и особенности</label>
+              <textarea
+                id="materials" name="materials" className="admin-product-edit__textarea"
+                value={formData.materials} onChange={handleChange} rows="3"
+              ></textarea>
+            </div>
+            <div className="admin-product-edit__form-group">
+              <label className="admin-product-edit__label">Детали (список)</label>
+              {formData.details.map((detail, index) => (
+                <div key={index} className="admin-product-edit__dynamic-item">
+                  <input
+                    type="text" value={detail}
+                    onChange={(e) => handleArrayChange(e, index, 'details')}
+                    className="admin-product-edit__dynamic-item-input"
+                  />
+                  <button
+                    type="button" onClick={() => removeArrayItem('details', index)}
+                    className="admin-product-edit__button--remove"
+                  > <MdDeleteOutline /> Удалить </button>
+                </div>
+              ))}
+              <button
+                type="button" onClick={() => addArrayItem('details')}
+                className="admin-product-edit__button--add"
+              > <MdAdd /> Добавить деталь </button>
+            </div>
+          </div>
+
+          {/* --- Изображения --- */}
+          <div className="admin-product-edit__form-section">
+            <h2 className="admin-product-edit__section-title">Изображения</h2>
+            <ImageUploader
+              currentImages={formData.images}
+              onImagesUploaded={handleImagesUploaded}
+              onImageDelete={handleImageDelete}
+              uploadType="product"
+            />
+            <div className="admin-product-edit__manual-upload">
+              <h3 className="admin-product-edit__manual-upload-title">
+                Или добавьте URL изображения вручную:
+              </h3>
+              {formData.images.map((image, index) => (
+                <div key={index} className="admin-product-edit__dynamic-item">
+                  <input
+                    type="text"
+                    value={image}
+                    onChange={(e) => handleArrayChange(e, index, 'images')}
+                    placeholder="URL изображения"
+                    className="admin-product-edit__dynamic-item-input"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeArrayItem('images', index)}
+                    className="admin-product-edit__button--remove"
+                  >
+                    <MdDeleteOutline /> Удалить
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() => addArrayItem('images')}
+                className="admin-product-edit__button--add"
+              >
+                <MdAdd /> Добавить URL
+              </button>
+            </div>
+          </div>
+
+          {/* --- (ПОЛНЫЙ РЕФАКТОРИНГ) Варианты и остатки --- */}
+          <div className="admin-product-edit__form-section">
+            <h2 className="admin-product-edit__section-title">Варианты и остатки</h2>
+
+            <div className="admin-product-edit__form-group">
+              <label className="custom-checkbox">
+                <input
+                  type="checkbox"
+                  name="hasOptions"
+                  checked={hasOptions}
+                  onChange={handleHasOptionsChange}
+                />
+                <span className="custom-checkbox__box"></span>
+                <span className="custom-checkbox__label-text">У этого товара есть опции (например, размер или цвет)</span>
+              </label>
+            </div>
+
+            {!hasOptions ? (
+              // --- РЕЖИМ "ПРОСТОГО ТОВАРА" ---
+              <div className="admin-product-edit__variant-card">
+                <p className="admin-product-edit__variant-hint">
+                  Укажите общее количество товара на складе.
+                </p>
+                <div className="admin-product-edit__grid">
+                  <div className="admin-product-edit__form-group">
+                    <label className="admin-product-edit__label">Количество на складе *</label>
+                    <input
+                      type="number"
+                      value={formData.variants[0]?.quantity || 0}
+                      onChange={(e) => handleSimpleVariantChange(e, 'quantity')}
+                      required
+                      min="0"
+                      className="admin-product-edit__input"
+                    />
+                  </div>
+                  <div className="admin-product-edit__form-group">
+                    <label className="admin-product-edit__label">SKU (Артикул)</label>
+                    {/* (ИЗМЕНЕНИЕ) SKU readOnly */}
+                    <input
+                      type="text"
+                      value={formData.variants[0]?.sku || ''}
+                      readOnly
+                      placeholder="Генерируется при сохранении..."
+                      className="admin-product-edit__input"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            ) : (
+              // --- РЕЖИМ "ТОВАРА С ОПЦИЯМИ" ---
+              <>
+                {/* --- Генератор опций --- */}
+                <div className="admin-product-edit__option-generator">
+                  <h3 className="admin-product-edit__option-generator-title">1. Определите опции</h3>
+                  {optionSetup.map((opt) => (
+                    <div key={opt.id} className="admin-product-edit__option-item">
+                      <input
+                        type="text"
+                        placeholder="Название (напр., Размер)"
+                        value={opt.name}
+                        onChange={(e) => handleOptionNameChange(opt.id, e.target.value)}
+                        className="admin-product-edit__input admin-product-edit__option-item-name"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Значения (напр., S, M, L)"
+                        value={opt.values}
+                        onChange={(e) => handleOptionValuesChange(opt.id, e.target.value)}
+                        className="admin-product-edit__input admin-product-edit__option-item-values"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOption(opt.id)}
+                        className="admin-product-edit__button--remove-option"
+                      >
+                        <MdClose />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleAddOption}
+                    className="admin-product-edit__button--add-option"
+                  >
+                    <MdAdd /> Добавить опцию
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleGenerateVariants}
+                    className="btn primary"
+                    style={{ marginTop: '1rem', width: '100%' }}
+                  >
+                    2. Сгенерировать варианты
+                  </button>
+                </div>
+
+                {/* --- Редактор вариантов (Таблица) --- */}
+                {formData.variants && formData.variants.length > 0 && (
+                  <div className="admin-product-edit__variant-editor">
+                    <h3 className="admin-product-edit__variant-editor-title">3. Отредактируйте варианты</h3>
+                    <div className="admin-product-edit__variant-table-wrapper">
+                      <table className="admin-product-edit__variant-table">
+                        <thead>
+                          <tr>
+                            <th>Вариант</th>
+                            <th>Цена (если отличается)</th>
+                            <th>Количество *</th>
+                            <th>SKU</th>
+                            <th>Доступен</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {formData.variants.map((variant, index) => (
+                            <tr key={index}>
+                              <td data-label="Вариант">
+                                {Object.values(variant.attributes).join(' / ')}
+                              </td>
+                              <td data-label="Цена">
+                                <input
+                                  type="number"
+                                  value={variant.price || ''}
+                                  onChange={(e) => handleVariantChange(e, index, 'price')}
+                                  min="0" step="0.01"
+                                  className="admin-product-edit__input"
+                                  placeholder="Базовая"
+                                />
+                              </td>
+                              <td data-label="Количество">
+                                <input
+                                  type="number"
+                                  value={variant.quantity || 0}
+                                  onChange={(e) => handleVariantChange(e, index, 'quantity')}
+                                  required min="0"
+                                  className="admin-product-edit__input"
+                                />
+                              </td>
+                              <td data-label="SKU">
+                                {/* (ИЗМЕНЕНИЕ) SKU readOnly */}
+                                <input
+                                  type="text"
+                                  value={variant.sku || ''}
+                                  readOnly
+                                  className="admin-product-edit__input"
+                                  placeholder="Генерируется..."
+                                />
+                              </td>
+                              <td data-label="Доступен">
+                                <label className="custom-checkbox">
+                                  <input
+                                    type="checkbox"
+                                    checked={variant.is_available}
+                                    onChange={(e) => handleVariantChange(e, index, 'is_available')}
+                                  />
+                                  <span className="custom-checkbox__box"></span>
+                                </label>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* --- Дополнительные настройки --- */}
+          <div className="admin-product-edit__form-section">
+            <h2 className="admin-product-edit__section-title">Дополнительные настройки</h2>
+            <div className="admin-product-edit__grid">
+              <div className="admin-product-edit__form-group">
+                <label htmlFor="publication_date" className="admin-product-edit__label">Дата публикации</label>
+                <input
+                  type="date" id="publication_date" name="publication_date"
+                  className="admin-product-edit__input"
+                  value={formData.publication_date} onChange={handleChange}
+                />
+              </div>
+
+              {/* (ИЗМЕНЕНИЕ) Блок 'sort_order' полностью удален */}
+
+            </div>
+          </div>
+
+          {/* --- Футер --- */}
+          <div className="admin-product-edit__footer-actions">
+            <Link to="/admin/products" className="btn secondary">Отмена</Link>
+            <button type="submit" className="btn primary" disabled={loading}>
+              {loading ? 'Сохранение...' : 'Сохранить'}
+            </button>
+          </div>
+        </form>
       </div>
-
-      {/* --- Редактор вариантов (Таблица) --- */}
-      {formData.variants && formData.variants.length > 0 && (
-        <div className="admin-product-edit__variant-editor">
-        <h3 className="admin-product-edit__variant-editor-title">3. Отредактируйте варианты</h3>
-        <div className="admin-product-edit__variant-table-wrapper">
-        <table className="admin-product-edit__variant-table">
-        <thead>
-        <tr>
-        <th>Вариант</th>
-        <th>Цена (если отличается)</th>
-        <th>Количество *</th>
-        <th>SKU</th>
-        <th>Доступен</th>
-        </tr>
-        </thead>
-        <tbody>
-        {formData.variants.map((variant, index) => (
-          <tr key={index}>
-          <td data-label="Вариант">
-          {Object.values(variant.attributes).join(' / ')}
-          </td>
-          <td data-label="Цена">
-          <input
-          type="number"
-          value={variant.price || ''}
-          onChange={(e) => handleVariantChange(e, index, 'price')}
-          min="0" step="0.01"
-          className="admin-product-edit__input"
-          placeholder="Базовая"
-          />
-          </td>
-          <td data-label="Количество">
-          <input
-          type="number"
-          value={variant.quantity || 0}
-          onChange={(e) => handleVariantChange(e, index, 'quantity')}
-          required min="0"
-          className="admin-product-edit__input"
-          />
-          </td>
-          <td data-label="SKU">
-          {/* (ИЗМЕНЕНИЕ) SKU readOnly */}
-          <input
-          type="text"
-          value={variant.sku || ''}
-          readOnly
-          className="admin-product-edit__input"
-          placeholder="Генерируется..."
-          />
-          </td>
-          <td data-label="Доступен">
-          <label className="custom-checkbox">
-          <input
-          type="checkbox"
-          checked={variant.is_available}
-          onChange={(e) => handleVariantChange(e, index, 'is_available')}
-          />
-          <span className="custom-checkbox__box"></span>
-          </label>
-          </td>
-          </tr>
-        ))}
-        </tbody>
-        </table>
-        </div>
-        </div>
-      )}
-      </>
-    )}
-    </div>
-
-    {/* --- Дополнительные настройки --- */}
-    <div className="admin-product-edit__form-section">
-    <h2 className="admin-product-edit__section-title">Дополнительные настройки</h2>
-    <div className="admin-product-edit__grid">
-    <div className="admin-product-edit__form-group">
-    <label htmlFor="publication_date" className="admin-product-edit__label">Дата публикации</label>
-    <input
-    type="date" id="publication_date" name="publication_date"
-    className="admin-product-edit__input"
-    value={formData.publication_date} onChange={handleChange}
-    />
-    </div>
-
-    {/* (ИЗМЕНЕНИЕ) Блок 'sort_order' полностью удален */}
-
-    </div>
-    </div>
-
-    {/* --- Футер --- */}
-    <div className="admin-product-edit__footer-actions">
-    <Link to="/admin/products" className="btn secondary">Отмена</Link>
-    <button type="submit" className="btn primary" disabled={loading}>
-    {loading ? 'Сохранение...' : 'Сохранить'}
-    </button>
-    </div>
-    </form>
-    </div>
     </div>
   );
 }

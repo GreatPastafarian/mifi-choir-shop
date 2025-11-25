@@ -24,22 +24,23 @@ const normalizeProductData = (product) => {
     details: JSON.parse(plainProduct.details || '[]'),
     // Проверки на наличие связей
     images: plainProduct.images
-    ? plainProduct.images.map((image) => image.image_url)
-    : [],
+      ? plainProduct.images.map((image) => image.image_url)
+      : [],
     base_price: parseFloat(plainProduct.base_price),
     is_new: plainProduct.is_new,
+    is_preorder: plainProduct.is_preorder, // ADDED
     publication_date: plainProduct.publication_date,
-      views_count: plainProduct.views_count,
-      sort_order: plainProduct.sort_order,
-      is_active: plainProduct.is_active,
-      variants: plainProduct.variants
+    views_count: plainProduct.views_count,
+    sort_order: plainProduct.sort_order,
+    is_active: plainProduct.is_active,
+    variants: plainProduct.variants
       ? plainProduct.variants.map((variant) => ({
         id: variant.id,
         sku: variant.sku,
         attributes: variant.attributes || {}, // <-- ВОТ ИСПРАВЛЕНИЕ
         quantity: variant.quantity,
         price: variant.price ? parseFloat(variant.price) : null,
-                                                is_available: variant.is_available,
+        is_available: variant.is_available,
       }))
       : [],
   };

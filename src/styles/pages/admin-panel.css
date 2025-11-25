@@ -2,7 +2,8 @@
 
 .admin-panel {
   padding: 2rem;
-  background-color: #fdfbf7; /* Очень легкий бежевый оттенок, "бумажный" */
+  background-color: #fdfbf7;
+  /* Очень легкий бежевый оттенок, "бумажный" */
   min-height: 100%;
 }
 
@@ -13,7 +14,7 @@
   align-items: center;
   margin-bottom: 2.5rem;
   padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .admin-header h2 {
@@ -33,7 +34,7 @@
   background: #fff;
   padding: 1.5rem;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 .search-box {
@@ -47,7 +48,8 @@
   left: 14px;
   top: 50%;
   transform: translateY(-50%);
-  color: #8d1f2c; /* Акцентный цвет бренда */
+  color: #8d1f2c;
+  /* Акцентный цвет бренда */
   font-size: 1.2rem;
 }
 
@@ -81,8 +83,9 @@
 .donations-table-container {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-  overflow: hidden; /* Скругляет углы таблицы */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  /* Скругляет углы таблицы */
 }
 
 .donations-table {
@@ -93,7 +96,8 @@
 }
 
 .donations-table thead {
-  background-color: #f4f1ea; /* Легкий акцент в заголовке */
+  background-color: #f4f1ea;
+  /* Легкий акцент в заголовке */
 }
 
 .donations-table th {
@@ -189,13 +193,13 @@
   border: none;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   color: #fff;
 }
 
 .btn-circle:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-circle:active {
@@ -212,6 +216,7 @@
   color: #555;
   border: 1px solid #e0e0e0;
 }
+
 .action-view:hover {
   background-color: #0a2240;
   color: #fff;
@@ -219,15 +224,19 @@
 }
 
 .action-approve {
-  background-color: #4caf50; /* Зеленый */
+  background-color: #4caf50;
+  /* Зеленый */
 }
+
 .action-approve:hover {
   background-color: #43a047;
 }
 
 .action-reject {
-  background-color: #ef5350; /* Красный */
+  background-color: #ef5350;
+  /* Красный */
 }
+
 .action-reject:hover {
   background-color: #e53935;
 }
@@ -242,13 +251,18 @@
 }
 
 /* --- Messages --- */
-.loading, .error, .no-data {
+.loading,
+.error,
+.no-data {
   padding: 3rem;
   text-align: center;
   color: #666;
   font-size: 1.1rem;
 }
-.error { color: #dc3545; }
+
+.error {
+  color: #dc3545;
+}
 
 /* --- Modal Styles (БЭМ внутри файла) --- */
 .modal-overlay {
@@ -273,15 +287,22 @@
   max-width: 650px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
   display: flex;
   flex-direction: column;
   animation: modalFadeIn 0.3s ease;
 }
 
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -310,7 +331,10 @@
   padding: 0;
   line-height: 1;
 }
-.close-btn:hover { color: #333; }
+
+.close-btn:hover {
+  color: #333;
+}
 
 .modal-body {
   padding: 2rem;
@@ -327,10 +351,11 @@
 
 .detail-section {
   margin-top: 2rem;
-  background: #fdfbf7; /* Акцентный фон секций */
+  background: #fdfbf7;
+  /* Акцентный фон секций */
   padding: 1.5rem;
   border-radius: 12px;
-  border: 1px solid rgba(0,0,0,0.03);
+  border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
 .detail-section h4 {
@@ -353,9 +378,12 @@
   display: flex;
   justify-content: space-between;
   padding: 0.8rem 0;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
-.order-item:last-child { border-bottom: none; }
+
+.order-item:last-child {
+  border-bottom: none;
+}
 
 .item-sku {
   font-size: 0.8rem;
@@ -389,13 +417,15 @@
 }
 
 .status-new {
-  background-color: #e3f2fd; /* Голубой */
+  background-color: #e3f2fd;
+  /* Голубой */
   color: #1976d2;
   border: 1px solid #bbdefb;
 }
 
 .status-replied {
-  background-color: #e8f5e9; /* Зеленый */
+  background-color: #e8f5e9;
+  /* Зеленый */
   color: #2e7d32;
   border: 1px solid #c8e6c9;
 }
@@ -407,6 +437,7 @@
   font-size: 0.75rem;
   color: #555;
 }
+
 .badge-new {
   background: #ffebee;
   color: #c62828;
@@ -428,16 +459,51 @@
   background-color: #4caf50;
   color: white;
 }
-.btn-approve:hover { background-color: #43a047; box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
+
+.btn-approve:hover {
+  background-color: #43a047;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
 
 .btn-reject {
   background-color: #ef5350;
   color: white;
 }
-.btn-reject:hover { background-color: #e53935; box-shadow: 0 4px 10px rgba(239, 83, 80, 0.3); }
+
+.btn-reject:hover {
+  background-color: #e53935;
+  box-shadow: 0 4px 10px rgba(239, 83, 80, 0.3);
+}
 
 .btn-close {
   background-color: #e0e0e0;
   color: #333;
 }
-.btn-close:hover { background-color: #d5d5d5; }
+
+.btn-close:hover {
+  background-color: #d5d5d5;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .admin-filters {
+    flex-direction: column;
+  }
+
+  .search-box {
+    min-width: 100%;
+  }
+
+  .donation-actions {
+    flex-direction: column;
+  }
+
+  .donations-table {
+    font-size: 14px;
+  }
+
+  .donations-table th,
+  .donations-table td {
+    padding: 8px 4px;
+  }
+}

@@ -36,8 +36,8 @@ const getSalesMap = async () => {
   approvedDonations.forEach((donation) => {
     try {
       const items = typeof donation.items === 'string'
-      ? JSON.parse(donation.items)
-      : (donation.items || []);
+        ? JSON.parse(donation.items)
+        : (donation.items || []);
 
       items.forEach((item) => {
         const pId = item.productId;
@@ -67,14 +67,14 @@ const attachSalesCounts = async (products) => {
 // --- ОБЩИЕ НАСТРОЙКИ ЗАПРОСОВ ---
 const commonInclude = [
   { model: Category, attributes: ['id', 'name', 'slug'], as: 'category' },
-{ model: Variant, as: 'variants' },
-{ model: ProductImage, as: 'images' },
+  { model: Variant, as: 'variants' },
+  { model: ProductImage, as: 'images' },
 ];
 
 const commonOrder = [
   ['created_at', 'DESC'],
-[{ model: Variant, as: 'variants' }, 'id', 'ASC'],
-[{ model: ProductImage, as: 'images' }, 'sort_order', 'ASC']
+  [{ model: Variant, as: 'variants' }, 'id', 'ASC'],
+  [{ model: ProductImage, as: 'images' }, 'sort_order', 'ASC']
 ];
 
 // --- КОНТРОЛЛЕРЫ ---
@@ -112,11 +112,11 @@ exports.getPopularProducts = async (req, res) => {
 
     // Сортировка: Сначала по продажам, потом по просмотрам
     const popularProducts = productsWithStats
-    .sort((a, b) => {
-      if (b.salesCount !== a.salesCount) return b.salesCount - a.salesCount;
-      return (b.views_count || 0) - (a.views_count || 0);
-    })
-    .slice(0, 4);
+      .sort((a, b) => {
+        if (b.salesCount !== a.salesCount) return b.salesCount - a.salesCount;
+        return (b.views_count || 0) - (a.views_count || 0);
+      })
+      .slice(0, 4);
 
     res.json(normalizeProductsData(popularProducts));
   } catch (error) {
@@ -233,7 +233,7 @@ exports.createProduct = async (req, res) => {
       const variants = req.body.variants.map(v => ({
         ...v,
         price: v.price ? parseFloat(v.price) : null,
-                                                   product_id: product.id,
+        product_id: product.id,
       }));
       await Variant.bulkCreate(variants);
     }
@@ -281,7 +281,7 @@ exports.updateProduct = async (req, res) => {
         const variants = req.body.variants.map(v => ({
           ...v,
           price: v.price ? parseFloat(v.price) : null,
-                                                     product_id: product.id,
+          product_id: product.id,
         }));
         await Variant.bulkCreate(variants);
       }

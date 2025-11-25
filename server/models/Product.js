@@ -42,14 +42,18 @@ const Product = sequelize.define(
     // -----------------------------
     base_price: {
       type: DataTypes.DECIMAL(10, 2),
-                                 allowNull: false,
-                                 validate: {
-                                   min: 0,
-                                 },
+      allowNull: false,
+      validate: {
+        min: 0,
+      },
     },
     is_new: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    is_preorder: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     publication_date: {
       type: DataTypes.DATE,
@@ -58,9 +62,9 @@ const Product = sequelize.define(
     views_count: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
-        validate: {
-          min: 0,
-        },
+      validate: {
+        min: 0,
+      },
     },
     is_active: {
       type: DataTypes.BOOLEAN,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, incrementViewCount } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
@@ -13,6 +13,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const lastViewedIdRef = useRef(null);
 
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [quantity, setQuantity] = useState(1);
@@ -37,10 +38,15 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
         setProduct(productData);
 
-        try {
-          await incrementViewCount(productId);
-        } catch (viewError) {
-          console.warn('Не удалось обновить счетчик просмотров:', viewError);
+        // Исправление: обновляем ref ДО асинхронного вызова, чтобы предотвратить гонку условий
+        // в React StrictMode, где эффект запускается дважды почти одновременно.
+        if (lastViewedIdRef.current !== productId) {
+          lastViewedIdRef.current = productId;
+          try {
+            await incrementViewCount(productId);
+          } catch (viewError) {
+            console.warn('Не удалось обновить счетчик просмотров:', viewError);
+          }
         }
 
         setSelectedAttributes({});
@@ -202,7 +208,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   if (loading) {
     return (
       <div className="product-page__container product-page__container--centered">
-      <h1>Загрузка товара...</h1>
+        <h1>Загрузка товара...</h1>
       </div>
     );
   }
@@ -210,154 +216,153 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   if (error || !product) {
     return (
       <div className="product-page__container product-page__container--centered">
-      <h1>Товар не найден</h1>
-      <p>Извините, запрашиваемый товар не существует.</p>
-      <Link to="/shop" className="btn primary product-page__error-btn">
-      Вернуться в магазин
-      </Link>
+        <h1>Товар не найден</h1>
+        <p>Извините, запрашиваемый товар не существует.</p>
+        <Link to="/shop" className="btn primary product-page__error-btn">
+          Вернуться в магазин
+        </Link>
       </div>
     );
   }
 
   return (
     <div className="product-details-page">
-    <div className="product-page__container">
-    <div className="product-page__breadcrumb">
-    <Link to="/">Главная</Link>
-    <span>›</span>
-    <Link to="/shop">Каталог</Link>
-    <span>›</span>
-    <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
-    <span>›</span>
-    <span>{product.name}</span>
-    </div>
-
-    <div className="product-page__main-content">
-    <ProductGallery
-    images={product.images}
-    inStock={currentStock}
-    selectionMade={!!selectedVariant}
-    isFavorite={isFavorite}
-    toggleFavorite={handleToggleFavorite}
-    />
-
-    <div className="product-page__info">
-    <div className="product-page__meta">
-    <span className="product-page__category-badge">
-    {product.category_name}
-    </span>
-    {isAdmin && (
-      <Link
-      to={`/admin/products/edit/${product.id}`}
-      className="product-page__admin-edit-link"
-      >
-      Редактировать товар
-      </Link>
-    )}
-    </div>
-
-    <h1 className="product-page__title">{product.name}</h1>
-
-    <div className="product-page__price">
-    {displayPrice} ₽
-    </div>
-
-    {hasAttributes && (
-      <div className="product-page__selectors">
-      {attributeKeys.map((name) => (
-        <div key={name} className="product-page__selector">
-        <h3 className="product-page__selector-title">{name}:</h3>
-        <div className="product-page__selector-options">
-        {availableAttributes[name].map((value) => (
-          <button
-          key={value}
-          className={`product-page__option-btn ${
-            selectedAttributes[name] === value ? 'selected' : ''
-          }`}
-          onClick={() => handleAttributeSelect(name, value)}
-          >
-          {value}
-          </button>
-        ))}
+      <div className="product-page__container">
+        <div className="product-page__breadcrumb">
+          <Link to="/">Главная</Link>
+          <span>›</span>
+          <Link to="/shop">Каталог</Link>
+          <span>›</span>
+          <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
+          <span>›</span>
+          <span>{product.name}</span>
         </div>
+
+        <div className="product-page__main-content">
+          <ProductGallery
+            images={product.images}
+            inStock={currentStock}
+            selectionMade={!!selectedVariant}
+            isFavorite={isFavorite}
+            toggleFavorite={handleToggleFavorite}
+          />
+
+          <div className="product-page__info">
+            <div className="product-page__meta">
+              <span className="product-page__category-badge">
+                {product.category_name}
+              </span>
+              {isAdmin && (
+                <Link
+                  to={`/admin/products/edit/${product.id}`}
+                  className="product-page__admin-edit-link"
+                >
+                  Редактировать товар
+                </Link>
+              )}
+            </div>
+
+            <h1 className="product-page__title">{product.name}</h1>
+
+            <div className="product-page__price">
+              {displayPrice} ₽
+            </div>
+
+            {hasAttributes && (
+              <div className="product-page__selectors">
+                {attributeKeys.map((name) => (
+                  <div key={name} className="product-page__selector">
+                    <h3 className="product-page__selector-title">{name}:</h3>
+                    <div className="product-page__selector-options">
+                      {availableAttributes[name].map((value) => (
+                        <button
+                          key={value}
+                          className={`product-page__option-btn ${selectedAttributes[name] === value ? 'selected' : ''
+                            }`}
+                          onClick={() => handleAttributeSelect(name, value)}
+                        >
+                          {value}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <div className="product-page__quantity-card">
+              <div className="product-page__quantity-header">
+                <label htmlFor="quantity" className="product-page__quantity-label">
+                  Количество:
+                </label>
+                <span className="product-page__quantity-total">
+                  {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
+                </span>
+              </div>
+
+              <div className="product-page__quantity-control">
+                <button
+                  className="product-page__quantity-btn"
+                  onClick={() => handleQuantityChange(-1)}
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <input
+                  type="number"
+                  id="quantity"
+                  className="product-page__quantity-input"
+                  value={quantity}
+                  onChange={handleQuantityInputChange}
+                  min="1"
+                  max={currentStock > 0 ? currentStock : 1}
+                  disabled={currentStock === 0}
+                />
+                <button
+                  className="product-page__quantity-btn"
+                  onClick={() => handleQuantityChange(1)}
+                  disabled={quantity >= currentStock || currentStock === 0}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            <div className="product-page__actions">
+              <button
+                className="btn primary product-page__add-btn"
+                onClick={handleAddToCart}
+                disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
+              >
+                {currentStock > 0 ? 'Добавить в корзину' : 'Нет в наличии'}
+              </button>
+            </div>
+          </div>
+
+          <div className="product-page__description-section">
+            <h2 className="product-page__description-title">Описание</h2>
+            <div className="product-page__description-content">
+              <p>{product.description}</p>
+              {product.materials && (
+                <>
+                  <h3>Материалы и особенности</h3>
+                  <p>{product.materials}</p>
+                </>
+              )}
+              {product.details && product.details.length > 0 && (
+                <ul className="product-page__details-list">
+                  {product.details.map((detail, index) => (
+                    <li key={index} className="product-page__details-item">
+                      <MdCheckCircle size={16} className="product-page__details-icon" />
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
         </div>
-      ))}
       </div>
-    )}
-
-    <div className="product-page__quantity-card">
-    <div className="product-page__quantity-header">
-    <label htmlFor="quantity" className="product-page__quantity-label">
-    Количество:
-    </label>
-    <span className="product-page__quantity-total">
-    {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
-    </span>
-    </div>
-
-    <div className="product-page__quantity-control">
-    <button
-    className="product-page__quantity-btn"
-    onClick={() => handleQuantityChange(-1)}
-    disabled={quantity <= 1}
-    >
-    -
-    </button>
-    <input
-    type="number"
-    id="quantity"
-    className="product-page__quantity-input"
-    value={quantity}
-    onChange={handleQuantityInputChange}
-    min="1"
-    max={currentStock > 0 ? currentStock : 1}
-    disabled={currentStock === 0}
-    />
-    <button
-    className="product-page__quantity-btn"
-    onClick={() => handleQuantityChange(1)}
-    disabled={quantity >= currentStock || currentStock === 0}
-    >
-    +
-    </button>
-    </div>
-    </div>
-
-    <div className="product-page__actions">
-    <button
-    className="btn primary product-page__add-btn"
-    onClick={handleAddToCart}
-    disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
-    >
-    {currentStock > 0 ? 'Добавить в корзину' : 'Нет в наличии'}
-    </button>
-    </div>
-    </div>
-
-    <div className="product-page__description-section">
-    <h2 className="product-page__description-title">Описание</h2>
-    <div className="product-page__description-content">
-    <p>{product.description}</p>
-    {product.materials && (
-      <>
-      <h3>Материалы и особенности</h3>
-      <p>{product.materials}</p>
-      </>
-    )}
-    {product.details && product.details.length > 0 && (
-      <ul className="product-page__details-list">
-      {product.details.map((detail, index) => (
-        <li key={index} className="product-page__details-item">
-        <MdCheckCircle size={16} className="product-page__details-icon" />
-        {detail}
-        </li>
-      ))}
-      </ul>
-    )}
-    </div>
-    </div>
-    </div>
-    </div>
     </div>
   );
 }

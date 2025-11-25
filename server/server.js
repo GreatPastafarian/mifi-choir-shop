@@ -106,7 +106,7 @@ app.use((err, req, res, next) => {
   if (err.message === 'Not allowed by CORS') {
     return res.status(403).json({
       message: 'Ошибка доступа (CORS)',
-                                detail: 'Ваш домен не находится в списке разрешенных.'
+      detail: 'Ваш домен не находится в списке разрешенных.'
     });
   }
 

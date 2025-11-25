@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard';
 import choirBackground from '../assets/images/choir-background.jpg';
+import choirImage from '../assets/images/choir_bzk.jpg';
 import { useAuth } from '../context/AuthContext';
 // Импортируем сервисы для получения данных
 import { getPopularProducts } from '../services/productService';
@@ -33,7 +34,7 @@ function HomePage({ addToCart }) {
 
   if (loading) {
     return (
-      <div className="container" style={{ marginTop: '4rem', textAlign: 'center' }}>
+      <div className="container mt-5 text-center">
         <h1>Загрузка данных...</h1>
       </div>
     );
@@ -41,46 +42,55 @@ function HomePage({ addToCart }) {
 
   return (
     <div className="home-page">
-      <section
-        className="hero-banner"
-        style={{
-          background: `linear-gradient(rgba(10, 34, 64, 0.85), rgba(10, 34, 64, 0.85)), url(${choirBackground}) no-repeat center center/cover`,
-        }}
-      >
-        <div className="hero-content">
-          <h1>Поддержите искусство хора МИФИ. Получите сувенир в благодарность за ваше пожертвование!</h1>
-          <Link to="/shop" className="btn primary">
-            Выбрать вознаграждение
-          </Link>
+      <section className="home-page__hero">
+        <div className="container home-page__hero-container">
+          <div className="home-page__hero-content">
+            <h1 className="home-page__hero-title">
+              Поддержите искусство <br />
+              <span className="text-accent">Академического Мужского Хора МИФИ</span>
+            </h1>
+            <p className="home-page__hero-subtitle">
+              Получите уникальный сувенир в благодарность за ваше пожертвование и станьте частью нашей истории.
+            </p>
+            <Link to="/shop" className="btn primary large">
+              Выбрать вознаграждение
+            </Link>
+          </div>
         </div>
       </section>
 
-      <section className="how-it-works">
-        <h2>Как это работает</h2>
-        <div className="steps">
-          <div className="step">
-            <div className="step-number">1</div>
-            <h3>Выберите сувенир</h3>
-            <p>Выберите вознаграждение из нашего каталога</p>
+      <section className="home-page__how-it-works">
+        <h2 className="home-page__section-title">Как это работает</h2>
+        <div className="home-page__steps">
+          <div className="home-page__step">
+            <div className="home-page__step-number">1</div>
+            <div>
+              <h3 className="home-page__step-title">Выберите сувенир</h3>
+              <p>Выберите вознаграждение из нашего каталога</p>
+            </div>
           </div>
-          <div className="step">
-            <div className="step-number">2</div>
-            <h3>Сделайте пожертвование</h3>
-            <p>Поддержите хор через наш фонд</p>
+          <div className="home-page__step">
+            <div className="home-page__step-number">2</div>
+            <div>
+              <h3 className="home-page__step-title">Сделайте пожертвование</h3>
+              <p>Поддержите хор через наш фонд</p>
+            </div>
           </div>
-          <div className="step">
-            <div className="step-number">3</div>
-            <h3>Получите вознаграждение</h3>
-            <p>Заберите сувенир с благодарностью от хора</p>
+          <div className="home-page__step">
+            <div className="home-page__step-number">3</div>
+            <div>
+              <h3 className="home-page__step-title">Получите вознаграждение</h3>
+              <p>Заберите сувенир с благодарностью от хора</p>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Изменено: только популярные товары, ограничено 4 товарами */}
-      <section className="popular-items">
+      <section className="home-page__popular">
         <div className="container">
-          <h2>Популярные вознаграждения</h2>
-          <div className="items-grid" style={{ gridTemplateColumns: 'repeat(4, 1fr)' }}>
+          <h2 className="home-page__popular-title">Популярные вознаграждения</h2>
+          <div className="home-page__items-grid">
             {popularProducts.map((product) => (
               <ProductCard
                 key={product.id}
@@ -92,7 +102,7 @@ function HomePage({ addToCart }) {
               />
             ))}
           </div>
-          <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <div className="text-center mt-4">
             <Link to="/shop" className="btn secondary">
               Посмотреть все вознаграждения
             </Link>
@@ -100,26 +110,18 @@ function HomePage({ addToCart }) {
         </div>
       </section>
 
-      <section className="about-choir" style={{ padding: '4rem 0' }}>
+      <section className="home-page__about">
         <div className="container">
-          <div
-            className="about-content"
-            style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr',
-              gap: '3rem',
-              alignItems: 'center',
-            }}
-          >
-            <div className="about-text">
-              <h2>Мужской академический хор МИФИ</h2>
-              <p style={{ lineHeight: '1.6', color: '#555' }}>
+          <div className="home-page__about-content">
+            <div className="home-page__about-text">
+              <h2 className="home-page__about-title">Мужской академический хор МИФИ</h2>
+              <p className="home-page__about-paragraph">
                 Академический мужской хор МИФИ — один из самых известных любительских коллективов России. В нем поют
                 только мифисты — студенты и выпускники нашего вуза, а музыкальными руководителями традиционно являются
                 выпускники Московской консерватории — талантливые хормейстеры, представители классической русской
                 хоровой школы.
               </p>
-              <p style={{ lineHeight: '1.6', color: '#555' }}>
+              <p className="home-page__about-paragraph">
                 Сегодняшний репертуар Мужского хора МИФИ охватывает практически все жанры хоровой музыки: русская и
                 западная классика, народные песни, военно-патриотические песни советского периода, произведения
                 современных композиторов.
@@ -128,16 +130,8 @@ function HomePage({ addToCart }) {
                 Узнать больше
               </Link>
             </div>
-            <div className="about-image">
-              <div
-                className="image-placeholder choir-image"
-                style={{
-                  width: '100%',
-                  paddingTop: '75%',
-                  backgroundColor: '#e0e0e0',
-                  borderRadius: 'var(--radius-md)',
-                }}
-              ></div>
+            <div className="home-page__about-image">
+              <img src={choirImage} alt="Академический мужской хор МИФИ" className="home-page__image" />
             </div>
           </div>
         </div>

@@ -395,8 +395,8 @@ function CheckoutPage({ cartItems, updateCart }) {
   const renderAttributes = (attributes) => {
     if (!attributes || Object.keys(attributes).length === 0) return null;
     return Object.entries(attributes)
-    .map(([key, value]) => `${key}: ${value}`)
-    .join(', ');
+      .map(([key, value]) => `${key}: ${value}`)
+      .join(', ');
   };
 
   const progressModifier = step === 2 ? 'checkout-steps--step-2' : step === 3 ? 'checkout-steps--step-3' : '';
@@ -404,298 +404,297 @@ function CheckoutPage({ cartItems, updateCart }) {
 
   return (
     <div className="checkout-page">
-    <div className="checkout-page__container">
+      <div className="checkout-page__container">
 
-    {/* Login Modal */}
-    {showLoginModal && (
-      <div className="checkout-auth-modal" onClick={() => !isProcessing && setShowLoginModal(false)}>
-      <div className="checkout-auth-modal__content" onClick={(e) => e.stopPropagation()}>
-      <h3 className="checkout-auth-modal__title">Вход в аккаунт</h3>
-      <div className="checkout-auth-modal__form">
-      <form onSubmit={handleLoginSubmit}>
-      {loginError && <div className="alert error">{loginError}</div>}
-      <div className="form-group">
-      <label className="checkout-form__label">Email</label>
-      <input className="checkout-form__input" type="email" name="email" required autoFocus disabled={isProcessing} />
-      </div>
-      <div className="form-group">
-      <label className="checkout-form__label">Пароль</label>
-      <input className="checkout-form__input" type="password" name="password" required disabled={isProcessing} />
-      </div>
-      <div className="checkout-auth-modal__actions">
-      <button type="submit" className="btn primary checkout-auth-modal__btn" disabled={isProcessing}>Войти</button>
-      </div>
-      </form>
-      </div>
-      </div>
-      </div>
-    )}
-
-    <div className="checkout-page__content-box">
-    <h1 className="checkout-page__title">Оформление пожертвования</h1>
-
-    {error && <div className="alert error">{error}</div>}
-
-    <div className={`checkout-steps ${stepsLayoutModifier} ${progressModifier}`}>
-    <div className={`checkout-steps__item ${step >= 1 ? 'checkout-steps__item--active' : ''} ${step > 1 ? 'checkout-steps__item--completed' : ''}`}>
-    <div className="checkout-steps__number">1</div>
-    <span className="checkout-steps__label">Контакты</span>
-    </div>
-    <div className={`checkout-steps__item ${step >= 2 ? 'checkout-steps__item--active' : ''} ${step > 2 ? 'checkout-steps__item--completed' : ''}`}>
-    <div className="checkout-steps__number">2</div>
-    <span className="checkout-steps__label">Подтверждение</span>
-    </div>
-    <div className={`checkout-steps__item ${step >= 3 ? 'checkout-steps__item--active' : ''}`}>
-    <div className="checkout-steps__number">3</div>
-    <span className="checkout-steps__label">Оплата</span>
-    </div>
-    </div>
-
-    <div className="checkout-page__section">
-    {/* STEP 1 */}
-    {step === 1 && (
-      <>
-      <h2 className="checkout-page__section-title">1. Контактные данные</h2>
-      <div className="form-group">
-      <label className="checkout-form__label">ФИО *</label>
-      <input className="checkout-form__input" type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Иванов Иван Иванович" />
-      </div>
-      <div className="form-group">
-      <label className="checkout-form__label">Email *</label>
-      <input className="checkout-form__input" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="example@example.com" />
-      </div>
-      <div className="form-group">
-      <label className="checkout-form__label">Телефон</label>
-      <input className="checkout-form__input" type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+7 (XXX) XXX-XX-XX" />
-      </div>
-
-      <h2 className="checkout-page__section-title">2. Способ получения</h2>
-      <div className="checkout-delivery__tabs">
-      <button className={`btn ${deliveryType === 'pickup' ? 'primary' : 'secondary'} checkout-delivery__tab-btn`} onClick={() => setDeliveryType('pickup')}>Самовывоз</button>
-      <button className={`btn ${deliveryType === 'delivery' ? 'primary' : 'secondary'} checkout-delivery__tab-btn`} onClick={() => setDeliveryType('delivery')}>Доставка</button>
-      </div>
-
-      <div className="checkout-delivery__content">
-      {deliveryType === 'pickup' ? (
-        <div>
-        <p className="checkout-delivery__text"><strong>Адрес:</strong> г. Москва, Каширское шоссе, 64, корп. 1А</p>
-        <p className="checkout-delivery__text">Мы свяжемся с вами для уточнения времени.</p>
-        </div>
-      ) : (
-        <div>
-        {/* ADDRESS SELECTOR */}
-        {user && savedAddresses.length > 0 && (
-          <div className="form-group">
-          <div style={{display: 'flex', alignItems: 'flex-end', gap: '10px'}}>
-          <div style={{flex: 1}}>
-          <label className="checkout-form__label">Выбрать сохраненный адрес:</label>
-          <select
-          className="checkout-form__select"
-          value={selectedAddressId}
-          onChange={handleAddressSelect}
-          >
-          {savedAddresses.map(addr => (
-            <option key={addr.id} value={addr.id}>
-            {addr.title || 'Адрес'} ({addr.city}, {addr.street})
-            </option>
-          ))}
-          <option value="new">+ Ввести новый адрес</option>
-          </select>
-          </div>
-          {selectedAddressId !== 'new' && (
-            <div style={{display: 'flex', gap: '5px'}}>
-            <button type="button" className="btn secondary" onClick={handleUpdateCurrentAddress} title="Обновить в профиле" style={{padding: '0.75rem'}} disabled={isProcessing}>
-            <MdSave />
-            </button>
-            <button type="button" className="btn secondary" onClick={handleDeleteCurrentAddress} title="Удалить из профиля" style={{padding: '0.75rem', color: '#dc3545', borderColor: '#fee'}} disabled={isProcessing}>
-            <MdDeleteOutline />
-            </button>
+        {/* Login Modal */}
+        {showLoginModal && (
+          <div className="checkout-auth-modal" onClick={() => !isProcessing && setShowLoginModal(false)}>
+            <div className="checkout-auth-modal__content" onClick={(e) => e.stopPropagation()}>
+              <h3 className="checkout-auth-modal__title">Вход в аккаунт</h3>
+              <div className="checkout-auth-modal__form">
+                <form onSubmit={handleLoginSubmit}>
+                  {loginError && <div className="alert error">{loginError}</div>}
+                  <div className="form-group">
+                    <label className="checkout-form__label">Email</label>
+                    <input className="checkout-form__input" type="email" name="email" required autoFocus disabled={isProcessing} />
+                  </div>
+                  <div className="form-group">
+                    <label className="checkout-form__label">Пароль</label>
+                    <input className="checkout-form__input" type="password" name="password" required disabled={isProcessing} />
+                  </div>
+                  <div className="checkout-auth-modal__actions">
+                    <button type="submit" className="btn primary checkout-auth-modal__btn" disabled={isProcessing}>Войти</button>
+                  </div>
+                </form>
+              </div>
             </div>
-          )}
-          </div>
           </div>
         )}
 
-        {/* ADDRESS FIELDS */}
-        <div className="form-group">
-        <label className="checkout-form__label">Название адреса (например, Дом, Работа)</label>
-        <input
-        className="checkout-form__input"
-        type="text"
-        name="address_title"
-        value={formData.address_title}
-        onChange={handleChange}
-        placeholder="Новый адрес"
-        />
-        </div>
+        <div className="checkout-page__content-box">
+          <h1 className="checkout-page__title">Оформление пожертвования</h1>
 
-        <div className="form-group">
-        <label className="checkout-form__label">Город *</label>
-        <input className="checkout-form__input" type="text" name="city" value={formData.city} onChange={handleChange} />
-        </div>
-        <div className="form-group">
-        <label className="checkout-form__label">Улица *</label>
-        <input className="checkout-form__input" type="text" name="street" value={formData.street} onChange={handleChange} />
-        </div>
+          {error && <div className="alert error">{error}</div>}
 
-        <div className="checkout-form__row">
-        <div className="form-group">
-        <label className="checkout-form__label">Дом *</label>
-        <input className="checkout-form__input" type="text" name="building" value={formData.building} onChange={handleChange} />
-        </div>
-        <div className="form-group">
-        <label className="checkout-form__label">Кв./Офис</label>
-        <input className="checkout-form__input" type="text" name="flat" value={formData.flat} onChange={handleChange} />
-        </div>
-        </div>
-
-        <div className="form-group">
-        <label className="checkout-form__label">Индекс</label>
-        <div style={{display: 'flex', gap: '10px'}}>
-        <input
-        className="checkout-form__input"
-        type="text"
-        name="zip_code"
-        value={formData.zip_code}
-        onChange={handleChange}
-        style={{flex: 1}}
-        />
-        <button
-        type="button"
-        className="btn secondary"
-        onClick={handleAutoZip}
-        title="Найти индекс по адресу"
-        disabled={isProcessing}
-        >
-        <MdSearch /> Найти
-        </button>
-        </div>
-        </div>
-
-        {user && selectedAddressId === 'new' && (
-          <button type="button" className="btn secondary" onClick={handleSaveNewAddress} style={{fontSize: '0.9rem'}} disabled={isProcessing}>
-          <MdSave style={{marginRight: '5px'}}/> Сохранить этот адрес в профиль
-          </button>
-        )}
-        </div>
-      )}
-      </div>
-
-      <div className="form-group">
-      <label className="checkout-form__label">Комментарий</label>
-      <textarea className="checkout-form__textarea" name="comment" value={formData.comment} onChange={handleChange} rows="2" placeholder="Ваши пожелания..."></textarea>
-      </div>
-
-      <div className="form-group">
-      <label className="custom-checkbox">
-      <input type="checkbox" name="isAnonymous" checked={formData.isAnonymous} onChange={handleChange} />
-      <span className="custom-checkbox__box"></span>
-      <span className="custom-checkbox__label-text">Сделать пожертвование анонимным</span>
-      </label>
-      </div>
-
-      <div className="checkout-page__actions">
-      <Link to="/cart" className="btn secondary">Назад в корзину</Link>
-      <button className="btn primary" onClick={handleNextStep}>Далее</button>
-      </div>
-      </>
-    )}
-
-    {/* STEP 2 */}
-    {step === 2 && (
-      <>
-      <h2 className="checkout-page__section-title">Проверьте данные</h2>
-      <div className="checkout-summary">
-      <h3 className="checkout-summary__title">Ваш заказ</h3>
-      <div className="checkout-summary__list">
-      {cartItems.map((item, idx) => {
-        const imageUrl = getImageUrl(item.images && item.images[0]);
-        const { sm } = getProductImageSet(imageUrl);
-        const attributesText = renderAttributes(item.attributes);
-
-        return (
-          <div key={idx} className="checkout-summary__item">
-          <div className="checkout-summary__item-preview">
-          <img src={sm} alt={item.name} className="checkout-summary__item-img" />
+          <div className={`checkout-steps ${stepsLayoutModifier} ${progressModifier}`}>
+            <div className={`checkout-steps__item ${step >= 1 ? 'checkout-steps__item--active' : ''} ${step > 1 ? 'checkout-steps__item--completed' : ''}`}>
+              <div className="checkout-steps__number">1</div>
+              <span className="checkout-steps__label">Контакты</span>
+            </div>
+            <div className={`checkout-steps__item ${step >= 2 ? 'checkout-steps__item--active' : ''} ${step > 2 ? 'checkout-steps__item--completed' : ''}`}>
+              <div className="checkout-steps__number">2</div>
+              <span className="checkout-steps__label">Подтверждение</span>
+            </div>
+            <div className={`checkout-steps__item ${step >= 3 ? 'checkout-steps__item--active' : ''}`}>
+              <div className="checkout-steps__number">3</div>
+              <span className="checkout-steps__label">Оплата</span>
+            </div>
           </div>
-          <div className="checkout-summary__item-info">
-          <span className="checkout-summary__item-name">{item.name} <span className="checkout-summary__item-quantity">× {item.quantity}</span></span>
-          {attributesText && <span className="checkout-summary__item-meta">{attributesText}</span>}
+
+          <div className="checkout-page__section">
+            {/* STEP 1 */}
+            {step === 1 && (
+              <>
+                <h2 className="checkout-page__section-title">1. Контактные данные</h2>
+                <div className="form-group">
+                  <label className="checkout-form__label">ФИО *</label>
+                  <input className="checkout-form__input" type="text" name="name" value={formData.name} onChange={handleChange} required placeholder="Иванов Иван Иванович" />
+                </div>
+                <div className="form-group">
+                  <label className="checkout-form__label">Email *</label>
+                  <input className="checkout-form__input" type="email" name="email" value={formData.email} onChange={handleChange} required placeholder="example@example.com" />
+                </div>
+                <div className="form-group">
+                  <label className="checkout-form__label">Телефон</label>
+                  <input className="checkout-form__input" type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+7 (XXX) XXX-XX-XX" />
+                </div>
+
+                <h2 className="checkout-page__section-title">2. Способ получения</h2>
+                <div className="checkout-delivery__tabs">
+                  <button className={`btn ${deliveryType === 'pickup' ? 'primary' : 'secondary'} checkout-delivery__tab-btn`} onClick={() => setDeliveryType('pickup')}>Самовывоз</button>
+                  <button className={`btn ${deliveryType === 'delivery' ? 'primary' : 'secondary'} checkout-delivery__tab-btn`} onClick={() => setDeliveryType('delivery')}>Доставка</button>
+                </div>
+
+                <div className="checkout-delivery__content">
+                  {deliveryType === 'pickup' ? (
+                    <div>
+                      <p className="checkout-delivery__text"><strong>Адрес:</strong> г. Москва, Каширское шоссе, 64, корп. 1А</p>
+                      <p className="checkout-delivery__text">Мы свяжемся с вами для уточнения времени.</p>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* ADDRESS SELECTOR */}
+                      {user && savedAddresses.length > 0 && (
+                        <div className="form-group">
+                          <div className="checkout-form__address-selector-row">
+                            <div className="checkout-form__select-wrapper">
+                              <label className="checkout-form__label">Выбрать сохраненный адрес:</label>
+                              <select
+                                className="checkout-form__select"
+                                value={selectedAddressId}
+                                onChange={handleAddressSelect}
+                              >
+                                {savedAddresses.map(addr => (
+                                  <option key={addr.id} value={addr.id}>
+                                    {addr.title || 'Адрес'} ({addr.city}, {addr.street})
+                                  </option>
+                                ))}
+                                <option value="new">+ Ввести новый адрес</option>
+                              </select>
+                            </div>
+                            {selectedAddressId !== 'new' && (
+                              <div className="checkout-form__address-actions">
+                                <button type="button" className="btn secondary checkout-form__action-btn" onClick={handleUpdateCurrentAddress} title="Обновить в профиле" disabled={isProcessing}>
+                                  <MdSave />
+                                </button>
+                                <button type="button" className="btn secondary checkout-form__action-btn checkout-form__action-btn--delete" onClick={handleDeleteCurrentAddress} title="Удалить из профиля" disabled={isProcessing}>
+                                  <MdDeleteOutline />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ADDRESS FIELDS */}
+                      <div className="form-group">
+                        <label className="checkout-form__label">Название адреса (например, Дом, Работа)</label>
+                        <input
+                          className="checkout-form__input"
+                          type="text"
+                          name="address_title"
+                          value={formData.address_title}
+                          onChange={handleChange}
+                          placeholder="Новый адрес"
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="checkout-form__label">Город *</label>
+                        <input className="checkout-form__input" type="text" name="city" value={formData.city} onChange={handleChange} />
+                      </div>
+                      <div className="form-group">
+                        <label className="checkout-form__label">Улица *</label>
+                        <input className="checkout-form__input" type="text" name="street" value={formData.street} onChange={handleChange} />
+                      </div>
+
+                      <div className="checkout-form__row">
+                        <div className="form-group">
+                          <label className="checkout-form__label">Дом *</label>
+                          <input className="checkout-form__input" type="text" name="building" value={formData.building} onChange={handleChange} />
+                        </div>
+                        <div className="form-group">
+                          <label className="checkout-form__label">Кв./Офис</label>
+                          <input className="checkout-form__input" type="text" name="flat" value={formData.flat} onChange={handleChange} />
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="checkout-form__label">Индекс</label>
+                        <div className="checkout-form__zip-row">
+                          <input
+                            className="checkout-form__input checkout-form__input--zip"
+                            type="text"
+                            name="zip_code"
+                            value={formData.zip_code}
+                            onChange={handleChange}
+                          />
+                          <button
+                            type="button"
+                            className="btn secondary"
+                            onClick={handleAutoZip}
+                            title="Найти индекс по адресу"
+                            disabled={isProcessing}
+                          >
+                            <MdSearch /> Найти
+                          </button>
+                        </div>
+                      </div>
+
+                      {user && selectedAddressId === 'new' && (
+                        <button type="button" className="btn secondary checkout-form__save-btn" onClick={handleSaveNewAddress} disabled={isProcessing}>
+                          <MdSave className="checkout-form__save-icon" /> Сохранить этот адрес в профиль
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="form-group">
+                  <label className="checkout-form__label">Комментарий</label>
+                  <textarea className="checkout-form__textarea" name="comment" value={formData.comment} onChange={handleChange} rows="2" placeholder="Ваши пожелания..."></textarea>
+                </div>
+
+                <div className="form-group">
+                  <label className="custom-checkbox">
+                    <input type="checkbox" name="isAnonymous" checked={formData.isAnonymous} onChange={handleChange} />
+                    <span className="custom-checkbox__box"></span>
+                    <span className="custom-checkbox__label-text">Сделать пожертвование анонимным</span>
+                  </label>
+                </div>
+
+                <div className="checkout-page__actions">
+                  <Link to="/cart" className="btn secondary">Назад в корзину</Link>
+                  <button className="btn primary" onClick={handleNextStep}>Далее</button>
+                </div>
+              </>
+            )}
+
+            {/* STEP 2 */}
+            {step === 2 && (
+              <>
+                <h2 className="checkout-page__section-title">Проверьте данные</h2>
+                <div className="checkout-summary">
+                  <h3 className="checkout-summary__title">Ваш заказ</h3>
+                  <div className="checkout-summary__list">
+                    {cartItems.map((item, idx) => {
+                      const imageUrl = getImageUrl(item.images && item.images[0]);
+                      const { sm } = getProductImageSet(imageUrl);
+                      const attributesText = renderAttributes(item.attributes);
+
+                      return (
+                        <div key={idx} className="checkout-summary__item">
+                          <div className="checkout-summary__item-preview">
+                            <img src={sm} alt={item.name} className="checkout-summary__item-img" />
+                          </div>
+                          <div className="checkout-summary__item-info">
+                            <span className="checkout-summary__item-name">{item.name} <span className="checkout-summary__item-quantity">× {item.quantity}</span></span>
+                            {attributesText && <span className="checkout-summary__item-meta">{attributesText}</span>}
+                          </div>
+                          <span className="checkout-summary__item-price">{(Number(item.price) || 0) * item.quantity} ₽</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="checkout-summary__total">
+                    <span>Итого к оплате:</span>
+                    <span className="checkout-summary__total-value">{subtotal} ₽</span>
+                  </div>
+                </div>
+
+                <div className="checkout-contact-view">
+                  <h3 className="checkout-contact-view__title">Доставка</h3>
+                  <div className="checkout-contact-view__row">
+                    <span className="checkout-contact-view__label">Способ:</span>
+                    <span>{deliveryType === 'pickup' ? 'Самовывоз' : 'Доставка'}</span>
+                  </div>
+                  {deliveryType === 'delivery' && (
+                    <div className="checkout-contact-view__row">
+                      <span className="checkout-contact-view__label">Адрес:</span>
+                      <span style={{ textAlign: 'right', maxWidth: '60%' }}>
+                        {formData.address_title && <strong>{formData.address_title}: </strong>}
+                        {`${formData.city}, ${formData.street}, д. ${formData.building}, кв. ${formData.flat || '-'}`}
+                      </span>
+                    </div>
+                  )}
+                  <div className="checkout-contact-view__row">
+                    <span className="checkout-contact-view__label">Получатель:</span>
+                    <span>{formData.name}, {formData.phone}</span>
+                  </div>
+                </div>
+
+                <div className="checkout-page__actions">
+                  <button className="btn secondary" onClick={handlePrevStep} disabled={isProcessing}>Назад</button>
+                  <button className="btn primary" onClick={handleCreateOrder} disabled={isProcessing}>
+                    {isProcessing ? 'Обработка...' : 'Перейти к оплате'}
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* STEP 3 */}
+            {step === 3 && (
+              <div className="checkout-confirmation">
+                {paymentInitiated ? (
+                  <>
+                    <MdCheckCircle className="checkout-confirmation__icon" />
+                    <h2 className="checkout-confirmation__title">Оплата инициирована</h2>
+                    <div className="checkout-confirmation__details">
+                      <span className="checkout-confirmation__label">Номер пожертвования:</span>
+                      <span className="checkout-confirmation__value">{donationId}</span>
+                    </div>
+                    <div style={{ marginBottom: '2rem' }}>
+                      <span className="checkout-confirmation__badge">Ожидает проверки</span>
+                      <p style={{ marginTop: '1rem', color: '#666' }}>Статус обновится после оплаты.</p>
+                    </div>
+                    <a href={`https://endowment.mephi.ru/pay?edit[submitted][ya_rekomenduyu_popechitelskomu_sovetu_endaumenta_mifi_napravlyat]=Мужской хор&amount=${subtotal}&donation_id=${donationId}`} target="_blank" rel="noopener noreferrer" className="btn primary">
+                      <MdOpenInNew style={{ marginRight: 8 }} /> Перейти к оплате
+                    </a>
+                    <div className="checkout-page__actions">
+                      <button className="btn secondary" onClick={handleViewHistory}>Перейти в историю <MdArrowRight /></button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="checkout-confirmation">
+                    <h2>Заказ создан!</h2>
+                    <p>Перенаправление...</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-          <span className="checkout-summary__item-price">{(Number(item.price) || 0) * item.quantity} ₽</span>
-          </div>
-        );
-      })}
-      </div>
-      <div className="checkout-summary__total">
-      <span>Итого к оплате:</span>
-      <span className="checkout-summary__total-value">{subtotal} ₽</span>
-      </div>
-      </div>
-
-      <div className="checkout-contact-view">
-      <h3 className="checkout-contact-view__title">Доставка</h3>
-      <div className="checkout-contact-view__row">
-      <span className="checkout-contact-view__label">Способ:</span>
-      <span>{deliveryType === 'pickup' ? 'Самовывоз' : 'Доставка'}</span>
-      </div>
-      {deliveryType === 'delivery' && (
-        <div className="checkout-contact-view__row">
-        <span className="checkout-contact-view__label">Адрес:</span>
-        <span style={{textAlign: 'right', maxWidth: '60%'}}>
-        {formData.address_title && <strong>{formData.address_title}: </strong>}
-        {`${formData.city}, ${formData.street}, д. ${formData.building}, кв. ${formData.flat || '-'}`}
-        </span>
         </div>
-      )}
-      <div className="checkout-contact-view__row">
-      <span className="checkout-contact-view__label">Получатель:</span>
-      <span>{formData.name}, {formData.phone}</span>
       </div>
-      </div>
-
-      <div className="checkout-page__actions">
-      <button className="btn secondary" onClick={handlePrevStep} disabled={isProcessing}>Назад</button>
-      <button className="btn primary" onClick={handleCreateOrder} disabled={isProcessing}>
-      {isProcessing ? 'Обработка...' : 'Перейти к оплате'}
-      </button>
-      </div>
-      </>
-    )}
-
-    {/* STEP 3 */}
-    {step === 3 && (
-      <div className="checkout-confirmation">
-      {paymentInitiated ? (
-        <>
-        <MdCheckCircle className="checkout-confirmation__icon" />
-        <h2 className="checkout-confirmation__title">Оплата инициирована</h2>
-        <div className="checkout-confirmation__details">
-        <span className="checkout-confirmation__label">Номер пожертвования:</span>
-        <span className="checkout-confirmation__value">{donationId}</span>
-        </div>
-        <div style={{marginBottom: '2rem'}}>
-        <span className="checkout-confirmation__badge">Ожидает проверки</span>
-        <p style={{marginTop: '1rem', color: '#666'}}>Статус обновится после оплаты.</p>
-        </div>
-        <a href={`https://endowment.mephi.ru/pay?edit[submitted][ya_rekomenduyu_popechitelskomu_sovetu_endaumenta_mifi_napravlyat]=Мужской хор&amount=${subtotal}&donation_id=${donationId}`} target="_blank" rel="noopener noreferrer" className="btn primary">
-        <MdOpenInNew style={{marginRight: 8}}/> Перейти к оплате
-        </a>
-        <div className="checkout-page__actions">
-        <button className="btn secondary" onClick={handleViewHistory}>Перейти в историю <MdArrowRight /></button>
-        </div>
-        </>
-      ) : (
-        <div className="checkout-confirmation">
-        <h2>Заказ создан!</h2>
-        <p>Перенаправление...</p>
-        </div>
-      )}
-      </div>
-    )}
-    </div>
-    </div>
-    </div>
     </div>
   );
 }

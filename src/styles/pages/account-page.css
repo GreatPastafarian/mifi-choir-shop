@@ -6,7 +6,8 @@
 .account-page {
   /* Исходные стили контейнера перенесены в блок */
   font-family: 'Open Sans', sans-serif;
-  background-color: #fffdf5; /* Фон страницы */
+  background-color: #fffdf5;
+  /* Фон страницы */
   min-height: 80vh;
 }
 
@@ -55,7 +56,8 @@
 /* --- Сетка контента --- */
 .account-page__content {
   display: grid;
-  grid-template-columns: 300px 1fr; /* Как в оригинале */
+  grid-template-columns: 300px 1fr;
+  /* Как в оригинале */
   gap: 2rem;
   margin-top: 1.5rem;
 }
@@ -64,7 +66,7 @@
 .account-sidebar {
   background: white;
   border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.1));
   padding: 1.5rem;
   height: fit-content;
 }
@@ -80,14 +82,15 @@
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background-color: #f5f0e5; /* accent-beige */
+  background-color: #f5f0e5;
+  /* accent-beige */
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
   color: var(--primary-accent, #8d1f2c);
   border: 3px solid white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .account-sidebar__name {
@@ -132,8 +135,10 @@
   background-color: var(--primary-accent, #8d1f2c);
   color: white;
 }
+
 .account-menu__item--active:hover {
-  background-color: var(--primary-accent, #8d1f2c); /* Чтобы не менялся цвет при ховере на активном */
+  background-color: var(--primary-accent, #8d1f2c);
+  /* Чтобы не менялся цвет при ховере на активном */
   transform: none;
 }
 
@@ -141,7 +146,7 @@
 .account-main {
   background: white;
   border-radius: var(--radius-lg, 12px);
-  box-shadow: var(--shadow-md, 0 4px 8px rgba(0,0,0,0.1));
+  box-shadow: var(--shadow-md, 0 4px 8px rgba(0, 0, 0, 0.1));
   padding: 2rem;
   min-height: 500px;
 }
@@ -225,7 +230,8 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   padding: 1.5rem;
   transition: all 0.3s ease;
-  border-left: 4px solid var(--primary-accent, #8d1f2c); /* Тот самый бордюр */
+  border-left: 4px solid var(--primary-accent, #8d1f2c);
+  /* Тот самый бордюр */
 }
 
 .donation-card:hover {
@@ -256,9 +262,24 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
-.donation-card__status--pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
-.donation-card__status--completed { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.donation-card__status--rejected { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+.donation-card__status--pending {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.donation-card__status--completed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.donation-card__status--rejected {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
 
 .donation-card__body {
   display: flex;
@@ -305,7 +326,10 @@
   font-size: 0.95rem;
   border-bottom: 1px solid #f9f9f9;
 }
-.donation-card__product-item:last-child { border-bottom: none; }
+
+.donation-card__product-item:last-child {
+  border-bottom: none;
+}
 
 .donation-card__product-name {
   font-weight: 600;
@@ -373,6 +397,7 @@
   background: white;
   transition: border-color 0.2s;
 }
+
 .address-card:hover {
   border-color: #ccc;
 }
@@ -403,6 +428,7 @@
   cursor: pointer;
   transition: all 0.2s;
 }
+
 .address-card__delete-btn:hover {
   background-color: #fee;
 }
@@ -432,7 +458,8 @@
     grid-template-columns: 1fr;
   }
 
-  .profile-form, .address-form__grid {
+  .profile-form,
+  .address-form__grid {
     grid-template-columns: 1fr;
   }
 
@@ -444,6 +471,60 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* --- New Styles (Refactored from inline) --- */
+.donation-card__value--mono {
+  font-family: monospace;
+}
+
+.donation-card__product-name-wrapper {
+  flex: 1;
+}
+
+.donation-card__quantity {
+  font-weight: bold;
+}
+
+.donation-card__delivery-info {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.donation-card__delivery-address {
+  display: block;
+  margin-top: 4px;
+}
+
+.profile-form__group--margin {
+  margin-bottom: 1rem;
+}
+
+.address-form__zip-row {
+  display: flex;
+  gap: 10px;
+}
+
+.address-card__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.profile-form__input--disabled {
+  background-color: #f0f0f0;
+  color: #666;
+}
+
+.account-page__alert {
+  margin-bottom: 2rem;
 }

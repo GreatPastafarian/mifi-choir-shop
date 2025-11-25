@@ -1,4 +1,5 @@
 import React from 'react';
+import choirImage from '../assets/images/choir_bzk.jpg';
 
 function AboutPage() {
   return (
@@ -44,7 +45,7 @@ function AboutPage() {
           </p>
         </div>
         <div className="about-image">
-          <div className="image-placeholder choir-image"></div>
+          <img src={choirImage} alt="Академический мужской хор МИФИ" className="about-page__image" />
         </div>
       </section>
     </div>

@@ -5,7 +5,8 @@
 
 .admin-products {
     padding-top: 2rem;
-    padding-bottom: 5rem; /* (ИЗМЕНЕНИЕ) Отступ от футера */
+    padding-bottom: 5rem;
+    /* (ИЗМЕНЕНИЕ) Отступ от футера */
 }
 
 .admin-products__container {
@@ -28,9 +29,11 @@
 /* --- Хедер --- */
 .admin-products__header {
     display: flex;
-    flex-direction: column; /* Mobile-first: стек */
+    flex-direction: column;
+    /* Mobile-first: стек */
     justify-content: space-between;
-    align-items: flex-start; /* Выравнивание по левому краю */
+    align-items: flex-start;
+    /* Выравнивание по левому краю */
     gap: 1rem;
     margin-bottom: 2rem;
 }
@@ -51,7 +54,8 @@
 .admin-products__groups-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem; /* Отступ между группами */
+    gap: 1.5rem;
+    /* Отступ между группами */
 }
 
 .admin-products__category-group {
@@ -71,7 +75,8 @@
 /* --- Сетка товаров --- */
 .admin-products__grid {
     display: grid;
-    grid-template-columns: 1fr; /* Mobile-first: 1 колонка */
+    grid-template-columns: 1fr;
+    /* Mobile-first: 1 колонка */
     gap: 1.5rem;
     /* (ИЗМЕНЕНИЕ) Отступ снизу сетки (для разделения секций) */
     margin-bottom: 2rem;
@@ -95,23 +100,34 @@
 
 .admin-products__card-image {
     aspect-ratio: 1 / 1;
-    width: 100%; /* (ИЗМЕНЕНИЕ) Добавлено для <img> */
-    object-fit: cover; /* (ИЗМЕНЕНИЕ) Замена 'background-size' */
-    object-position: center; /* (ИЗМЕНЕНИЕ) Замена 'background-position' */
+    width: 100%;
+    /* (ИЗМЕНЕНИЕ) Добавлено для <img> */
+    object-fit: cover;
+    /* (ИЗМЕНЕНИЕ) Замена 'background-size' */
+    object-position: center;
+    /* (ИЗМЕНЕНИЕ) Замена 'background-position' */
     position: relative;
-    background-color: #f0f0f0; /* Фон для плейсхолдера */
+    background-color: #f0f0f0;
+    /* Фон для плейсхолдера */
 }
 
 .admin-products__card-badge {
     position: absolute;
     top: 10px;
     right: 10px;
-    background-color: #d4af37; /* (можно заменить на var(--accent-gold)?) */
+    background-color: #d4af37;
+    /* (можно заменить на var(--accent-gold)?) */
     color: #0a2240;
     padding: 4px 10px;
     border-radius: 20px;
     font-weight: bold;
     font-size: 0.85rem;
+}
+
+.admin-products__card-badge--preorder {
+    background-color: #ff6f00;
+    /* Deep Orange */
+    color: #fff;
 }
 
 .admin-products__card-info {
@@ -173,7 +189,8 @@
 }
 
 .admin-products__card-button--delete:hover {
-    background-color: #fdecec; /* (ИЗМЕНЕНИЕ) добавил ховер */
+    background-color: #fdecec;
+    /* (ИЗМЕНЕНИЕ) добавил ховер */
 }
 
 /* --- Адаптация (Desktop) --- */

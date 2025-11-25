@@ -13,83 +13,55 @@ function Header({ cartCount }) {
 
   return (
     <header className="header">
-      <div className="header-top">
-        <p className="donation-notice">
+      <div className="header__top">
+        <p className="header__donation-notice">
           Это не магазин, а способ получить сувенир в благодарность за ваше пожертвование
         </p>
       </div>
 
-      <div className="header-main">
-        <div className="logo-container">
-          <div
-            className="header-column"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '1.5rem',
-            }}
-          >
-            <div className="logo-header" style={{ display: 'flex', alignItems: 'center' }}>
-              <img
-                src={choirLogo}
-                alt="Логотип Хора МИФИ"
-                style={{
-                  width: '70px',
-                  height: '70px',
-                  borderRadius: '50%',
-                  border: '2px solid #d4af37',
-                  marginRight: '1rem',
-                }}
-              />
-              <div>
-                <h2
-                  style={{
-                    fontSize: '1.5rem',
-                    fontWeight: '700',
-                    color: '#d4af37',
-                    marginBottom: '0.25rem',
-                  }}
-                >
-                  Хор МИФИ
-                </h2>
-                <p
-                  style={{
-                    fontSize: '0.9rem',
-                    color: '#f0f0f0',
-                    maxWidth: '200px',
-                  }}
-                >
-                  Академический мужской хор
-                </p>
-              </div>
+      <div className="header__main">
+        <div className="header__logo-container">
+          <Link to="/" className="header__logo-container">
+            <img
+              src={choirLogo}
+              alt="Логотип Хора МИФИ"
+              className="header__logo-img"
+            />
+            <div>
+              <h2 className="header__logo-text">
+                Хор МИФИ
+              </h2>
+              <p className="header__logo-subtext">
+                Академический мужской хор
+              </p>
             </div>
-          </div>
+          </Link>
         </div>
 
-        <button className="mobile-menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+        <button className="header__mobile-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <span></span>
           <span></span>
           <span></span>
         </button>
 
-        <nav className={`nav ${isMenuOpen ? 'open' : ''}`}>
-          <Link to="/">Главная</Link>
-          <Link to="/shop">Каталог</Link>
-          <Link to="/about">О хоре</Link>
-          <Link to="/contacts">Контакты</Link>
-          <Link to="/account">Личный кабинет</Link>
+        <nav className={`header__nav ${isMenuOpen ? 'open' : ''}`}>
+          <Link to="/" className="header__nav-link">Главная</Link>
+          <Link to="/shop" className="header__nav-link">Каталог</Link>
+          <Link to="/about" className="header__nav-link">О хоре</Link>
+          <Link to="/contacts" className="header__nav-link">Контакты</Link>
+          <Link to="/account" className="header__nav-link">Личный кабинет</Link>
         </nav>
 
-        <div className="header-icons">
-          <Link to="/favorites" className="favorites-icon">
+        <div className="header__actions">
+          <Link to="/favorites" className="header__icon">
             <MdFavorite />
-            {favoritesCount > 0 && <span className="favorites-count">{favoritesCount}</span>}
+            {favoritesCount > 0 && <span className="header__badge">{favoritesCount}</span>}
           </Link>
-          <Link to="/cart" className="cart-icon">
+          <Link to="/cart" className="header__icon">
             <MdShoppingCart />
-            {cartCount > 0 && <span className="cart-count">{cartCount}</span>}
+            {cartCount > 0 && <span className="header__badge">{cartCount}</span>}
           </Link>
-          <Link to="/account" className="user-icon">
+          <Link to="/account" className="header__icon">
             <MdPerson />
           </Link>
         </div>
