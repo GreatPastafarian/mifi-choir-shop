@@ -6,7 +6,7 @@ function YandexMap() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const isMounted = useRef(true);
-  const apiKey = 'YOUR_API_KEY_HERE'; // Замените на ваш реальный API-ключ
+  const apiKey = 'ad680d38-7c02-438b-83e3-0425e6714bd1'; // Замените на ваш реальный API-ключ
 
   useEffect(() => {
     isMounted.current = true;

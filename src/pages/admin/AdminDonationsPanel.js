@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MdRefresh, MdCheckCircle, MdCancel, MdSearch, MdVisibility, MdClose } from 'react-icons/md';
 import api from '../../services/api';
-import '../../styles/components/admin-panel.css';
 
 function AdminDonationsPanel() {
   const [donations, setDonations] = useState([]);

@@ -14,7 +14,7 @@ import RegisterPage from './pages/RegisterPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import Products from './pages/admin/Products';
 import ProductEdit from './pages/admin/ProductEdit';
-import AdminDonationsPanel from './components/auth/AdminDonationsPanel';
+import AdminDonationsPanel from './pages/admin/AdminDonationsPanel';
 import AdminCategories from './pages/admin/AdminCategories';
 import ContactsPage from './pages/ContactsPage';
 import AboutPage from './pages/AboutPage';
@@ -22,6 +22,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import ScrollToTop from './components/layout/ScrollToTop';
 import CategoryPage from './pages/CategoryPage';
 import FavoritesPage from './pages/FavoritesPage';
+import AdminMessages from './pages/admin/AdminMessages';
+import SupportChatWidget from './components/SupportChatWidget';
 
 // Создаем обертку для ProductDetailsPage
 const ProductDetailsPageWrapper = ({ addToCart }) => {
@@ -139,7 +141,6 @@ const AppContent = () => {
     return [];
   });
 
-  const { favorites } = useAuth(); // Теперь это безопасно, потому что мы внутри AuthProvider
 
   useEffect(() => {
     // Нормализуем данные перед сохранением
@@ -155,11 +156,16 @@ const AppContent = () => {
     // Используем base_price если доступен, иначе price
     const price = product.base_price !== undefined ? product.base_price : product.price;
 
+    // (ИСПРАВЛЕНИЕ) Берем количество из товара или ставим 1 по умолчанию
+    const quantityToAdd = product.quantity && product.quantity > 0 ? product.quantity : 1;
+
     const existingItem = cart.find((item) => item.id === product.id && item.variantId === product.variantId);
 
     if (existingItem) {
       const updatedCart = cart.map((item) =>
-        item.id === product.id && item.variantId === product.variantId ? { ...item, quantity: item.quantity + 1 } : item
+      item.id === product.id && item.variantId === product.variantId
+      ? { ...item, quantity: item.quantity + quantityToAdd } // (ИСПРАВЛЕНИЕ) Прибавляем нужное кол-во
+      : item
       );
       setCart(updatedCart);
     } else {
@@ -167,9 +173,9 @@ const AppContent = () => {
         ...cart,
         {
           ...product,
-          quantity: 1,
-          // Добавляем price для совместимости с компонентами корзины
-          price: price,
+          quantity: quantityToAdd, // (ИСПРАВЛЕНИЕ) Используем переданное кол-во
+              // Добавляем price для совместимости с компонентами корзины
+              price: price,
         },
       ]);
     }
@@ -281,6 +287,15 @@ const AppContent = () => {
               }
             />
             <Route
+            path="/admin/messages"
+            element={
+              <AdminRoute>
+              <AdminMessages />
+              </AdminRoute>
+            }
+            />
+
+            <Route
             path="/admin/categories"
             element={
               <AdminRoute>
@@ -294,6 +309,7 @@ const AppContent = () => {
           </Routes>
         </main>
         <Footer />
+        <SupportChatWidget />
       </div>
     </Router>
   );

@@ -388,6 +388,31 @@
   background: #fafafa;
 }
 
+.status-new {
+  background-color: #e3f2fd; /* Голубой */
+  color: #1976d2;
+  border: 1px solid #bbdefb;
+}
+
+.status-replied {
+  background-color: #e8f5e9; /* Зеленый */
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.badge-count {
+  background: #eee;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 0.75rem;
+  color: #555;
+}
+.badge-new {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
 /* Кнопки в футере модалки (текстовые) */
 .btn-text {
   padding: 0.8rem 1.5rem;

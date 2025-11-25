@@ -1,0 +1,207 @@
+/* ===== Contacts Page Styles (BEM) ===== */
+
+.contacts-page {
+  padding: 2rem 0 4rem;
+  background-color: var(--bg-light, #fffdf5);
+  min-height: 80vh;
+}
+
+.contacts-page__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.5rem;
+  color: var(--primary-dark, #0a2240);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+/* --- Сетка контента (Инфо + Карта) --- */
+.contacts-page__content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  margin-bottom: 4rem;
+  align-items: start;
+}
+
+/* --- Блок деталей --- */
+.contacts-details {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.contacts-details__item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+.contacts-details__item:last-child {
+  margin-bottom: 0;
+}
+
+.contacts-details__icon {
+  font-size: 1.5rem;
+  color: var(--accent-gold, #d4af37);
+  margin-right: 1rem;
+  margin-top: 0.2rem; /* Выравнивание с текстом */
+  flex-shrink: 0;
+}
+
+.contacts-details__label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-dark, #0a2240);
+  margin: 0 0 0.25rem;
+}
+
+.contacts-details__value {
+  font-size: 1rem;
+  color: #444;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.contacts-details__subvalue {
+  font-size: 0.9rem;
+  color: #666;
+  margin: 0.25rem 0 0;
+  font-style: italic;
+}
+
+/* --- Карта --- */
+.contacts-map {
+  height: 400px;
+  background-color: #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* --- Секция формы --- */
+.contacts-form-section {
+  max-width: 700px;
+  margin: 0 auto;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.contacts-form-section__title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem;
+  color: var(--primary-dark, #0a2240);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+/* Алерты */
+.contacts-alert {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.contacts-alert--success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.contacts-alert--error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.contacts-alert__icon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+/* Поля формы */
+.contacts-form__group {
+  margin-bottom: 1.5rem;
+}
+
+.contacts-form__label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.contacts-form__input,
+.contacts-form__textarea {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.contacts-form__input:focus,
+.contacts-form__textarea:focus {
+  outline: none;
+  border-color: var(--primary-accent, #8d1f2c);
+}
+
+.contacts-form__textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contacts-form__btn {
+  width: 100%;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+}
+
+.contacts-form__btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.contacts-form__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Спиннер */
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ffffff;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* --- Адаптивность --- */
+@media (max-width: 768px) {
+  .contacts-page__content {
+    grid-template-columns: 1fr; /* Одна колонка */
+    gap: 2rem;
+  }
+
+  .contacts-map {
+    height: 300px;
+  }
+
+  .contacts-form-section {
+    padding: 1.5rem;
+  }
+}

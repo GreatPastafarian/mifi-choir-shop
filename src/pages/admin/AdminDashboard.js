@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 // (ИЗМЕНЕНИЕ) Импортируем иконки
-import { MdOutlineStore, MdOutlineMonetizationOn, MdOutlineCategory } from 'react-icons/md';
+import { MdEmail, MdOutlineStore, MdOutlineMonetizationOn, MdOutlineCategory } from 'react-icons/md';
 
 function AdminDashboard() {
   const { isAdmin } = useAuth();
@@ -59,6 +59,20 @@ function AdminDashboard() {
     <h2 className="admin-dashboard__card-title">Управление категориями</h2>
     <p className="admin-dashboard__card-description">
     Создавайте и редактируйте категории товаров
+    </p>
+    </Link>
+
+
+    {/* Карточка 4: Сообщения */}
+    <Link
+    to="/admin/messages"
+    className="admin-dashboard__card"
+    style={{ backgroundColor: '#5e35b1' }} // Фиолетовый цвет
+    >
+    <MdEmail className="admin-dashboard__card-icon" />
+    <h2 className="admin-dashboard__card-title">Обратная связь</h2>
+    <p className="admin-dashboard__card-description">
+    Ответы на вопросы пользователей
     </p>
     </Link>
 

@@ -18,6 +18,9 @@ import './styles/pages/checkout-page.css';
 import './styles/pages/account-page.css';
 import './styles/pages/admin-dashbords.css';
 import './styles/components/sort-filter.css';
+import './styles/pages/contacts-page.css';
+import './styles/components/auth-form.css';
+import './styles/components/support-chat.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 

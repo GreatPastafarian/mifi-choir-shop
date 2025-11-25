@@ -1,7 +1,10 @@
-import React, { createContext, useState, useEffect, useContext, useCallback } from 'react';
+import React, { createContext, useState, useEffect, useContext, useCallback, useRef } from 'react';
+// --- ДОБАВЛЕН ИМПОРТ API ---
+import api from '../services/api';
+// ----------------------------
 import {
   getCurrentUser,
-  logout as authLogout,
+  logout as authServiceLogout,
   getProfile,
   clearAuthData,
   login as authServiceLogin,
@@ -17,182 +20,166 @@ export const AuthProvider = ({ children }) => {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Загрузка избранного
+  // Используем ref для доступа к актуальному состоянию внутри замыканий
+  const favoritesRef = useRef(favorites);
+
+  useEffect(() => {
+    favoritesRef.current = favorites;
+  }, [favorites]);
+
+  // Загрузка избранного (с фоллбэком на localStorage)
   const loadFavorites = useCallback(async () => {
     try {
       const favoritesData = await getFavorites();
       setFavorites(favoritesData);
     } catch (error) {
       console.error('Ошибка загрузки избранного:', error);
-      // В случае ошибки загружаем из localStorage
+      // Если не удалось загрузить с сервера (или нет токена), берем локальное
       const localFavorites = localStorage.getItem('choirFavorites');
-      if (localFavorites) {
-        setFavorites(JSON.parse(localFavorites));
-      } else {
-        setFavorites([]);
-      }
+      setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
     }
   }, []);
 
-  // Проверка и обновление состояния аутентификации
+  // Проверка авторизации при старте
   const checkAuth = useCallback(async () => {
     try {
       const currentUser = getCurrentUser();
+
       if (currentUser && currentUser.token) {
         try {
-          // Загружаем полный профиль, включая роль
+          // Пытаемся получить свежий профиль
           const profile = await getProfile();
-          // Объединяем данные из localStorage и профиль с сервера
-          const fullUser = {
-            ...currentUser,
-            ...profile,
-          };
+          const fullUser = { ...currentUser, ...profile };
           setUser(fullUser);
-
-          // Загружаем избранное
           await loadFavorites();
-
-          return true;
         } catch (error) {
-          console.error('Ошибка загрузки профиля:', error);
-          // Если ошибка аутентификации (401), очищаем данные
-          if (error.response?.status === 401) {
-            clearAuthData();
-          }
+          console.error('Ошибка валидации сессии:', error);
+          // Если токен протух, profile вернет ошибку.
+          // Но мы не сбрасываем favorites жестко, чтобы не мигало
           setUser(null);
-          setFavorites([]);
-          return false;
         }
       } else {
         setUser(null);
-        // Загружаем избранное для неавторизованных пользователей
         const localFavorites = localStorage.getItem('choirFavorites');
-        if (localFavorites) {
-          setFavorites(JSON.parse(localFavorites));
-        } else {
-          setFavorites([]);
-        }
-        return false;
+        setFavorites(localFavorites ? JSON.parse(localFavorites) : []);
       }
     } catch (error) {
-      console.error('Ошибка при загрузке пользователя:', error);
       setUser(null);
-      setFavorites([]);
-      return false;
     } finally {
       setLoading(false);
     }
   }, [loadFavorites]);
 
-  // Инициализация при загрузке приложения
+  // --- Обработчик "протухшего" токена (вызывается из api.js) ---
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
-
-  const login = async (credentials) => {
-    try {
-      // Вызываем сервисный login, который сохранит токен в localStorage
-      const response = await authServiceLogin(credentials);
-
-      // После успешного входа сразу обновляем состояние из localStorage
-      const currentUser = getCurrentUser();
-      if (currentUser && currentUser.token) {
-        try {
-          // Загружаем полный профиль
-          const profile = await getProfile();
-          const fullUser = {
-            ...currentUser,
-            ...profile,
-          };
-          setUser(fullUser);
-
-          // Синхронизируем локальное избранное с сервером
-          const localFavorites = JSON.parse(localStorage.getItem('choirFavorites') || '[]');
-
-          // Добавляем все локальные избранные товары на сервер
-          for (const product of localFavorites) {
-            try {
-              await addToFavorites(product.id);
-            } catch (error) {
-              // Игнорируем ошибки для товаров, уже находящихся в избранном
-              if (error.response?.status !== 400) {
-                console.error('Ошибка при добавлении в избранное:', error);
-              }
-            }
-          }
-
-          // Очищаем локальное избранное после синхронизации
-          localStorage.removeItem('choirFavorites');
-
-          // Загружаем актуальное избранное с сервера
-          await loadFavorites();
-
-          // Уведомляем систему об успешном входе
-          window.dispatchEvent(new Event('auth:login'));
-
-          return fullUser;
-        } catch (error) {
-          console.error('Ошибка загрузки профиля после входа:', error);
-          // Если не удалось загрузить профиль, все равно считаем пользователя аутентифицированным
-          setUser(currentUser);
-          window.dispatchEvent(new Event('auth:login'));
-          return currentUser;
-        }
+    const handleAutoLogout = () => {
+      // Сохраняем избранное перед выходом
+      if (favoritesRef.current.length > 0) {
+        localStorage.setItem('choirFavorites', JSON.stringify(favoritesRef.current));
       }
 
-      return response;
+      setUser(null);
+      clearAuthData();
+    };
+
+    window.addEventListener('auth:logout', handleAutoLogout);
+
+    // Запускаем проверку при монтировании
+    checkAuth();
+
+    return () => {
+      window.removeEventListener('auth:logout', handleAutoLogout);
+    };
+  }, [checkAuth]);
+
+
+  // Функция входа (вызывается из LoginPage)
+  const login = async (credentials) => {
+    try {
+      // 1. Делаем запрос к API
+      await authServiceLogin(credentials);
+
+      // 2. Получаем то, что сохранилось в localStorage
+      const currentUser = getCurrentUser();
+
+      if (currentUser) {
+        // 3. Обновляем стейт (оптимистично)
+        setUser(currentUser);
+
+        // 4. Подгружаем полные данные и избранное
+        try {
+          const profile = await getProfile();
+          const fullUser = { ...currentUser, ...profile };
+          setUser(fullUser);
+
+          // Синхронизация локального избранного с сервером
+          const localFavorites = JSON.parse(localStorage.getItem('choirFavorites') || '[]');
+          if (localFavorites.length > 0) {
+            for (const product of localFavorites) {
+              try { await addToFavorites(product.id); } catch (e) {}
+            }
+            localStorage.removeItem('choirFavorites');
+          }
+
+          await loadFavorites();
+
+        } catch (err) {
+          console.warn('Не удалось подгрузить профиль сразу:', err);
+        }
+
+        // 5. Мердж чата (В ОТДЕЛЬНОМ БЛОКЕ TRY/CATCH)
+        // Теперь api определен и это сработает
+        const chatSessionId = localStorage.getItem('chatSessionId');
+        if (chatSessionId) {
+          try {
+            await api.post('/contact/merge', { sessionId: chatSessionId });
+            console.log('Чат успешно привязан');
+            localStorage.removeItem('chatSessionId');
+          } catch (chatError) {
+            console.error('Не удалось привязать историю чата:', chatError);
+          }
+        }
+      }
+      return currentUser;
     } catch (error) {
-      console.error('Ошибка при входе:', error);
       throw error;
     }
   };
 
-  const logout = async () => {
-    try {
-      // Вызываем сервисный logout, который очистит данные
-      await authLogout();
-    } catch (error) {
-      console.error('Ошибка при выходе:', error);
-    } finally {
-      // Устанавливаем пользователя как null
-      setUser(null);
-
-      // Сохраняем избранное в localStorage для неавторизованного доступа
-      localStorage.setItem('choirFavorites', JSON.stringify(favorites));
-
-      // Уведомляем систему о выходе
-      window.dispatchEvent(new Event('auth:logout'));
-    }
+  const setUserData = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+    // Опционально: можно добавить синхронизацию избранного и чата здесь,
+    // если вы хотите делать это и после регистрации
   };
 
-  // Переключение избранного
+  // Ручной выход
+  const logout = async () => {
+    // Сохраняем избранное локально перед выходом
+    if (favorites.length > 0) {
+      localStorage.setItem('choirFavorites', JSON.stringify(favorites));
+    }
+
+    await authServiceLogout();
+    setUser(null);
+    // Не очищаем setFavorites, оставляем их как "гостевые"
+  };
+
   const toggleFavorite = async (product) => {
     try {
       const isCurrentlyFavorite = favorites.some((fav) => fav.id === product.id);
 
       if (isCurrentlyFavorite) {
-        // Удалить из избранного
-        await removeFromFavorites(product.id);
         setFavorites((prev) => prev.filter((fav) => fav.id !== product.id));
+        await removeFromFavorites(product.id);
       } else {
-        // Добавить в избранное
-        await addToFavorites(product.id);
         setFavorites((prev) => [...prev, product]);
+        await addToFavorites(product.id);
       }
     } catch (error) {
-      console.error('Ошибка при изменении избранного:', error);
-      throw error;
+      console.error('Ошибка избранного:', error);
+      await loadFavorites(); // Откат при ошибке
     }
-  };
-
-  // Проверяем, нужно ли перенаправить после входа
-  const handlePostLoginRedirect = () => {
-    const postLoginRedirect = localStorage.getItem('postLoginRedirect');
-    if (postLoginRedirect) {
-      localStorage.removeItem('postLoginRedirect');
-      return decodeURIComponent(postLoginRedirect);
-    }
-    return '/account';
   };
 
   const value = {
@@ -200,12 +187,12 @@ export const AuthProvider = ({ children }) => {
     favorites,
     login,
     logout,
+    setUserData,
     toggleFavorite,
     loading,
     isAuthenticated: !!user,
     isAdmin: user?.role === 'admin',
     checkAuth,
-    handlePostLoginRedirect,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
