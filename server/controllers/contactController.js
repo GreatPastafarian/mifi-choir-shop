@@ -49,9 +49,11 @@ exports.createMessage = async (req, res) => {
             `,
         };
 
-        transporter.sendMail(mailOptions).catch(err =>
-        console.error('Ошибка отправки уведомления админу:', err)
-        );
+        // Не блокируем ответ клиенту, но логируем ошибку
+        transporter.sendMail(mailOptions).catch(err => {
+            console.error('Ошибка отправки уведомления админу:', err);
+            // Можно добавить логирование в файл или мониторинг
+        });
 
         res.status(201).json({ success: true, message: 'Отправлено' });
 
@@ -159,7 +161,15 @@ exports.replyToUser = async (req, res) => {
             `,
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+            await transporter.sendMail(mailOptions);
+        } catch (emailError) {
+            console.error('Ошибка отправки email при ответе:', emailError);
+            return res.status(500).json({
+                message: 'Ошибка отправки email. Проверьте настройки SMTP.',
+                error: emailError.message
+            });
+        }
 
         // 3. Помечаем ВСЕ старые сообщения как отвеченные
         // Мы записываем текст ответа в последнее сообщение, или во все (для истории)
@@ -176,6 +186,6 @@ exports.replyToUser = async (req, res) => {
 
     } catch (error) {
         console.error('Reply error:', error);
-        res.status(500).json({ message: 'Ошибка отправки' });
+        res.status(500).json({ message: 'Ошибка сервера при ответе' });
     }
 };

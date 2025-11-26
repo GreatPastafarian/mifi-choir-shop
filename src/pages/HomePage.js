@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import ProductCard from '../components/product/ProductCard';
-import choirBackground from '../assets/images/choir-background.jpg';
+
 import choirImage from '../assets/images/choir_bzk.jpg';
 import { useAuth } from '../context/AuthContext';
 // Импортируем сервисы для получения данных

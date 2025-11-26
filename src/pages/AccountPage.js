@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -144,19 +144,8 @@ function AccountPage() {
     }
   };
 
-  const handleSettingsSave = async () => {
-    try {
-      await updateNotificationSettings(notificationSettings);
-      setMessage({ type: 'success', text: 'Настройки сохранены' });
-    } catch (e) {
-      setMessage({ type: 'error', text: 'Ошибка сохранения' });
-    }
-  };
+  // Settings handlers removed as the settings tab is not currently rendered
 
-  const handleSettingsChange = (e) => {
-    const { name, checked } = e.target;
-    setNotificationSettings((prev) => ({ ...prev, [name]: checked }));
-  };
 
   // --- РЕНДЕРЫ ---
 

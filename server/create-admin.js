@@ -33,8 +33,8 @@ async function createAdmin() {
     });
 
     console.log('Администратор успешно создан!');
-    console.log('Email: admin@example.com');
-    console.log('Пароль: admin123');
+    console.log('Email: admin_sample@example.com');
+    console.log('Пароль: Malyavina_1987');
     process.exit(0);
   } catch (error) {
     console.error('Ошибка при создании администратора:', error);
