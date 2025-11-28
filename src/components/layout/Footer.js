@@ -50,7 +50,7 @@ function Footer() {
             </li>
             <li>
               <MdPhone />
-              <span>+7 (916) 373-69-34</span>
+              <span>+7 (918) 660-44-26</span>
             </li>
             <li>
               <MdLocationOn />

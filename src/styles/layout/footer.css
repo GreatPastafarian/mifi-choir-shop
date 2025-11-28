@@ -172,8 +172,8 @@
     margin: 0;
 }
 
-@media (max-width: 576px) {
-    .footer__main {
-        grid-template-columns: 1fr;
+@media (max-width: 768px) {
+    .footer {
+        display: none;
     }
 }

@@ -90,7 +90,7 @@ function ContactsPage() {
     <MdPhone className="contacts-details__icon" />
     <div>
     <h3 className="contacts-details__label">Телефон</h3>
-    <p className="contacts-details__value">+7 (916) 373-69-34</p>
+    <p className="contacts-details__value">+7 (918) 660-44-26</p>
     </div>
     </div>
 

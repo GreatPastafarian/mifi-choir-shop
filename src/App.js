@@ -24,6 +24,8 @@ import CategoryPage from './pages/CategoryPage';
 import FavoritesPage from './pages/FavoritesPage';
 import AdminMessages from './pages/admin/AdminMessages';
 import SupportChatWidget from './components/SupportChatWidget';
+import BottomNavigation from './components/layout/BottomNavigation';
+import MobileMenuPage from './pages/MobileMenuPage';
 
 // Создаем обертку для ProductDetailsPage
 const ProductDetailsPageWrapper = ({ addToCart }) => {
@@ -141,6 +143,8 @@ const AppContent = () => {
     return [];
   });
 
+  const { favorites } = useAuth();
+
 
   useEffect(() => {
     // Нормализуем данные перед сохранением
@@ -163,9 +167,9 @@ const AppContent = () => {
 
     if (existingItem) {
       const updatedCart = cart.map((item) =>
-      item.id === product.id && item.variantId === product.variantId
-      ? { ...item, quantity: item.quantity + quantityToAdd } // (ИСПРАВЛЕНИЕ) Прибавляем нужное кол-во
-      : item
+        item.id === product.id && item.variantId === product.variantId
+          ? { ...item, quantity: item.quantity + quantityToAdd } // (ИСПРАВЛЕНИЕ) Прибавляем нужное кол-во
+          : item
       );
       setCart(updatedCart);
     } else {
@@ -174,8 +178,8 @@ const AppContent = () => {
         {
           ...product,
           quantity: quantityToAdd, // (ИСПРАВЛЕНИЕ) Используем переданное кол-во
-              // Добавляем price для совместимости с компонентами корзины
-              price: price,
+          // Добавляем price для совместимости с компонентами корзины
+          price: price,
         },
       ]);
     }
@@ -231,6 +235,7 @@ const AppContent = () => {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/favorites" element={<FavoritesPage addToCart={addToCart} />} />
+            <Route path="/menu" element={<MobileMenuPage />} />
 
             {/* Страница 404 */}
             <Route path="/404" element={<NotFoundPage />} />
@@ -287,21 +292,21 @@ const AppContent = () => {
               }
             />
             <Route
-            path="/admin/messages"
-            element={
-              <AdminRoute>
-              <AdminMessages />
-              </AdminRoute>
-            }
+              path="/admin/messages"
+              element={
+                <AdminRoute>
+                  <AdminMessages />
+                </AdminRoute>
+              }
             />
 
             <Route
-            path="/admin/categories"
-            element={
-              <AdminRoute>
-              <AdminCategories />
-              </AdminRoute>
-            }
+              path="/admin/categories"
+              element={
+                <AdminRoute>
+                  <AdminCategories />
+                </AdminRoute>
+              }
             />
 
             {/* Редиректы */}
@@ -309,6 +314,7 @@ const AppContent = () => {
           </Routes>
         </main>
         <Footer />
+        <BottomNavigation cartCount={cart.length} favoritesCount={favorites ? favorites.length : 0} />
         <SupportChatWidget />
       </div>
     </Router>

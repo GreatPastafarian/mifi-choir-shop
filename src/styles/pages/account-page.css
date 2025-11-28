@@ -433,6 +433,26 @@
   background-color: #fee;
 }
 
+.address-card__edit-btn {
+  background: none;
+  border: 1px solid #eef;
+  color: var(--primary-dark, #0a2240);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.address-card__edit-btn:hover {
+  background-color: #eef;
+  color: var(--primary-accent, #8d1f2c);
+  border-color: var(--primary-accent, #8d1f2c);
+}
+
 /* Состояния */
 .account-page__loading {
   display: flex;

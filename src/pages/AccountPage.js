@@ -202,10 +202,10 @@ function AccountPage() {
               </div>
             </div>
             <div className="address-card__actions">
-              <button className="btn-icon-edit" onClick={() => openEditAddress(addr)} title="Редактировать">
+              <button className="address-card__edit-btn" onClick={() => openEditAddress(addr)} title="Редактировать">
                 <MdEdit />
               </button>
-              <button className="btn-icon-delete" onClick={() => handleDeleteAddress(addr.id)} title="Удалить">
+              <button className="address-card__delete-btn" onClick={() => handleDeleteAddress(addr.id)} title="Удалить">
                 <MdDeleteOutline />
               </button>
             </div>
