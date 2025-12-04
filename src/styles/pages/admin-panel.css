@@ -18,11 +18,16 @@
 }
 
 .admin-header h2 {
-  font-family: 'Cormorant Garamond', serif;
   font-size: 2.2rem;
   color: #0a2240;
   margin: 0;
   font-weight: 600;
+}
+
+.admin-panel h1 {
+  font-size: 2.5rem;
+  color: #0a2240;
+  margin-bottom: 2rem;
 }
 
 /* --- Filters --- */
@@ -105,7 +110,6 @@
   padding: 1.2rem 1.5rem;
   color: #0a2240;
   font-weight: 700;
-  font-family: 'Cormorant Garamond', serif;
   font-size: 1.1rem;
   border-bottom: 2px solid #e0e0e0;
 }
@@ -316,7 +320,6 @@
 
 .modal-header h3 {
   margin: 0;
-  font-family: 'Cormorant Garamond', serif;
   font-size: 1.8rem;
   color: #0a2240;
 }

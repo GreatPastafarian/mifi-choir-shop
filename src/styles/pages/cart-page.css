@@ -20,7 +20,6 @@
 }
 
 .cart-page__mobile-title {
-  font-family: 'Cormorant Garamond', serif;
   font-size: 1.25rem;
   font-weight: 700;
   margin: 0;
@@ -44,8 +43,7 @@
   padding: 0 1rem;
 }
 
-.cart-page__title {
-  font-family: 'Cormorant Garamond', serif;
+.cart-page h1 {
   font-size: 2.5rem;
   color: #0a2240;
   margin-bottom: 2rem;
@@ -71,7 +69,6 @@
 }
 
 .cart-page__category-title {
-  font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem;
   color: #0a2240;
   margin-bottom: 1rem;
@@ -279,11 +276,13 @@
   padding: 0;
   font-weight: 600;
   -moz-appearance: textfield;
+  appearance: textfield;
 }
 
 .quantity-selector__control input::-webkit-outer-spin-button,
 .quantity-selector__control input::-webkit-inner-spin-button {
   -webkit-appearance: none;
+  appearance: none;
   margin: 0;
 }
 
@@ -325,7 +324,6 @@
 }
 
 .cart-summary-card__title {
-  font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem;
   color: #0a2240;
   margin-bottom: 1.5rem;
