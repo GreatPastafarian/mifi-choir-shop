@@ -142,6 +142,11 @@
 }
 
 @media (max-width: 768px) {
+    .header {
+        display: none;
+        /* Contextual Header Approach: Hide global header entirely on mobile */
+    }
+
     .header__mobile-toggle {
         display: none;
         /* Hidden because we use Bottom Nav */

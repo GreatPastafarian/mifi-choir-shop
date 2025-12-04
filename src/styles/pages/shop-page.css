@@ -333,3 +333,125 @@
     padding: 1.25rem;
   }
 }
+
+/* =========================================
+   MOBILE SPECIFIC STYLES (Restored & Refined)
+   ========================================= */
+
+/* Mobile Hero */
+.shop-hero--mobile {
+  padding: 3rem 0 2rem;
+  text-align: center;
+  background: radial-gradient(circle at 50% 0%, #1a3b5c 0%, #0a2240 100%);
+  position: relative;
+  min-height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-hero--mobile .shop-hero__container {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-bottom: 0;
+  width: 100%;
+}
+
+.shop-hero--mobile h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.2rem;
+  margin-bottom: 0.25rem;
+  color: #d4af37;
+  /* Gold */
+  text-transform: uppercase;
+  /* Match image: СУВЕНИРЫ */
+  letter-spacing: 2px;
+  font-weight: 400;
+}
+
+.shop-hero--mobile p {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: none;
+  /* Match image: Title/Sentence case */
+  letter-spacing: 0.5px;
+  font-weight: 400;
+  max-width: 280px;
+  margin: 0 auto;
+  line-height: 1.4;
+}
+
+/* Mobile Scroll Indicator */
+.mobile-scroll-indicator {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  opacity: 0.8;
+  /* Override desktop absolute positioning */
+  position: relative;
+  bottom: auto;
+  left: auto;
+  transform: none;
+}
+
+.mobile-scroll-indicator .shop-hero__scroll-text {
+  font-size: 0.7rem;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
+.mobile-scroll-indicator .shop-hero__scroll-arrow {
+  width: 16px;
+  height: 16px;
+  border-right: 1px solid #d4af37;
+  border-bottom: 1px solid #d4af37;
+  transform: rotate(45deg);
+  /* Ensure arrow rotation is kept */
+}
+
+/* Mobile Categories */
+.shop-categories--mobile {
+  padding: 2rem 0 2rem;
+}
+
+.shop-categories--mobile .shop-categories__header {
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.shop-categories--mobile .shop-categories__header h2 {
+  font-size: 1.8rem;
+}
+
+/* Mobile Grid (Explicit 2 Columns) */
+.categories-grid--mobile {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Force 2 columns */
+  gap: 12px;
+  padding: 0 12px;
+  align-content: start;
+}
+
+.categories-grid--mobile .category-card {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.categories-grid--mobile .category-card__content {
+  padding: 1rem;
+}
+
+.categories-grid--mobile .category-card__title {
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}

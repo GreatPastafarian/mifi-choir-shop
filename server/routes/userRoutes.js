@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authenticateToken } = require('../utils/middleware/authMiddleware');
+const { authenticateToken, optionalAuth } = require('../utils/middleware/authMiddleware');
 const userController = require('../controllers/userController');
 const { checkAdmin } = require('../utils/middleware/adminAuth');
 
@@ -24,7 +24,7 @@ router.put('/settings', authenticateToken, userController.updateNotificationSett
 
 // Маршруты для истории пожертвований
 router.get('/donations', authenticateToken, userController.getDonationHistory);
-router.post('/donations', authenticateToken, userController.addDonation);
+router.post('/donations', optionalAuth, userController.addDonation);
 
 router.post('/link-anonymous', authenticateToken, userController.linkAnonymousDonations);
 router.post('/check-anonymous', userController.checkAnonymousDonations);

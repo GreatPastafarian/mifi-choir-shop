@@ -230,6 +230,7 @@
 }
 
 /* Мобилка */
+/* Мобилка */
 @media (max-width: 768px) {
     .chat-widget-btn {
         display: none !important;

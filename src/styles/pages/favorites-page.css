@@ -8,6 +8,37 @@
   min-height: 60vh;
 }
 
+/* Mobile Header (Contextual) */
+.favorites-page__mobile-header {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: white;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  text-align: center;
+}
+
+.favorites-page__mobile-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 0;
+  color: #0a2240;
+}
+
+@media (max-width: 768px) {
+  .favorites-page__mobile-header {
+    display: block;
+  }
+
+  .favorites-page__header {
+    display: none;
+    /* Hide desktop header on mobile */
+  }
+}
+
 .favorites-page__container {
   max-width: 1200px;
   margin: 0 auto;
@@ -35,7 +66,8 @@
 
 .favorites-page__content {
   display: grid;
-  grid-template-columns: 1fr 380px; /* Сделал как в корзине: контент | саммари */
+  grid-template-columns: 1fr 380px;
+  /* Сделал как в корзине: контент | саммари */
   gap: 2rem;
   align-items: start;
 }
@@ -72,7 +104,8 @@
 /* --- Карточка товара --- */
 .favorite-item-card {
   display: grid;
-  grid-template-columns: 120px 1fr 200px; /* 3 колонки: Фото | Инфо | Действия */
+  grid-template-columns: 120px 1fr 200px;
+  /* 3 колонки: Фото | Инфо | Действия */
   gap: 1.5rem;
   padding-bottom: 1.5rem;
   border-bottom: 1px solid #f0f0f0;
@@ -120,7 +153,8 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 120px; /* Чтобы высота соответствовала картинке */
+  min-height: 120px;
+  /* Чтобы высота соответствовала картинке */
 }
 
 .favorite-item-card__info-link {
@@ -190,6 +224,7 @@
   padding: 1.5rem;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
 }
+
 .favorites-summary-card__title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.5rem;
@@ -198,9 +233,11 @@
   padding-bottom: 0.75rem;
   border-bottom: 2px solid #f5f0e5;
 }
+
 .favorites-summary-card__content {
   margin-bottom: 1.5rem;
 }
+
 .favorites-summary-card__row {
   display: flex;
   justify-content: space-between;
@@ -208,6 +245,7 @@
   border-bottom: 1px solid #f9f9f9;
   font-size: 1.05rem;
 }
+
 .favorites-summary-card__row--total {
   border-top: 2px solid #f0f0f0;
   border-bottom: none;
@@ -217,9 +255,11 @@
   padding-top: 1rem;
   color: #0a2240;
 }
+
 .favorites-summary-card__total-amount {
   color: #8d1f2c;
 }
+
 .favorites-summary-card__actions {
   display: flex;
   flex-direction: column;
@@ -234,6 +274,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 16px rgba(0, 0, 0, 0.05);
 }
+
 .favorites-page__empty-state p {
   font-size: 1.2rem;
   color: #666;
@@ -244,6 +285,7 @@
 .favorites-page__footer {
   margin-top: 3rem;
 }
+
 .favorites-page__donation-note {
   background-color: #f0f9ff;
   border: 1px solid #bae6fd;
@@ -251,6 +293,7 @@
   border-radius: 8px;
   color: #0c4a6e;
 }
+
 .favorites-page__donation-note p {
   margin: 0;
   line-height: 1.6;
@@ -259,24 +302,30 @@
 /* --- Адаптивность --- */
 @media (max-width: 992px) {
   .favorites-page__content {
-    grid-template-columns: 1fr; /* Одна колонка */
+    grid-template-columns: 1fr;
+    /* Одна колонка */
   }
+
   .favorites-page__summary {
     position: static;
-    order: -1; /* Саммари сверху */
+    order: -1;
+    /* Саммари сверху */
     margin-bottom: 2rem;
   }
 }
 
 @media (max-width: 768px) {
   .favorite-item-card {
-    grid-template-columns: 100px 1fr; /* Картинка | Инфо */
-    grid-template-rows: auto auto; /* Инфо | Кнопки внизу */
+    grid-template-columns: 100px 1fr;
+    /* Картинка | Инфо */
+    grid-template-rows: auto auto;
+    /* Инфо | Кнопки внизу */
     gap: 1rem;
   }
 
   .favorite-item-card__actions {
-    grid-column: 1 / -1; /* Кнопки на всю ширину снизу */
+    grid-column: 1 / -1;
+    /* Кнопки на всю ширину снизу */
     flex-direction: row;
   }
 
@@ -288,17 +337,21 @@
 
 @media (max-width: 576px) {
   .favorite-item-card {
-    grid-template-columns: 1fr; /* Все в столбик */
+    grid-template-columns: 1fr;
+    /* Все в столбик */
     text-align: center;
   }
+
   .favorite-item-card__image-wrapper {
     width: 100%;
     height: 200px;
     margin: 0 auto;
   }
+
   .favorite-item-card__actions {
     flex-direction: column;
   }
+
   .favorite-item-card__price-block {
     margin-top: 1rem;
   }

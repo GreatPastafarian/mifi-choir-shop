@@ -3,7 +3,24 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getAllCategories } from '../services/categoryService';
 import { useAuth } from '../context/AuthContext';
 import choirBackground from '../assets/images/choir-background.jpg';
-import { getImageUrl, getProductImageSet } from '../utils/imageUtils';
+import { getImageUrl } from '../utils/imageUtils';
+
+// Hook for media query
+const useMediaQuery = (query) => {
+  const [matches, setMatches] = useState(window.matchMedia(query).matches);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    if (media.matches !== matches) {
+      setMatches(media.matches);
+    }
+    const listener = () => setMatches(media.matches);
+    media.addListener(listener);
+    return () => media.removeListener(listener);
+  }, [matches, query]);
+
+  return matches;
+};
 
 function ShopPage({ addToCart }) {
   const [categories, setCategories] = useState([]);
@@ -11,6 +28,7 @@ function ShopPage({ addToCart }) {
   const [error, setError] = useState(null);
   const { isAdmin } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -52,61 +70,45 @@ function ShopPage({ addToCart }) {
 
   return (
     <div className="shop-page">
-      {/* Герой-баннер */}
-      {/* Герой-баннер */}
-      <section className="shop-hero">
-        <div className="container shop-hero__container">
-          <div className="shop-hero__content">
-            <h1>Сувенирная продукция <span className="text-accent">Академического Мужского Хора МИФИ</span></h1>
-            <p>Выберите вознаграждение за пожертвование и поддержите наш хор</p>
-          </div>
-          <div className="shop-hero__image-wrapper">
-            {/* Decorative image or logo */}
-            <img src={choirBackground} alt="Хор МИФИ" className="shop-hero__image" />
-          </div>
-        </div>
-        <div
-          className="shop-hero__scroll-indicator"
-          onClick={() => {
-            const categoriesSection = document.querySelector('.shop-categories');
-            if (categoriesSection) {
-              categoriesSection.scrollIntoView({ behavior: 'smooth' });
-            }
-          }}
-        >
-          <span className="shop-hero__scroll-text">Перейти к сувенирам</span>
-          <div className="shop-hero__scroll-arrow"></div>
-        </div>
-      </section>
+      {/* Mobile Header (Search & Filter) - REMOVED as per user request */}
 
-      {/* Категории товаров */}
-      <section className="shop-categories">
-        <div className="container">
-          <div className="shop-categories__header">
-            <h2>Категории товаров</h2>
-            {isAdmin && (
-              <Link to="/admin" className="btn secondary">
-                Админ-панель
-              </Link>
-            )}
-          </div>
-
-          {categories.length === 0 ? (
-            <div className="shop-categories__empty">
-              <p>Нет доступных категорий</p>
-              {isAdmin && (
-                <Link to="/admin" className="btn primary">
-                  Перейти в админ-панель
-                </Link>
-              )}
+      {isMobile ? (
+        // --- MOBILE VIEW ---
+        <>
+          <section className="shop-hero shop-hero--mobile">
+            <div className="container shop-hero__container">
+              <div className="shop-hero__content">
+                <h1>СУВЕНИРЫ</h1>
+                <p>Академического Мужского Хора МИФИ</p>
+                <div
+                  className="shop-hero__scroll-indicator mobile-scroll-indicator"
+                  onClick={() => {
+                    const categoriesSection = document.querySelector('.shop-categories');
+                    if (categoriesSection) {
+                      categoriesSection.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }}
+                >
+                  <span className="shop-hero__scroll-text">ПЕРЕЙТИ К СУВЕНИРАМ</span>
+                  <div className="shop-hero__scroll-arrow"></div>
+                </div>
+              </div>
             </div>
-          ) : (
-            <div className="categories-grid">
-              {categories.map((category) => {
-                const imageUrl = getImageUrl(category.image);
-                const { sm, srcSet } = getProductImageSet(imageUrl);
+          </section>
 
-                return (
+          <section className="shop-categories shop-categories--mobile">
+            <div className="container">
+              <div className="shop-categories__header">
+                <h2>Категории товаров</h2>
+                {isAdmin && (
+                  <Link to="/admin" className="btn secondary">
+                    Админ-панель
+                  </Link>
+                )}
+              </div>
+              {/* Mobile Grid (2 Columns) */}
+              <div className="categories-grid categories-grid--mobile">
+                {categories.map((category) => (
                   <div
                     key={category.id}
                     className="category-card"
@@ -114,41 +116,97 @@ function ShopPage({ addToCart }) {
                   >
                     <div className="category-image-wrapper">
                       <img
-                        className="category-image"
-                        src={sm}
-                        srcSet={srcSet}
-                        sizes="(max-width: 600px) 100vw, 300px"
+                        src={getImageUrl(category.image)}
                         alt={category.name}
-                        loading="lazy"
+                        className="category-image"
                       />
                     </div>
-
                     <div className="category-card__content">
-                      <h3 className="category-card__title">
-                        {category.name}
-                      </h3>
-
-                      <p className="category-card__description">
-                        {category.description || 'Описание категории'}
-                      </p>
-
-                      <button
-                        className="btn secondary category-card__button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/category/${category.id}`);
-                        }}
-                      >
-                        Смотреть товары
-                      </button>
+                      <h3 className="category-card__title">{category.name}</h3>
                     </div>
                   </div>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          )}
-        </div>
-      </section>
+          </section>
+        </>
+      ) : (
+        // --- DESKTOP VIEW (Restored) ---
+        <>
+          <section className="shop-hero">
+            <div className="container shop-hero__container">
+              <div className="shop-hero__content">
+                <h1>Сувенирная продукция <span className="text-accent">Академического Мужского Хора МИФИ</span></h1>
+                <p>Выберите вознаграждение за пожертвование и поддержите наш хор</p>
+              </div>
+              <div className="shop-hero__image-wrapper">
+                <img src={choirBackground} alt="Хор МИФИ" className="shop-hero__image" />
+              </div>
+            </div>
+            <div
+              className="shop-hero__scroll-indicator"
+              onClick={() => {
+                const categoriesSection = document.querySelector('.shop-categories');
+                if (categoriesSection) {
+                  categoriesSection.scrollIntoView({ behavior: 'smooth' });
+                }
+              }}
+            >
+              <span className="shop-hero__scroll-text">Перейти к сувенирам</span>
+              <div className="shop-hero__scroll-arrow"></div>
+            </div>
+          </section>
+
+          <section className="shop-categories">
+            <div className="container">
+              <div className="shop-categories__header">
+                <h2>Категории товаров</h2>
+                {isAdmin && (
+                  <Link to="/admin" className="btn secondary">
+                    Админ-панель
+                  </Link>
+                )}
+              </div>
+
+              {categories.length === 0 ? (
+                <div className="shop-categories__empty">
+                  <p>Нет доступных категорий</p>
+                  {isAdmin && (
+                    <Link to="/admin" className="btn primary">
+                      Перейти в админ-панель
+                    </Link>
+                  )}
+                </div>
+              ) : (
+                <div className="categories-grid">
+                  {categories.map((category) => (
+                    <div
+                      key={category.id}
+                      className="category-card"
+                      onClick={() => navigate(`/category/${category.id}`)}
+                    >
+                      <div className="category-image-wrapper">
+                        <img
+                          src={getImageUrl(category.image)}
+                          alt={category.name}
+                          className="category-image"
+                        />
+                      </div>
+                      <div className="category-card__content">
+                        <h3 className="category-card__title">{category.name}</h3>
+                        <p className="category-card__description">{category.description}</p>
+                        <button className="btn primary category-card__button">
+                          Перейти
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

@@ -12,3 +12,12 @@
  * This file is kept for potential future global overrides or legacy support if needed,
  * but should ideally remain empty or minimal.
  */
+
+/* Global Mobile Fixes */
+@media (max-width: 768px) {
+
+    /* Ensure content is not hidden behind the fixed Bottom Navigation */
+    main {
+        padding-bottom: 80px;
+    }
+}

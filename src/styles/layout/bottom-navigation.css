@@ -6,13 +6,15 @@
     left: 0;
     width: 100%;
     height: 60px;
-    background-color: #ffffff;
+    background-color: var(--nav-bg);
+    border-top: 1px solid var(--nav-border);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     z-index: 1000;
     justify-content: space-around;
     align-items: center;
     padding-bottom: env(safe-area-inset-bottom);
     /* For iPhone X+ */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 @media (max-width: 768px) {
@@ -27,7 +29,7 @@
     align-items: center;
     justify-content: center;
     text-decoration: none;
-    color: #888;
+    color: var(--nav-text);
     font-size: 10px;
     flex: 1;
     height: 100%;
@@ -35,8 +37,7 @@
 }
 
 .bottom-nav__item.active {
-    color: #d4af37;
-    /* Gold color matching the theme */
+    color: var(--nav-active);
 }
 
 .bottom-nav__icon {

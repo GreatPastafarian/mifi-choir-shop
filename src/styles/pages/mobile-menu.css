@@ -1,18 +1,7 @@
 .mobile-menu {
-    padding: 20px;
-    background-color: #f9f9f9;
+    padding: 16px;
+    background-color: #f5f5f5;
     min-height: 100vh;
-}
-
-.mobile-menu__header {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.mobile-menu__header h2 {
-    font-size: 24px;
-    color: #333;
-    margin: 0;
 }
 
 .mobile-menu__section {
@@ -24,12 +13,13 @@
 }
 
 .mobile-menu__title {
-    font-size: 16px;
+    font-size: 14px;
     color: #888;
     margin-top: 0;
     margin-bottom: 12px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 /* Profile Section */
@@ -73,32 +63,6 @@
     text-decoration: none;
 }
 
-/* Auth Buttons */
-.mobile-menu__auth-buttons {
-    display: flex;
-    gap: 10px;
-}
-
-.mobile-menu__btn {
-    flex: 1;
-    text-align: center;
-    padding: 10px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s;
-}
-
-.mobile-menu__btn--primary {
-    background-color: #d4af37;
-    color: white;
-}
-
-.mobile-menu__btn--secondary {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
 /* Lists */
 .mobile-menu__list {
     list-style: none;
@@ -114,12 +78,18 @@
     border-bottom: none;
 }
 
-.mobile-menu__list a {
+.mobile-menu__item-link,
+.mobile-menu__item-btn {
     display: block;
     padding: 12px 0;
     color: #333;
     text-decoration: none;
     font-size: 16px;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 /* Socials */

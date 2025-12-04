@@ -28,4 +28,28 @@
     --space-lg: 24px;
     --space-xl: 32px;
     --space-xxl: 48px;
+
+    /* --- THEMES FOUNDATION --- */
+    /* Default Theme (Blue) - Currently Active */
+    --nav-bg: #0a2240;
+    /* Dark Navy */
+    --nav-text: rgba(255, 255, 255, 0.6);
+    --nav-active: #d4af37;
+    /* Gold */
+    --nav-border: rgba(255, 255, 255, 0.1);
+}
+
+/* Future Themes (Placeholder) */
+[data-theme="light"] {
+    --nav-bg: #ffffff;
+    --nav-text: #666666;
+    --nav-active: #0a2240;
+    --nav-border: #eeeeee;
+}
+
+[data-theme="dark"] {
+    --nav-bg: #121212;
+    --nav-text: #aaaaaa;
+    --nav-active: #ffffff;
+    --nav-border: #333333;
 }
