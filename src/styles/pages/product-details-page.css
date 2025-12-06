@@ -15,6 +15,7 @@
     text-align: center;
     padding: 2rem;
 }
+
 .product-page__error-btn {
     margin-top: 1rem;
 }
@@ -23,19 +24,23 @@
 .product-page__breadcrumb {
     display: flex;
     align-items: center;
-    flex-wrap: wrap; /* Для мобильных */
+    flex-wrap: wrap;
+    /* Для мобильных */
     gap: 0.5rem;
     margin-bottom: 1.5rem;
     font-size: 1rem;
     color: #555;
 }
+
 .product-page__breadcrumb a {
     color: var(--color-primary, #8d1f2c);
     text-decoration: none;
 }
+
 .product-page__breadcrumb a:hover {
     text-decoration: underline;
 }
+
 .product-page__breadcrumb span:last-of-type {
     color: #777;
 }
@@ -43,7 +48,8 @@
 /* --- Основной контейнер (Сетка) --- */
 .product-page__main-content {
     display: grid;
-    grid-template-columns: 1fr; /* 1 колонка на мобильных */
+    grid-template-columns: 1fr;
+    /* 1 колонка на мобильных */
     gap: 2rem;
     margin-top: 1rem;
 }
@@ -75,6 +81,7 @@
     text-decoration: none;
     font-size: 0.9rem;
 }
+
 .product-page__admin-edit-link:hover {
     text-decoration: underline;
 }
@@ -149,16 +156,19 @@
 .product-page__variant-selector {
     margin-bottom: 2rem;
 }
+
 .product-page__variant-selector-title {
     margin-bottom: 1rem;
     font-weight: 600;
     font-size: 1.1rem;
 }
+
 .product-page__variant-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 0.5rem;
 }
+
 .product-page__variant-option {
     padding: 0.75rem;
     border: 1px solid #ddd;
@@ -167,30 +177,37 @@
     color: #333;
     transition: all var(--transition-normal);
 }
+
 .product-page__variant-option:not(:disabled) {
     cursor: pointer;
 }
+
 .product-page__variant-option:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     background-color: #f9f9f9;
 }
+
 .product-page__variant-option.selected {
     border-color: var(--color-primary, #8d1f2c);
     background-color: var(--color-primary, #8d1f2c);
     color: white;
     border-width: 2px;
-    padding: calc(0.75rem - 1px); /* Компенсация за border */
+    padding: calc(0.75rem - 1px);
+    /* Компенсация за border */
 }
+
 .product-page__variant-option-label {
     font-weight: 600;
 }
+
 .product-page__variant-option-price,
 .product-page__variant-option-stock {
     font-size: 0.85rem;
     margin-top: 0.25rem;
     opacity: 0.8;
 }
+
 .product-page__variant-option-stock {
     font-size: 0.75rem;
 }
@@ -243,10 +260,12 @@
     justify-content: center;
     transition: background-color 0.2s;
 }
+
 .product-page__quantity-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
 .product-page__quantity-btn:not(:disabled):hover {
     background-color: #f9f9f9;
 }
@@ -259,7 +278,9 @@
     border-radius: 4px;
     font-size: 1.1rem;
     -moz-appearance: textfield;
+    appearance: textfield;
 }
+
 .product-page__quantity-input::-webkit-outer-spin-button,
 .product-page__quantity-input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -279,6 +300,7 @@
     padding: 1rem;
     font-size: 1.1rem;
 }
+
 .product-page__add-btn:disabled {
     opacity: 0.7;
     cursor: not-allowed;
@@ -332,10 +354,12 @@
     flex-shrink: 0;
 }
 
+
 /* --- Адаптивность --- */
 @media (min-width: 768px) {
     .product-page__main-content {
-        grid-template-columns: 1fr 1fr; /* 2 колонки на десктопах */
+        grid-template-columns: 1fr 1fr;
+        /* 2 колонки на десктопах */
     }
 
     .product-page__quantity-header {
@@ -345,5 +369,212 @@
 
     .product-page__title {
         font-size: 2.5rem;
+    }
+}
+
+/* Mobile Specific Styles */
+@media (max-width: 768px) {
+    .product-page__container {
+        padding-top: 0.5rem;
+        padding-bottom: 100px;
+        /* Space for the new taller footer */
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    /* Hide Desktop Elements */
+    .desktop-only {
+        display: none !important;
+    }
+
+    /* Галерея: уменьшаем высоту чтобы влезло больше контента на 1й экран */
+    .product-page__main-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .product-gallery .product-gallery__main-wrapper {
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        aspect-ratio: 4 / 3;
+        /* More horizontal aspect ratio to save vertical space */
+    }
+
+    /* Инфо: убираем лишние отступы */
+    .product-page__info {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .product-page__meta {
+        /* Align to right */
+        margin-bottom: 0.25rem;
+        display: flex;
+        justify-content: flex-end;
+        /* Push to right */
+        align-items: center;
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .product-page__category-breadcrumb {
+        font-size: 0.8rem;
+        color: #888;
+        display: flex;
+        align-items: center;
+        background-color: #f9f9f9;
+        padding: 4px 10px;
+        border-radius: 12px;
+        border: 1px solid #eee;
+    }
+
+    .product-page__category-link {
+        color: #555;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.7rem;
+    }
+
+    .product-page__category-link:last-child {
+        color: var(--color-primary, #8d1f2c);
+        font-weight: 700;
+    }
+
+    .product-page__category-link:hover,
+    .product-page__category-link:active {
+        color: var(--color-primary, #8d1f2c);
+    }
+
+    .product-page__category-separator {
+        margin: 0 6px;
+        color: #ccc;
+        font-size: 0.7rem;
+    }
+
+    .product-page__title {
+        font-size: 1.6rem;
+        font-weight: 800;
+        margin-top: 0;
+        /* Remove top margin */
+        margin-bottom: 0.25rem;
+        color: #1a1a1a;
+        line-height: 1.1;
+        letter-spacing: -0.5px;
+    }
+
+    .product-page__price {
+        font-size: 1.4rem;
+        font-weight: 700;
+        color: var(--color-primary, #8d1f2c);
+        margin-bottom: 1rem;
+    }
+
+    /* Селекторы компактнее */
+    .product-page__selectors {
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .product-page__selector-title {
+        font-size: 0.95rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .product-page__option-btn {
+        height: 36px;
+        padding: 0 12px;
+        font-size: 0.9rem;
+    }
+
+    /* --- STICKY FOOTER --- */
+    .product-page__footer-controls {
+        position: fixed;
+        bottom: 56px;
+        /* Lifted to clear bottom navigation bar */
+        left: 0;
+        right: 0;
+        background-color: white;
+        padding: 12px 1rem 12px 1rem;
+        z-index: 1001;
+        /* Ensure it is above page content and other bars */
+        box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.1);
+
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        /* Ensure distinct separation from content */
+        border-top: 1px solid #f0f0f0;
+    }
+
+    /* Quantity Control in Footer */
+    .product-page__quantity-card {
+        background: none;
+        padding: 0;
+        margin: 0;
+        border-radius: 0;
+        flex-shrink: 0;
+        /* Don't shrink */
+        display: block;
+    }
+
+    .product-page__quantity-control {
+        display: flex;
+        align-items: center;
+        background-color: #f5f5f5;
+        border-radius: 8px;
+        padding: 2px;
+        float: none;
+    }
+
+    .product-page__quantity-btn {
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+        background: transparent;
+        border: none;
+    }
+
+    .product-page__quantity-input {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    /* Add to Cart Button in Footer */
+    .product-page__actions {
+        /* Override previous sticky styles */
+        position: static;
+        padding: 0;
+        box-shadow: none;
+        background: none;
+        margin: 0;
+        flex-grow: 1;
+        /* Take remaining space */
+        display: block;
+    }
+
+    .product-page__add-btn {
+        width: 100%;
+        height: 44px;
+        /* Slightly more compact height if needed, or 48 */
+        border-radius: 8px;
+        font-size: 1rem;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+
+    /* Description */
+    .product-page__description-section {
+        margin-top: 0;
+        padding-bottom: 2rem;
     }
 }

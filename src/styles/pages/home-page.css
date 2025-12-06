@@ -309,27 +309,50 @@
     font-weight: 600;
 }
 
-/* Mobile Scroll Container */
-.home-page__items-container.scroll-container {
+/* Unified Grid/Carousel Container */
+.home-page__popular-grid {
     display: flex;
-    overflow-x: auto;
+    /* Flex for mobile carousel */
     gap: 16px;
-    padding-bottom: 20px;
-    -webkit-overflow-scrolling: touch;
-    /* Show 1.5 items */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 10px;
+    /* Space for scrollbar if visible */
+    scrollbar-width: none;
+    /* Hide scrollbar Firefox */
+    -ms-overflow-style: none;
+    /* Hide scrollbar IE */
 }
 
-.home-page__items-container.scroll-container .home-page__item-wrapper {
-    min-width: 280px;
-    /* Fixed width to ensure next card is visible */
+.home-page__popular-grid::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar Chrome/Safari */
+}
+
+/* Ensure items don't shrink in carousel */
+.home-page__popular-grid .home-page__item-wrapper {
+    min-width: calc(50% - 8px);
+    /* Strictly fit 2 items with 16px gap */
+    width: calc(50% - 8px);
     flex-shrink: 0;
 }
 
-/* Desktop Grid Container */
-.home-page__items-container.grid-container {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+/* Desktop Overrides */
+@media (min-width: 769px) {
+    .home-page__popular-grid {
+        display: grid;
+        /* Back to grid for desktop */
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        overflow-x: visible;
+        padding-bottom: 0;
+    }
+
+    .home-page__popular-grid .home-page__item-wrapper {
+        min-width: auto;
+        /* Reset width */
+        width: auto;
+    }
 }
 
 /* --- ABOUT SECTION --- */

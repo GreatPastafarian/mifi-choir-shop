@@ -76,140 +76,140 @@ function ProductGallery({ images, inStock, selectionMade, isFavorite, toggleFavo
     if (validImages.length > 0) setIsLightboxOpen(true);
   };
 
-    const handleImageError = (index) => {
-      setImageError((prev) => ({ ...prev, [index]: true }));
+  const handleImageError = (index) => {
+    setImageError((prev) => ({ ...prev, [index]: true }));
+  };
+
+  // --- ЭФФЕКТ КЛАВИШ (Теперь функции уже определены) ---
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isLightboxOpen) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') nextImage(e);
+      if (e.key === 'ArrowLeft') prevImage(e);
     };
-
-    // --- ЭФФЕКТ КЛАВИШ (Теперь функции уже определены) ---
-    useEffect(() => {
-      const handleKeyDown = (e) => {
-        if (!isLightboxOpen) return;
-        if (e.key === 'Escape') closeLightbox();
-        if (e.key === 'ArrowRight') nextImage(e);
-        if (e.key === 'ArrowLeft') prevImage(e);
-      };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [isLightboxOpen, closeLightbox, nextImage, prevImage]);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isLightboxOpen, closeLightbox, nextImage, prevImage]);
 
 
-    // --- РЕНДЕРИНГ ---
+  // --- РЕНДЕРИНГ ---
 
-    // Текущее изображение
-    const currentImage = validImages[currentImageIndex];
-    const currentImageUrl = getImageUrl(currentImage);
-    const { srcSet: mainSrcSet, lg: mainLg } = getProductImageSet(currentImageUrl);
+  // Текущее изображение
+  const currentImage = validImages[currentImageIndex];
+  const currentImageUrl = getImageUrl(currentImage);
+  const { srcSet: mainSrcSet, lg: mainLg } = getProductImageSet(currentImageUrl);
 
-    const renderStockBadge = () => {
-      if (!selectionMade) return null;
-      return inStock > 0 ? (
-        <div className="product-gallery__badge product-gallery__badge--instock">В наличии ({inStock})</div>
-      ) : (
-        <div className="product-gallery__badge product-gallery__badge--outstock">Нет в наличии</div>
-      );
-    };
+  const renderStockBadge = () => {
+    if (!selectionMade) return null;
+    return inStock > 0 ? (
+      <div className="product-gallery__badge product-gallery__badge--instock">В наличии ({inStock})</div>
+    ) : (
+      <div className="product-gallery__badge product-gallery__badge--outstock">Нет в наличии</div>
+    );
+  };
 
-    return (
-      <div className="product-gallery">
+  return (
+    <div className="product-gallery">
       {/* === 1. ОБЫЧНЫЙ РЕЖИМ === */}
       <div className="product-gallery__main-wrapper" onClick={openLightbox}>
-      {validImages.length > 0 && !imageError[currentImageIndex] ? (
-        <img
-        className="product-gallery__main-img"
-        src={mainLg}
-        srcSet={mainSrcSet}
-        sizes="(max-width: 900px) 90vw, 50vw"
-        alt={`Товар ${currentImageIndex + 1}`}
-        loading="eager"
-        onError={() => handleImageError(currentImageIndex)}
-        />
-      ) : (
-        <div className="product-gallery__placeholder">
-        <div className="product-gallery__placeholder-icon"></div>
+        {validImages.length > 0 && !imageError[currentImageIndex] ? (
+          <img
+            className="product-gallery__main-img"
+            src={mainLg}
+            srcSet={mainSrcSet}
+            sizes="(max-width: 900px) 90vw, 50vw"
+            alt={`Товар ${currentImageIndex + 1}`}
+            loading="eager"
+            onError={() => handleImageError(currentImageIndex)}
+          />
+        ) : (
+          <div className="product-gallery__placeholder">
+            <div className="product-gallery__placeholder-icon"></div>
+          </div>
+        )}
+
+        <div className="product-gallery__overlay-hint">
+          <MdFullscreen /> Развернуть
         </div>
-      )}
 
-      <div className="product-gallery__overlay-hint">
-      <MdFullscreen /> Развернуть
-      </div>
+        {renderStockBadge()}
 
-      {renderStockBadge()}
-
-      {user && (
-        <button
-        type="button"
-        className="product-gallery__fav-btn"
-        onClick={(e) => { e.stopPropagation(); toggleFavorite(); }}
-        >
-        {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
-        </button>
-      )}
+        {user && (
+          <button
+            type="button"
+            className="product-gallery__fav-btn"
+            onClick={(e) => { e.stopPropagation(); toggleFavorite(); }}
+          >
+            {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+          </button>
+        )}
       </div>
 
       {/* Миниатюры */}
       {validImages.length > 1 && (
         <div className="product-gallery__thumbs">
-        {validImages.map((image, index) => {
-          if (imageError[index]) return null;
-          const thumbUrl = getImageUrl(image);
-          const { sm: thumbSm } = getProductImageSet(thumbUrl);
+          {validImages.map((image, index) => {
+            if (imageError[index]) return null;
+            const thumbUrl = getImageUrl(image);
+            const { sm: thumbSm } = getProductImageSet(thumbUrl);
 
-          return (
-            <img
-            key={index}
-            src={thumbSm}
-            alt={`Миниатюра ${index + 1}`}
-            className={`product-gallery__thumb ${currentImageIndex === index ? 'active' : ''}`}
-            loading="lazy"
-            onClick={() => setCurrentImageIndex(index)}
-            onError={() => handleImageError(index)}
-            />
-          );
-        })}
+            return (
+              <img
+                key={index}
+                src={thumbSm}
+                alt={`Миниатюра ${index + 1}`}
+                className={`product-gallery__thumb ${currentImageIndex === index ? 'active' : ''}`}
+                loading="lazy"
+                onClick={() => setCurrentImageIndex(index)}
+                onError={() => handleImageError(index)}
+              />
+            );
+          })}
         </div>
       )}
 
       {/* === 2. ЛАЙТБОКС === */}
       {isLightboxOpen && (
         <div className="lightbox" onClick={closeLightbox}>
-        <div className="lightbox__toolbar" onClick={(e) => e.stopPropagation()}>
-        <span className="lightbox__counter">
-        {currentImageIndex + 1} / {validImages.length}
-        </span>
-        <div className="lightbox__tools">
-        <button onClick={handleZoomOut} disabled={zoomLevel <= 1}><MdZoomOut /></button>
-        <button onClick={handleZoomIn} disabled={zoomLevel >= 3}><MdZoomIn /></button>
-        <button onClick={closeLightbox} className="lightbox__close"><MdClose /></button>
-        </div>
-        </div>
+          <div className="lightbox__toolbar" onClick={(e) => e.stopPropagation()}>
+            <span className="lightbox__counter">
+              {currentImageIndex + 1} / {validImages.length}
+            </span>
+            <div className="lightbox__tools">
+              <button onClick={handleZoomOut} disabled={zoomLevel <= 1}><MdZoomOut /></button>
+              <button onClick={handleZoomIn} disabled={zoomLevel >= 3}><MdZoomIn /></button>
+              <button onClick={closeLightbox} className="lightbox__close"><MdClose /></button>
+            </div>
+          </div>
 
-        <div
-        className="lightbox__content"
-        style={{ transform: `scale(${zoomLevel})` }}
-        onClick={(e) => e.stopPropagation()}
-        >
-        <img
-        src={mainLg}
-        alt="Full view"
-        className="lightbox__image"
-        draggable="false"
-        />
-        </div>
+          <div
+            className="lightbox__content"
+            style={{ transform: `scale(${zoomLevel})` }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={mainLg}
+              alt="Full view"
+              className="lightbox__image"
+              draggable="false"
+            />
+          </div>
 
-        {validImages.length > 1 && (
-          <>
-          <button className="lightbox__nav lightbox__nav--prev" onClick={prevImage}>
-          <MdArrowBackIos />
-          </button>
-          <button className="lightbox__nav lightbox__nav--next" onClick={nextImage}>
-          <MdArrowForwardIos />
-          </button>
-          </>
-        )}
+          {validImages.length > 1 && (
+            <>
+              <button className="lightbox__nav lightbox__nav--prev" onClick={prevImage}>
+                <MdArrowBackIos />
+              </button>
+              <button className="lightbox__nav lightbox__nav--next" onClick={nextImage}>
+                <MdArrowForwardIos />
+              </button>
+            </>
+          )}
         </div>
       )}
-      </div>
-    );
+    </div>
+  );
 }
 
 export default ProductGallery;

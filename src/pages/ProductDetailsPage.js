@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import useMediaQuery from '../hooks/useMediaQuery';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProductById, incrementViewCount } from '../services/productService';
 import { useAuth } from '../context/AuthContext';
@@ -14,6 +15,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const lastViewedIdRef = useRef(null);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   const [selectedAttributes, setSelectedAttributes] = useState({});
   const [quantity, setQuantity] = useState(1);
@@ -228,15 +230,18 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   return (
     <div className="product-details-page">
       <div className="product-page__container">
-        <div className="product-page__breadcrumb">
-          <Link to="/">Главная</Link>
-          <span>›</span>
-          <Link to="/shop">Каталог</Link>
-          <span>›</span>
-          <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
-          <span>›</span>
-          <span>{product.name}</span>
-        </div>
+        {/* Breadcrumbs - Hide on Mobile */}
+        {!isMobile && (
+          <div className="product-page__breadcrumb">
+            <Link to="/">Главная</Link>
+            <span>›</span>
+            <Link to="/shop">Каталог</Link>
+            <span>›</span>
+            <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
+            <span>›</span>
+            <span>{product.name}</span>
+          </div>
+        )}
 
         <div className="product-page__main-content">
           <ProductGallery
@@ -249,15 +254,23 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
           <div className="product-page__info">
             <div className="product-page__meta">
-              <span className="product-page__category-badge">
-                {product.category_name}
-              </span>
+              <div className="product-page__category-breadcrumb">
+                <Link to="/shop" className="product-page__category-link">Категории</Link>
+                <span className="product-page__category-separator"> : </span>
+                <Link
+                  to={`/category/${product.category_id}`}
+                  className="product-page__category-link"
+                >
+                  {product.category_name}
+                </Link>
+              </div>
+
               {isAdmin && (
                 <Link
                   to={`/admin/products/edit/${product.id}`}
                   className="product-page__admin-edit-link"
                 >
-                  Редактировать товар
+                  Редактировать
                 </Link>
               )}
             </div>
@@ -290,52 +303,56 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
               </div>
             )}
 
-            <div className="product-page__quantity-card">
-              <div className="product-page__quantity-header">
-                <label htmlFor="quantity" className="product-page__quantity-label">
-                  Количество:
-                </label>
-                <span className="product-page__quantity-total">
-                  {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
-                </span>
+            {/* Mobile Sticky Footer Container / Desktop Normal Flow */}
+            <div className="product-page__footer-controls">
+              <div className="product-page__quantity-card">
+                {/* Desktop Header for Quantity */}
+                <div className="product-page__quantity-header desktop-only">
+                  <label htmlFor="quantity" className="product-page__quantity-label">
+                    Количество:
+                  </label>
+                  <span className="product-page__quantity-total">
+                    {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
+                  </span>
+                </div>
+
+                <div className="product-page__quantity-control">
+                  <button
+                    className="product-page__quantity-btn"
+                    onClick={() => handleQuantityChange(-1)}
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <input
+                    type="number"
+                    id="quantity"
+                    className="product-page__quantity-input"
+                    value={quantity}
+                    onChange={handleQuantityInputChange}
+                    min="1"
+                    max={currentStock > 0 ? currentStock : 1}
+                    disabled={currentStock === 0}
+                  />
+                  <button
+                    className="product-page__quantity-btn"
+                    onClick={() => handleQuantityChange(1)}
+                    disabled={quantity >= currentStock || currentStock === 0}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
 
-              <div className="product-page__quantity-control">
+              <div className="product-page__actions">
                 <button
-                  className="product-page__quantity-btn"
-                  onClick={() => handleQuantityChange(-1)}
-                  disabled={quantity <= 1}
+                  className="btn primary product-page__add-btn"
+                  onClick={handleAddToCart}
+                  disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
                 >
-                  -
-                </button>
-                <input
-                  type="number"
-                  id="quantity"
-                  className="product-page__quantity-input"
-                  value={quantity}
-                  onChange={handleQuantityInputChange}
-                  min="1"
-                  max={currentStock > 0 ? currentStock : 1}
-                  disabled={currentStock === 0}
-                />
-                <button
-                  className="product-page__quantity-btn"
-                  onClick={() => handleQuantityChange(1)}
-                  disabled={quantity >= currentStock || currentStock === 0}
-                >
-                  +
+                  {currentStock > 0 ? (isMobile ? `В корзину (${quantity * displayPrice} ₽)` : 'Добавить в корзину') : 'Нет в наличии'}
                 </button>
               </div>
-            </div>
-
-            <div className="product-page__actions">
-              <button
-                className="btn primary product-page__add-btn"
-                onClick={handleAddToCart}
-                disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
-              >
-                {currentStock > 0 ? 'Добавить в корзину' : 'Нет в наличии'}
-              </button>
             </div>
           </div>
 

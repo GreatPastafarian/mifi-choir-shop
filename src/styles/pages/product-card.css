@@ -153,7 +153,6 @@
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
   }
@@ -182,7 +181,7 @@
   backdrop-filter: blur(2px);
 }
 
-/* (НОВОЕ) Продажи (слева внизу) */
+/* Продажи (слева внизу) */
 .product-card__sales {
   position: absolute;
   bottom: 8px;
@@ -191,8 +190,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background-color: rgba(46, 125, 50, 0.85);
-  /* Зеленоватый, чтобы отличался */
+  background-color: rgba(0, 0, 0, 0.6);
+  /* Полупрозрачный черный */
   color: #fff;
   padding: 4px 8px;
   border-radius: 12px;
@@ -211,11 +210,57 @@
 }
 
 /* Адаптивность */
-@media (max-width: 480px) {
+@media (max-width: 768px) {
+  .product-card {
+    border-radius: 6px;
+  }
+
+  .product-card__image-wrapper {
+    aspect-ratio: 1/1;
+  }
 
   .product-card__views,
   .product-card__sales {
     padding: 3px 6px;
     font-size: 0.7rem;
+  }
+
+  .product-card__price {
+    font-size: 1.4rem;
+  }
+
+  .product-card__title {
+    font-size: 1.1rem;
+    height: 2.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-card {
+    border-radius: 4px;
+  }
+
+  .product-card__image-wrapper {
+    aspect-ratio: 1/1;
+  }
+
+  .product-card__views,
+  .product-card__sales {
+    padding: 2px 5px;
+    font-size: 0.65rem;
+  }
+
+  .product-card__price {
+    font-size: 1.3rem;
+  }
+
+  .product-card__title {
+    font-size: 1rem;
+    height: 2.6rem;
+  }
+
+  .product-card__favorite-btn {
+    width: 32px;
+    height: 32px;
   }
 }

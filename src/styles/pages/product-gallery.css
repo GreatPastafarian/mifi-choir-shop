@@ -61,14 +61,42 @@
     top: 1rem;
     left: 1rem;
     color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    /* Pill shape but slightly more rectangular like screenshot */
+    font-size: 0.9rem;
+    font-weight: 500;
     z-index: 2;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
-.product-gallery__badge--instock { background-color: #4caf50; }
-.product-gallery__badge--outstock { background-color: #f44336; }
+
+@media (max-width: 768px) {
+    .product-gallery__badge {
+        top: 8px;
+        left: 8px;
+        padding: 2px 8px;
+        font-size: 0.75rem;
+    }
+
+    .product-gallery__fav-btn {
+        top: 8px;
+        right: 8px;
+        width: 32px;
+        height: 32px;
+    }
+
+    .product-gallery__fav-btn svg {
+        font-size: 1.2rem;
+    }
+}
+
+.product-gallery__badge--instock {
+    background-color: #4caf50;
+}
+
+.product-gallery__badge--outstock {
+    background-color: #f44336;
+}
 
 .product-gallery__fav-btn {
     position: absolute;
@@ -85,10 +113,17 @@
     cursor: pointer;
     z-index: 5;
     transition: all 0.2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.product-gallery__fav-btn:hover { transform: scale(1.1); }
-.product-gallery__fav-btn svg { font-size: 1.5rem; color: #d32f2f; }
+
+.product-gallery__fav-btn:hover {
+    transform: scale(1.1);
+}
+
+.product-gallery__fav-btn svg {
+    font-size: 1.5rem;
+    color: #d32f2f;
+}
 
 /* Миниатюры */
 .product-gallery__thumbs {
@@ -97,6 +132,7 @@
     overflow-x: auto;
     padding: 4px 0;
 }
+
 .product-gallery__thumb {
     width: 70px;
     height: 70px;
@@ -106,7 +142,11 @@
     cursor: pointer;
     transition: all 0.2s;
 }
-.product-gallery__thumb:hover { opacity: 0.8; }
+
+.product-gallery__thumb:hover {
+    opacity: 0.8;
+}
+
 .product-gallery__thumb.active {
     border-color: #8d1f2c;
     box-shadow: 0 0 0 2px rgba(141, 31, 44, 0.2);
@@ -122,8 +162,10 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(0, 0, 0, 0.92); /* Почти черный фон */
-    z-index: 9999; /* Поверх всего */
+    background-color: rgba(0, 0, 0, 0.92);
+    /* Почти черный фон */
+    z-index: 9999;
+    /* Поверх всего */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -131,8 +173,13 @@
 }
 
 @keyframes lightboxFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Верхняя панель (Счетчик и инструменты) */
@@ -147,7 +194,7 @@
     align-items: center;
     padding: 0 2rem;
     z-index: 10002;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
 }
 
 .lightbox__counter {
@@ -173,8 +220,15 @@
     align-items: center;
     padding: 5px;
 }
-.lightbox__tools button:hover { opacity: 1; }
-.lightbox__tools button:disabled { opacity: 0.3; cursor: default; }
+
+.lightbox__tools button:hover {
+    opacity: 1;
+}
+
+.lightbox__tools button:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
 
 /* Центральный контент */
 .lightbox__content {
@@ -183,14 +237,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.3s ease-out; /* Плавный зум */
+    transition: transform 0.3s ease-out;
+    /* Плавный зум */
 }
 
 .lightbox__image {
     max-width: 90vw;
     max-height: 85vh;
     object-fit: contain;
-    box-shadow: 0 0 50px rgba(0,0,0,0.5);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.5);
 }
 
 /* Навигация (Стрелки) */
@@ -212,12 +267,21 @@
     transition: all 0.2s;
     z-index: 10001;
 }
+
 .lightbox__nav:hover {
     background: rgba(255, 255, 255, 0.25);
     transform: translateY(-50%) scale(1.1);
 }
-.lightbox__nav--prev { left: 2rem; padding-left: 5px; }
-.lightbox__nav--next { right: 2rem; padding-left: 5px; }
+
+.lightbox__nav--prev {
+    left: 2rem;
+    padding-left: 5px;
+}
+
+.lightbox__nav--next {
+    right: 2rem;
+    padding-left: 5px;
+}
 
 /* Адаптивность Лайтбокса */
 @media (max-width: 768px) {
@@ -226,7 +290,16 @@
         height: 40px;
         font-size: 1.5rem;
     }
-    .lightbox__nav--prev { left: 10px; }
-    .lightbox__nav--next { right: 10px; }
-    .lightbox__toolbar { padding: 0 1rem; }
+
+    .lightbox__nav--prev {
+        left: 10px;
+    }
+
+    .lightbox__nav--next {
+        right: 10px;
+    }
+
+    .lightbox__toolbar {
+        padding: 0 1rem;
+    }
 }

@@ -1,0 +1,54 @@
+/* Related Products Component */
+.related-products {
+    margin-top: 2rem;
+    padding: 0 1rem;
+}
+
+.related-products__title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    text-align: center;
+    font-family: var(--font-primary, sans-serif);
+    color: var(--color-text-primary, #333);
+}
+
+.related-products__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Mobile Adaptation */
+@media (max-width: 768px) {
+    .related-products__title {
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: left;
+        /* Aligned left on mobile typically looks better or keep center? plan said streamline */
+    }
+
+    .related-products__grid {
+        display: flex;
+        /* Horizontal Scroll similar to Home Page */
+        overflow-x: auto;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .related-products__grid::-webkit-scrollbar {
+        display: none;
+    }
+
+    .related-products__grid>* {
+        min-width: 160px;
+        /* Smaller cards for mobile */
+        width: 160px;
+        flex-shrink: 0;
+        scroll-snap-align: start;
+    }
+}

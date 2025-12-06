@@ -7,28 +7,15 @@ import { useAuth } from '../context/AuthContext';
 // Импортируем сервисы для получения данных
 import { getPopularProducts } from '../services/productService';
 
-// Hook for media query
-const useMediaQuery = (query) => {
-  const [matches, setMatches] = useState(window.matchMedia(query).matches);
+import useMediaQuery from '../hooks/useMediaQuery';
 
-  useEffect(() => {
-    const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
-    const listener = () => setMatches(media.matches);
-    media.addListener(listener);
-    return () => media.removeListener(listener);
-  }, [matches, query]);
-
-  return matches;
-};
 
 function HomePage({ addToCart }) {
   const [popularProducts, setPopularProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const { favorites = [], toggleFavorite } = useAuth();
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const carouselRef = React.useRef(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -49,6 +36,40 @@ function HomePage({ addToCart }) {
 
     fetchData();
   }, []);
+
+  // Auto-scroll effect
+  useEffect(() => {
+    if (!isMobile || loading || popularProducts.length === 0) return;
+
+    const container = carouselRef.current;
+    if (!container) return;
+
+    // let scrollAmount = 0; // Removed unused
+    const scrollStep = container.offsetWidth * 0.8; // Scroll 80% of screen width
+    const scrollInterval = 4000; // 4 seconds
+
+    const scroll = () => {
+      if (!container) return;
+
+      // Check if user is interacting (optional, simple check via class/flag could differ, 
+      // but simplistic auto-scroll usually just runs. We'll add pause on hover via CSS/event listeners if needed complex logic,
+      // but for now simple interval).
+      // actually, let's reset to 0 if at end.
+
+      if (container.scrollLeft + container.offsetWidth >= container.scrollWidth - 10) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        container.scrollBy({ left: scrollStep, behavior: 'smooth' });
+      }
+    };
+
+    const intervalId = setInterval(scroll, scrollInterval);
+
+    // Pause on touch (simple cleanup)
+    // Restart logic is complex without more state, for now basic auto-scroll that stops on unmount
+
+    return () => clearInterval(intervalId);
+  }, [isMobile, loading, popularProducts]);
 
   if (loading) {
     return (
@@ -165,7 +186,7 @@ function HomePage({ addToCart }) {
             {isMobile && <Link to="/shop" className="home-page__popular-link">Все</Link>}
           </div>
 
-          <div className={`home-page__items-container ${isMobile ? 'scroll-container' : 'grid-container'}`}>
+          <div className="home-page__popular-grid" ref={carouselRef}>
             {popularProducts.map((product) => (
               <div key={product.id} className="home-page__item-wrapper">
                 <ProductCard
