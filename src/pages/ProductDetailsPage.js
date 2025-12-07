@@ -40,8 +40,6 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
 
         setProduct(productData);
 
-        // Исправление: обновляем ref ДО асинхронного вызова, чтобы предотвратить гонку условий
-        // в React StrictMode, где эффект запускается дважды почти одновременно.
         if (lastViewedIdRef.current !== productId) {
           lastViewedIdRef.current = productId;
           try {
@@ -210,7 +208,7 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   if (loading) {
     return (
       <div className="product-page__container product-page__container--centered">
-        <h1>Загрузка товара...</h1>
+      <h1>Загрузка товара...</h1>
       </div>
     );
   }
@@ -218,168 +216,285 @@ function ProductDetailsPage({ addToCart, toggleFavorite, favorites = [] }) {
   if (error || !product) {
     return (
       <div className="product-page__container product-page__container--centered">
-        <h1>Товар не найден</h1>
-        <p>Извините, запрашиваемый товар не существует.</p>
-        <Link to="/shop" className="btn primary product-page__error-btn">
-          Вернуться в магазин
-        </Link>
+      <h1>Товар не найден</h1>
+      <p>Извините, запрашиваемый товар не существует.</p>
+      <Link to="/shop" className="btn primary product-page__error-btn">
+      Вернуться в магазин
+      </Link>
       </div>
     );
   }
 
+  // Текст для кнопки в зависимости от состояния
+  const getButtonText = () => {
+    if (currentStock === 0) return 'Нет в наличии';
+    if (hasAttributes && !selectedVariant) return 'Выберите опции';
+    return isMobile ? 'В корзину' : 'Добавить в корзину';
+  };
+
+  // Статус наличия текстом
+  const getStockStatusText = () => {
+    if (currentStock === 0) return 'Нет в наличии';
+    if (currentStock < 10) return `Осталось ${currentStock} шт.`;
+    return 'В наличии';
+  };
+
   return (
     <div className="product-details-page">
-      <div className="product-page__container">
-        {/* Breadcrumbs - Hide on Mobile */}
-        {!isMobile && (
-          <div className="product-page__breadcrumb">
-            <Link to="/">Главная</Link>
-            <span>›</span>
-            <Link to="/shop">Каталог</Link>
-            <span>›</span>
-            <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
-            <span>›</span>
-            <span>{product.name}</span>
-          </div>
-        )}
-
-        <div className="product-page__main-content">
-          <ProductGallery
-            images={product.images}
-            inStock={currentStock}
-            selectionMade={!!selectedVariant}
-            isFavorite={isFavorite}
-            toggleFavorite={handleToggleFavorite}
-          />
-
-          <div className="product-page__info">
-            <div className="product-page__meta">
-              <div className="product-page__category-breadcrumb">
-                <Link to="/shop" className="product-page__category-link">Категории</Link>
-                <span className="product-page__category-separator"> : </span>
-                <Link
-                  to={`/category/${product.category_id}`}
-                  className="product-page__category-link"
-                >
-                  {product.category_name}
-                </Link>
-              </div>
-
-              {isAdmin && (
-                <Link
-                  to={`/admin/products/edit/${product.id}`}
-                  className="product-page__admin-edit-link"
-                >
-                  Редактировать
-                </Link>
-              )}
-            </div>
-
-            <h1 className="product-page__title">{product.name}</h1>
-
-            <div className="product-page__price">
-              {displayPrice} ₽
-            </div>
-
-            {hasAttributes && (
-              <div className="product-page__selectors">
-                {attributeKeys.map((name) => (
-                  <div key={name} className="product-page__selector">
-                    <h3 className="product-page__selector-title">{name}:</h3>
-                    <div className="product-page__selector-options">
-                      {availableAttributes[name].map((value) => (
-                        <button
-                          key={value}
-                          className={`product-page__option-btn ${selectedAttributes[name] === value ? 'selected' : ''
-                            }`}
-                          onClick={() => handleAttributeSelect(name, value)}
-                        >
-                          {value}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Mobile Sticky Footer Container / Desktop Normal Flow */}
-            <div className="product-page__footer-controls">
-              <div className="product-page__quantity-card">
-                {/* Desktop Header for Quantity */}
-                <div className="product-page__quantity-header desktop-only">
-                  <label htmlFor="quantity" className="product-page__quantity-label">
-                    Количество:
-                  </label>
-                  <span className="product-page__quantity-total">
-                    {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
-                  </span>
-                </div>
-
-                <div className="product-page__quantity-control">
-                  <button
-                    className="product-page__quantity-btn"
-                    onClick={() => handleQuantityChange(-1)}
-                    disabled={quantity <= 1}
-                  >
-                    -
-                  </button>
-                  <input
-                    type="number"
-                    id="quantity"
-                    className="product-page__quantity-input"
-                    value={quantity}
-                    onChange={handleQuantityInputChange}
-                    min="1"
-                    max={currentStock > 0 ? currentStock : 1}
-                    disabled={currentStock === 0}
-                  />
-                  <button
-                    className="product-page__quantity-btn"
-                    onClick={() => handleQuantityChange(1)}
-                    disabled={quantity >= currentStock || currentStock === 0}
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div className="product-page__actions">
-                <button
-                  className="btn primary product-page__add-btn"
-                  onClick={handleAddToCart}
-                  disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
-                >
-                  {currentStock > 0 ? (isMobile ? `В корзину (${quantity * displayPrice} ₽)` : 'Добавить в корзину') : 'Нет в наличии'}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="product-page__description-section">
-            <h2 className="product-page__description-title">Описание</h2>
-            <div className="product-page__description-content">
-              <p>{product.description}</p>
-              {product.materials && (
-                <>
-                  <h3>Материалы и особенности</h3>
-                  <p>{product.materials}</p>
-                </>
-              )}
-              {product.details && product.details.length > 0 && (
-                <ul className="product-page__details-list">
-                  {product.details.map((detail, index) => (
-                    <li key={index} className="product-page__details-item">
-                      <MdCheckCircle size={16} className="product-page__details-icon" />
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-        </div>
+    <div className="product-page__container">
+    {/* Breadcrumbs - только для десктопа */}
+    {!isMobile && (
+      <div className="product-page__breadcrumb">
+      <Link to="/">Главная</Link>
+      <span>›</span>
+      <Link to="/shop">Каталог</Link>
+      <span>›</span>
+      <Link to={`/category/${product.category_id}`}>{product.category_name}</Link>
+      <span>›</span>
+      <span>{product.name}</span>
       </div>
+    )}
+
+    <div className="product-page__main-content">
+    <ProductGallery
+    images={product.images}
+    isFavorite={isFavorite}
+    toggleFavorite={handleToggleFavorite}
+    />
+
+    <div className="product-page__info">
+    {/* Для мобильных: заголовок и категория в одной строке */}
+    {isMobile ? (
+      <div className="product-page__mobile-header-row">
+      <h1 className="product-page__title">{product.name}</h1>
+      <div className="product-page__category-breadcrumb">
+      <Link to="/shop" className="product-page__category-link">Категории</Link>
+      <span className="product-page__category-separator"> : </span>
+      <Link
+      to={`/category/${product.category_id}`}
+      className="product-page__category-link"
+      >
+      {product.category_name}
+      </Link>
+      </div>
+      </div>
+    ) : (
+      // Для десктопа
+      <>
+      <div className="product-page__meta">
+      <span className="product-page__category-badge">
+      {product.category_name}
+      </span>
+      {isAdmin && (
+        <Link
+        to={`/admin/products/edit/${product.id}`}
+        className="product-page__admin-edit-link"
+        >
+        Редактировать товар
+        </Link>
+      )}
+      </div>
+      <h1 className="product-page__title">{product.name}</h1>
+      </>
+    )}
+
+    {/* Цена */}
+    <div className="product-page__price">{displayPrice} ₽</div>
+
+    {hasAttributes && (
+      <div className="product-page__selectors">
+      {attributeKeys.map((name) => (
+        <div key={name} className="product-page__selector">
+        <div className="product-page__selector-header">
+        <h3 className="product-page__selector-title">{name}:</h3>
+        {selectedAttributes[name] && (() => {
+          const tempVariant = product.variants.find(v =>
+          attributeKeys.every(key =>
+          selectedAttributes[key] === v.attributes[key]
+          )
+          );
+          if (tempVariant && !tempVariant.is_available) {
+            return (
+              <span className="product-page__selector-warning">
+              Выбранный вариант недоступен
+              </span>
+            );
+          }
+          return null;
+        })()}
+        </div>
+        <div className="product-page__selector-options">
+        {availableAttributes[name].map((value) => {
+          const tempAttributes = { ...selectedAttributes, [name]: value };
+          const tempVariant = product.variants.find(v =>
+          attributeKeys.every(key =>
+          tempAttributes[key] === v.attributes[key]
+          )
+          );
+          const isAvailable = tempVariant?.is_available && tempVariant.quantity > 0;
+
+          return (
+            <button
+            key={value}
+            className={`product-page__option-btn ${selectedAttributes[name] === value ? 'selected' : ''} ${!isAvailable ? 'unavailable' : ''}`}
+            onClick={() => isAvailable && handleAttributeSelect(name, value)}
+            disabled={!isAvailable}
+            title={!isAvailable ? "Нет в наличии" : ""}
+            >
+            {value}
+            {!isAvailable && <span className="product-page__option-stock"> (нет)</span>}
+            </button>
+          );
+        })}
+        </div>
+        </div>
+      ))}
+      </div>
+    )}
+
+    {/* Для десктопа: количество и кнопка в основном потоке */}
+    {!isMobile && (
+      <>
+      <div className="product-page__quantity-card">
+      <div className="product-page__quantity-header">
+      <label htmlFor="quantity" className="product-page__quantity-label">
+      Количество:
+      </label>
+      <div className="product-page__quantity-info">
+      <span className="product-page__quantity-total">
+      {quantity} × {displayPrice} ₽ = {quantity * displayPrice} ₽
+      </span>
+      <span className={`product-page__quantity-stock ${currentStock === 0 ? 'out-of-stock' : currentStock < 10 ? 'low-stock' : 'in-stock'}`}>
+      {getStockStatusText()}
+      </span>
+      </div>
+      </div>
+
+      <div className="product-page__quantity-control">
+      <button
+      className="product-page__quantity-btn"
+      onClick={() => handleQuantityChange(-1)}
+      disabled={quantity <= 1 || currentStock === 0}
+      >
+      -
+      </button>
+      <input
+      type="number"
+      id="quantity"
+      className="product-page__quantity-input"
+      value={quantity}
+      onChange={handleQuantityInputChange}
+      min="1"
+      max={currentStock > 0 ? currentStock : 1}
+      disabled={currentStock === 0}
+      />
+      <button
+      className="product-page__quantity-btn"
+      onClick={() => handleQuantityChange(1)}
+      disabled={quantity >= currentStock || currentStock === 0}
+      >
+      +
+      </button>
+      </div>
+      </div>
+
+      <div className="product-page__actions">
+      <button
+      className={`btn ${currentStock > 0 && (!hasAttributes || selectedVariant) ? 'primary' : 'disabled'} product-page__add-btn`}
+      onClick={handleAddToCart}
+      disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
+      >
+      {getButtonText()}
+      </button>
+      </div>
+      </>
+    )}
+    </div>
+
+    <div className="product-page__description-section">
+    <h2 className="product-page__description-title">Описание</h2>
+    <div className="product-page__description-content">
+    <p>{product.description}</p>
+    {product.materials && (
+      <>
+      <h3>Материалы и особенности</h3>
+      <p>{product.materials}</p>
+      </>
+    )}
+    {product.details && product.details.length > 0 && (
+      <ul className="product-page__details-list">
+      {product.details.map((detail, index) => (
+        <li key={index} className="product-page__details-item">
+        <MdCheckCircle size={16} className="product-page__details-icon" />
+        {detail}
+        </li>
+      ))}
+      </ul>
+    )}
+    </div>
+    </div>
+    </div>
+    </div>
+
+    {/* Для мобильных: фиксированная панель с количеством, наличием и кнопкой */}
+    {isMobile && (
+      <div className="product-page__footer-controls">
+      <div className="product-page__footer-grid">
+      {/* Левая колонка, верхняя ячейка - количество */}
+      <div className="product-page__quantity-control">
+      <button
+      className="product-page__quantity-btn"
+      onClick={() => handleQuantityChange(-1)}
+      disabled={quantity <= 1 || currentStock === 0}
+      >
+      -
+      </button>
+      <input
+      type="number"
+      id="quantity"
+      className="product-page__quantity-input"
+      value={quantity}
+      onChange={handleQuantityInputChange}
+      min="1"
+      max={currentStock > 0 ? currentStock : 1}
+      disabled={currentStock === 0}
+      />
+      <button
+      className="product-page__quantity-btn"
+      onClick={() => handleQuantityChange(1)}
+      disabled={quantity >= currentStock || currentStock === 0}
+      >
+      +
+      </button>
+      </div>
+
+      {/* Правая колонка, верхняя ячейка - расчет */}
+      <div className="product-page__price-calculation">
+      <span className="product-page__price-formula">
+      {displayPrice} ₽ × {quantity} = <span className="product-page__total-sum">{quantity * displayPrice} ₽</span>
+      </span>
+      </div>
+
+      {/* Левая колонка, нижняя ячейка - статус */}
+      <div className="product-page__stock-status">
+      <span className={`product-page__stock-badge ${currentStock === 0 ? 'out-of-stock' : currentStock < 10 ? 'low-stock' : 'in-stock'}`}>
+      {getStockStatusText()}
+      </span>
+      </div>
+
+      {/* Правая колонка, нижняя ячейка - кнопка */}
+      <div className="product-page__add-button">
+      <button
+      className={`btn ${currentStock > 0 && (!hasAttributes || selectedVariant) ? 'primary' : 'disabled'}`}
+      onClick={handleAddToCart}
+      disabled={currentStock === 0 || (hasAttributes && !selectedVariant)}
+      >
+      В корзину
+      </button>
+      </div>
+      </div>
+      </div>
+    )}
     </div>
   );
 }
